@@ -27,7 +27,7 @@ end $$;
 grant usage on schema public, auth to anon, authenticated;
 create table auth.users (id uuid primary key, email text);
 create function auth.uid() returns uuid language sql stable as $$
-  select nullif(current_setting('request.jwt.claims', true), '')::json ->> 'sub'
+  select (nullif(current_setting('request.jwt.claims', true), '')::json ->> 'sub')::uuid
 $$;
 """
 
