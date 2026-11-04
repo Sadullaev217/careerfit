@@ -10,6 +10,41 @@ USER_ID = "11111111-1111-1111-1111-111111111111"
 OTHER_USER_ID = "22222222-2222-2222-2222-222222222222"
 PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
 
+VALID_PROFILE: dict[str, Any] = {
+    "skills": [
+        {"name": "Python", "name_en": "Python", "level": "advanced", "years": 5, "confidence": 1},
+        {"name": "SQL", "name_en": "SQL", "level": "unknown", "years": None, "confidence": 0.9},
+    ],
+    "work_history": [
+        {
+            "title": "Developer",
+            "title_en": "Developer",
+            "employer": "Acme",
+            "start_date": "2020-01",
+            "end_date": None,
+            "is_current": True,
+            "confidence": 1,
+        }
+    ],
+    "education": [
+        {
+            "degree": "BSc",
+            "field_of_study": "Computing",
+            "institution": "Riverton University",
+            "end_year": 2019,
+            "confidence": 1,
+        }
+    ],
+    "certifications": [{"name": "AWS Developer", "issuer": "Amazon", "year": 2021, "confidence": 1}],
+    "languages": [{"name_en": "English", "level": "native", "confidence": 1}],
+    "projects": [{"name": "Ledger", "demonstrates_en": ["Python"], "confidence": 1}],
+    "industry_en": "Software",
+    "industry_confidence": 0.9,
+    "seniority": "mid",
+    "seniority_confidence": 0.8,
+    "flags": [],
+}
+
 
 def make_token(key: Any = PRIVATE_KEY, algorithm: str = "ES256", **overrides: Any) -> str:
     claims = {
@@ -34,6 +69,42 @@ class FakeStore:
         self.calls: list[str] = []
         self.download_error: Exception | None = None
         self.download_calls = 0
+        self.saved_extractions: dict[str, dict[str, Any]] = {}
+        self.profile_skills: list[dict[str, Any]] = []
+        self.skill_matches: dict[str, dict[str, Any] | None] = {}
+
+    def get_parsed_text(self, document_id: str) -> str | None:
+        row = self.documents.get(document_id)
+        return row.get("parsed_text") if row else None
+
+    def match_skill(self, embedding: list[float]) -> dict[str, Any] | None:
+        return self.skill_matches.get(str(embedding[0]))
+
+    def save_extraction(
+        self,
+        document_id: str,
+        user_id: str,
+        profile: dict[str, Any],
+        prompt_version: str,
+        model: str,
+        truncated: bool,
+        suspicious_content: bool,
+        skills: list[dict[str, Any]],
+    ) -> None:
+        self.saved_extractions[document_id] = {
+            "user_id": user_id,
+            "data": profile,
+            "prompt_version": prompt_version,
+            "model": model,
+            "truncated": truncated,
+            "suspicious_content": suspicious_content,
+            "created_at": "2026-11-04T00:00:00+00:00",
+        }
+        self.profile_skills = skills
+
+    def get_extracted_profile(self, document_id: str, user_id: str) -> dict[str, Any] | None:
+        row = self.saved_extractions.get(document_id)
+        return row if row and row["user_id"] == user_id else None
 
     def insert_document(self, row: dict[str, Any]) -> dict[str, Any]:
         document_id = row.get("id") or str(uuid4())

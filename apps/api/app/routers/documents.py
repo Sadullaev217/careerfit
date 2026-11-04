@@ -35,6 +35,14 @@ ERROR_MESSAGES = {
     "github_unavailable": "GitHub isn't available right now. Please try again later.",
 }
 
+EXTRACTION_ERROR_MESSAGES = {
+    "invalid_model_output": "We couldn't understand this resume. Please try again.",
+    "ai_unavailable": "Resume analysis isn't available right now. Please try again later.",
+    "queue_unavailable": "Resume analysis isn't available right now. Please try again later.",
+    "timeout": "Analysing this resume took too long. Please try again.",
+    "extraction_error": "Something went wrong analysing this resume. Please try again.",
+}
+
 
 class DocumentResponse(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
@@ -46,6 +54,18 @@ class DocumentResponse(BaseModel):
     status: str
     error_code: str | None
     error_message: str | None
+    extraction_status: str | None
+    extraction_error_message: str | None
+    created_at: str
+
+
+class ExtractedProfileResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    profile: dict[str, Any]
+    prompt_version: str
+    model: str
+    truncated: bool
     created_at: str
 
 
@@ -55,6 +75,7 @@ class PortfolioLinkRequest(BaseModel):
 
 def _to_response(row: dict[str, Any]) -> DocumentResponse:
     code = row.get("error_code")
+    extraction_code = row.get("extraction_error")
     return DocumentResponse(
         id=row["id"],
         type=row["type"],
@@ -63,6 +84,10 @@ def _to_response(row: dict[str, Any]) -> DocumentResponse:
         status=row["status"],
         error_code=code,
         error_message=ERROR_MESSAGES.get(code) if code else None,
+        extraction_status=row.get("extraction_status"),
+        extraction_error_message=(
+            EXTRACTION_ERROR_MESSAGES.get(extraction_code) if extraction_code else None
+        ),
         created_at=row["created_at"],
     )
 
@@ -168,6 +193,20 @@ def _owned_document(document_id: UUID, user: CurrentUser) -> dict[str, Any]:
 @router.get("/{document_id}/status", response_model=DocumentResponse)
 def document_status(document_id: UUID, user: User) -> DocumentResponse:
     return _to_response(_owned_document(document_id, user))
+
+
+@router.get("/{document_id}/profile", response_model=ExtractedProfileResponse)
+def document_profile(document_id: UUID, user: User) -> ExtractedProfileResponse:
+    row = store.get_extracted_profile(str(document_id), user.id)
+    if row is None:
+        raise _error(status.HTTP_404_NOT_FOUND, "not_found", "No analysis for this document yet.")
+    return ExtractedProfileResponse(
+        profile=row["data"],
+        prompt_version=row["prompt_version"],
+        model=row["model"],
+        truncated=row["truncated"],
+        created_at=row["created_at"],
+    )
 
 
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)

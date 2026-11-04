@@ -49,6 +49,33 @@ Without Docker, set `CELERY_TASK_ALWAYS_EAGER=true` in `apps/api/.env` to parse 
 
 Scanned PDFs need [Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) with the English and Russian language data on the PATH of whichever process does the parsing. Without it, scans fail with a clear message and other files still work.
 
+## AI (local)
+
+Resumes are read by a model running on your own machine through [Ollama](https://ollama.com), so resume text doesn't leave it.
+
+```bash
+ollama pull qwen3.5:4b
+```
+
+Skills are matched against ESCO, the EU's skills classification. Load it once per database:
+
+```bash
+cd apps/api
+uv run --extra dev python -m scripts.seed_esco
+```
+
+Measure accuracy after changing the prompt, the model or the matching threshold. These need Ollama and the loaded skills:
+
+```bash
+uv run --extra dev python -m eval.run_eval
+```
+
+```bash
+uv run --extra dev python -m eval.run_mapping_eval
+```
+
+All AI calls go through `apps/api/app/llm.py`, so moving to a hosted provider means adding one class there. A live deployment needs a GPU server or a hosted provider, and hosted providers must not reuse resume text for training.
+
 ## Checks
 
 ```bash

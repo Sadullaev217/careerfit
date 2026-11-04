@@ -32,6 +32,7 @@ create table storage.buckets (
 do $$ begin
   if not exists (select from pg_roles where rolname = 'anon') then create role anon; end if;
   if not exists (select from pg_roles where rolname = 'authenticated') then create role authenticated; end if;
+  if not exists (select from pg_roles where rolname = 'service_role') then create role service_role; end if;
 end $$;
 grant usage on schema public, auth to anon, authenticated;
 create table auth.users (id uuid primary key, email text);
@@ -147,6 +148,75 @@ def test_user_cannot_write_server_owned_data(conn: psycopg.Connection, statement
     act_as(conn, ALICE)
     with pytest.raises(psycopg.errors.InsufficientPrivilege):
         conn.execute(statement.encode())
+
+
+def add_extraction(conn: psycopg.Connection, user_id: str) -> str:
+    conn.execute("reset role")
+    row = conn.execute(
+        "insert into public.documents (user_id, type, file_name) "
+        "values (%s, 'resume', 'cv.pdf') returning id",
+        (user_id,),
+    ).fetchone()
+    assert row
+    document_id = str(row[0])
+    conn.execute(
+        "insert into public.extracted_profiles (document_id, user_id, data, prompt_version, model) "
+        "values (%s, %s, '{}', 'v1', 'm')",
+        (document_id, user_id),
+    )
+    return document_id
+
+
+def test_extracted_profiles_are_private(conn: psycopg.Connection) -> None:
+    add_extraction(conn, ALICE)
+    act_as(conn, BOB)
+    assert count(conn, "extracted_profiles") == 0
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute("update public.extracted_profiles set model = 'x'")
+    act_as(conn, ALICE)
+    assert count(conn, "extracted_profiles") == 1
+
+
+def test_clients_cannot_call_the_skill_matcher_directly(conn: psycopg.Connection) -> None:
+    vector = "[" + ",".join(["0"] * 384) + "]"
+    act_as(conn, ALICE)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute("select * from public.match_skill(%s::extensions.vector)", (vector,))
+
+
+def test_skill_matcher_returns_nearest_skill(conn: psycopg.Connection) -> None:
+    near = "[1," + ",".join(["0"] * 383) + "]"
+    far = "[0,1," + ",".join(["0"] * 382) + "]"
+    conn.execute("reset role")
+    conn.execute(
+        "insert into public.skills (name, embedding) values "
+        "('near', %s::extensions.vector), ('far', %s::extensions.vector)",
+        (near, far),
+    )
+    row = conn.execute(
+        "select name, similarity from public.match_skill(%s::extensions.vector)", (near,)
+    ).fetchone()
+    assert row is not None
+    assert row[0] == "near"
+    assert row[1] == pytest.approx(1.0)
+
+
+def test_deleting_a_resume_removes_its_skills_and_analysis(conn: psycopg.Connection) -> None:
+    document_id = add_extraction(conn, ALICE)
+    skill = conn.execute("insert into public.skills (name) values ('Temp') returning id").fetchone()
+    assert skill
+    conn.execute(
+        "insert into public.profile_skills (user_id, skill_id, source_document_id) "
+        "values (%s, %s, %s)",
+        (ALICE, skill[0], document_id),
+    )
+    conn.execute("delete from public.documents where id = %s", (document_id,))
+    assert conn.execute(
+        "select count(*) from public.profile_skills where user_id = %s", (ALICE,)
+    ).fetchone() == (0,)
+    assert conn.execute(
+        "select count(*) from public.extracted_profiles where document_id = %s", (document_id,)
+    ).fetchone() == (0,)
 
 
 def test_documents_bucket_is_private(conn: psycopg.Connection) -> None:

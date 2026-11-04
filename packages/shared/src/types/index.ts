@@ -28,6 +28,8 @@ export interface Document {
   status: 'pending' | 'parsing' | 'ready' | 'failed';
   errorCode: string | null;
   errorMessage: string | null;
+  extractionStatus: 'pending' | 'running' | 'ready' | 'failed' | null;
+  extractionErrorMessage: string | null;
   createdAt: string;
 }
 

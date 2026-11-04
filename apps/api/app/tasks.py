@@ -3,10 +3,14 @@ from typing import Any
 
 import httpx
 from celery.exceptions import SoftTimeLimitExceeded
+from kombu.exceptions import OperationalError
 
 from app import portfolio, store
 from app.celery_app import celery_app
+from app.extraction import ExtractionFailed, extract_profile
+from app.llm import LLMUnavailable, get_llm
 from app.parsing import ParseFailure, extract_text
+from app.skill_matching import profile_skill_rows
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +29,19 @@ def _read_text(document: dict[str, Any]) -> str:
 
 def _fail(document_id: str, code: str) -> None:
     store.update_document(document_id, {"status": "failed", "error_code": code})
+
+
+def _fail_extraction(document_id: str, code: str) -> None:
+    store.update_document(document_id, {"extraction_status": "failed", "extraction_error": code})
+
+
+def _queue_extraction(document_id: str) -> None:
+    store.update_document(document_id, {"extraction_status": "pending", "extraction_error": None})
+    try:
+        extract_resume.apply_async(args=[document_id], retry=False)
+    except OperationalError:
+        logger.error("document %s could not be queued for extraction", document_id)
+        _fail_extraction(document_id, "queue_unavailable")
 
 
 @celery_app.task(  # type: ignore[untyped-decorator]
@@ -60,3 +77,51 @@ def parse_document(self: Any, document_id: str) -> None:
         return
 
     store.update_document(document_id, {"status": "ready", "parsed_text": text})
+    if document["type"] == "resume":
+        _queue_extraction(document_id)
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
+    name="extract_resume",
+    bind=True,
+    max_retries=MAX_RETRIES,
+    soft_time_limit=600,
+    time_limit=630,
+)
+def extract_resume(self: Any, document_id: str) -> None:
+    document = store.get_document(document_id)
+    text = store.get_parsed_text(document_id) if document else None
+    if document is None or not text:
+        return
+    store.update_document(document_id, {"extraction_status": "running", "extraction_error": None})
+
+    try:
+        result = extract_profile(text, get_llm())
+        skills = profile_skill_rows(result.profile, document["user_id"], document_id, store)
+        store.save_extraction(
+            document_id,
+            document["user_id"],
+            result.profile.model_dump(),
+            result.prompt_version,
+            result.model,
+            result.truncated,
+            result.suspicious_content,
+            skills,
+        )
+    except ExtractionFailed as exc:
+        _fail_extraction(document_id, exc.code)
+        return
+    except SoftTimeLimitExceeded:
+        _fail_extraction(document_id, "timeout")
+        return
+    except (LLMUnavailable, httpx.HTTPError) as exc:
+        if self.request.retries < MAX_RETRIES:
+            raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
+        _fail_extraction(document_id, "ai_unavailable")
+        return
+    except Exception as exc:
+        logger.error("document %s extraction failed: %s", document_id, type(exc).__name__)
+        _fail_extraction(document_id, "extraction_error")
+        return
+
+    store.update_document(document_id, {"extraction_status": "ready", "extraction_error": None})

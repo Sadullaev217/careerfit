@@ -25,8 +25,11 @@ class Settings(BaseSettings):
     celery_broker_url: str = "redis://localhost:6379/0"
     celery_result_backend: str = "redis://localhost:6379/1"
 
-    # Anthropic
-    anthropic_api_key: str = ""
+    # AI
+    llm_provider: str = "ollama"
+    llm_model: str = "qwen3.5:4b"
+    llm_timeout_seconds: float = 300
+    ollama_url: str = "http://localhost:11434"
 
     # Stripe
     stripe_secret_key: str = ""
