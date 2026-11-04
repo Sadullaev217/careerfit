@@ -1,10 +1,4 @@
-import type {
-  HealthResponse,
-  Profile,
-  Document,
-  TargetRole,
-  Analysis,
-} from '../types/index.js';
+import type { HealthResponse, Document, TargetRole, Analysis, Me } from '../types/index.js';
 import type { TargetRoleInput, PortfolioLinkInput } from '../schemas/index.js';
 
 export class ApiError extends Error {
@@ -18,89 +12,55 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(
-  baseUrl: string,
-  path: string,
-  options: RequestInit & { token?: string | undefined } = {},
-): Promise<T> {
-  const { token, ...fetchOptions } = options;
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(fetchOptions.headers ?? {}),
-  };
+type GetToken = () => string | null | undefined | Promise<string | null | undefined>;
 
-  const res = await fetch(`${baseUrl}${path}`, { ...fetchOptions, headers });
+export function createApiClient(baseUrl: string, getToken?: GetToken) {
+  async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const token = await getToken?.();
+    const res = await fetch(`${baseUrl}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
 
-  if (!res.ok) {
-    let body: unknown;
+    const text = await res.text();
+    let body: unknown = text;
     try {
-      body = await res.json();
+      body = text ? JSON.parse(text) : undefined;
     } catch {
-      body = await res.text();
+      // Non-JSON error pages are kept as text.
     }
-    throw new ApiError(res.status, `API error ${res.status}: ${path}`, body);
+    if (!res.ok) throw new ApiError(res.status, `API error ${res.status}: ${path}`, body);
+    return body as T;
   }
 
-  return res.json() as Promise<T>;
-}
-
-export function createApiClient(baseUrl: string, getToken?: () => string | null) {
-  const auth = () => getToken?.() ?? undefined;
+  const post = <T>(path: string, data: unknown) =>
+    request<T>(path, { method: 'POST', body: JSON.stringify(data) });
 
   return {
     health: {
-      check: () => request<HealthResponse>(baseUrl, '/health'),
+      check: () => request<HealthResponse>('/health'),
     },
-
-    profile: {
-      get: () => request<Profile>(baseUrl, '/profile', { token: auth() ?? undefined }),
-      delete: () =>
-        request<void>(baseUrl, '/profile', { method: 'DELETE', token: auth() ?? undefined }),
+    account: {
+      me: () => request<Me>('/me'),
+      delete: () => request<void>('/account', { method: 'DELETE' }),
     },
-
     documents: {
-      list: () =>
-        request<Document[]>(baseUrl, '/documents', { token: auth() ?? undefined }),
-      addPortfolioLink: (data: PortfolioLinkInput) =>
-        request<Document>(baseUrl, '/documents/portfolio', {
-          method: 'POST',
-          body: JSON.stringify(data),
-          token: auth() ?? undefined,
-        }),
-      delete: (id: string) =>
-        request<void>(baseUrl, `/documents/${id}`, {
-          method: 'DELETE',
-          token: auth() ?? undefined,
-        }),
-      parseStatus: (id: string) =>
-        request<{ status: string }>(baseUrl, `/documents/${id}/status`, {
-          token: auth() ?? undefined,
-        }),
+      list: () => request<Document[]>('/documents'),
+      addPortfolioLink: (data: PortfolioLinkInput) => post<Document>('/documents/portfolio', data),
+      delete: (id: string) => request<void>(`/documents/${id}`, { method: 'DELETE' }),
+      parseStatus: (id: string) => request<{ status: string }>(`/documents/${id}/status`),
     },
-
     targetRoles: {
-      create: (data: TargetRoleInput) =>
-        request<TargetRole>(baseUrl, '/target-roles', {
-          method: 'POST',
-          body: JSON.stringify(data),
-          token: auth() ?? undefined,
-        }),
-      list: () =>
-        request<TargetRole[]>(baseUrl, '/target-roles', { token: auth() ?? undefined }),
+      create: (data: TargetRoleInput) => post<TargetRole>('/target-roles', data),
+      list: () => request<TargetRole[]>('/target-roles'),
     },
-
     analyses: {
-      start: (targetRoleId: string) =>
-        request<{ analysisId: string }>(baseUrl, '/analyses', {
-          method: 'POST',
-          body: JSON.stringify({ targetRoleId }),
-          token: auth() ?? undefined,
-        }),
-      get: (id: string) =>
-        request<Analysis>(baseUrl, `/analyses/${id}`, { token: auth() ?? undefined }),
-      list: () =>
-        request<Analysis[]>(baseUrl, '/analyses', { token: auth() ?? undefined }),
+      start: (targetRoleId: string) => post<{ analysisId: string }>('/analyses', { targetRoleId }),
+      get: (id: string) => request<Analysis>(`/analyses/${id}`),
+      list: () => request<Analysis[]>('/analyses'),
     },
   };
 }

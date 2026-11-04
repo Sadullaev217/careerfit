@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createApiClient, type HealthResponse } from '@careerfit/shared';
 
@@ -30,6 +31,9 @@ export default function Home() {
         {state.kind === 'ok' && `API status: ${state.health.status} (v${state.health.version})`}
         {state.kind === 'error' && `API unreachable: ${state.message}`}
       </p>
+      <Link className="underline" href="/account">
+        Your account
+      </Link>
     </main>
   );
 }

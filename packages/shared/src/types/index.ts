@@ -8,13 +8,14 @@ export type AnalysisStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 export type SubscriptionPlan = 'free' | 'pro';
 
+export interface Me {
+  id: string;
+  email: string | null;
+}
+
 export interface Profile {
   id: string;
-  userId: string;
   displayName: string | null;
-  avatarUrl: string | null;
-  plan: SubscriptionPlan;
-  analysesThisMonth: number;
   createdAt: string;
   updatedAt: string;
 }
