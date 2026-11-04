@@ -9,7 +9,7 @@ from app.profile_schema import ExtractedProfile
 from app.resume_sanitizer import sanitize_resume
 
 # Bump when the prompt changes, so stored results can be traced to the prompt that made them.
-PROMPT_VERSION = "2026-11-04.2"
+PROMPT_VERSION = "2026-11-04.3"
 MAX_ATTEMPTS = 3
 MAX_INPUT_CHARS = 24_000
 
@@ -26,7 +26,8 @@ Rules:
 - Report only what the resume states or clearly shows. Never guess or invent.
 - Skills: read every job description and project as well as any skills section. List every distinct
   skill, tool, method and area of expertise, including those shown by the described duties, such as
-  mentoring from "mentored two trainees". One skill per item, as a short noun phrase.
+  mentoring from "mentored two trainees". One skill per item, as a short noun phrase. If the resume
+  describes any work, skills must not be empty, even if it has no skills section.
 - name and title keep the resume's wording. Every field ending in _en must be written in English,
   translating from the resume's language when needed. Keep product and brand names exactly as written.
 - level: use a value other than "unknown" only if the resume supports it.
@@ -64,34 +65,44 @@ class ExtractionResult:
     suspicious_content: bool
 
 
-def _user_message(text: str, retry_fields: list[str]) -> str:
+def _user_message(text: str, retry_note: str) -> str:
     # A random marker stops resume text from forging the end of the data block.
     marker = f"RESUME-{secrets.token_hex(8)}"
     message = f"{marker}\n{text}\n{marker}"
-    if retry_fields:
-        fields = ", ".join(sorted(set(retry_fields)))
-        message += f"\n\nYour previous answer was invalid in these fields: {fields}. Return valid JSON."
-    return message
+    return f"{message}\n\n{retry_note}" if retry_note else message
 
 
 def extract_profile(resume_text: str, llm: LLMClient) -> ExtractionResult:
     sanitized = sanitize_resume(resume_text)
     text = sanitized.text[:MAX_INPUT_CHARS]
-    retry_fields: list[str] = []
+    retry_note = ""
+    best: tuple[ExtractedProfile, int] | None = None
+
     for attempt in range(MAX_ATTEMPTS):
-        raw = llm.complete_json(SYSTEM_PROMPT, _user_message(text, retry_fields), _SCHEMA, attempt)
+        raw = llm.complete_json(SYSTEM_PROMPT, _user_message(text, retry_note), _SCHEMA, attempt)
         try:
             profile = ExtractedProfile.model_validate_json(raw)
         except ValidationError as exc:
             # Field paths only: the error's input values could quote the resume.
-            retry_fields = [".".join(str(part) for part in e["loc"]) for e in exc.errors()]
+            fields = ", ".join(sorted({".".join(str(p) for p in e["loc"]) for e in exc.errors()}))
+            retry_note = f"Your previous answer was invalid in these fields: {fields}. Return valid JSON."
             continue
-        return ExtractionResult(
-            profile=profile,
-            prompt_version=PROMPT_VERSION,
-            model=llm.model,
-            attempts=attempt + 1,
-            truncated=len(sanitized.text) > MAX_INPUT_CHARS,
-            suspicious_content=sanitized.instruction_lines_removed > 0,
+        best = (profile, attempt + 1)
+        if profile.skills:
+            break
+        retry_note = (
+            "Your previous answer listed no skills. List the skills shown by the duties "
+            "described in the resume."
         )
-    raise ExtractionFailed("invalid_model_output")
+
+    if best is None:
+        raise ExtractionFailed("invalid_model_output")
+    # A resume can truly show no skills, so an empty but valid answer is kept once retries run out.
+    return ExtractionResult(
+        profile=best[0],
+        prompt_version=PROMPT_VERSION,
+        model=llm.model,
+        attempts=best[1],
+        truncated=len(sanitized.text) > MAX_INPUT_CHARS,
+        suspicious_content=sanitized.instruction_lines_removed > 0,
+    )

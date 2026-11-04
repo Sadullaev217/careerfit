@@ -133,6 +133,19 @@ def get_extracted_profile(document_id: str, user_id: str) -> dict[str, Any] | No
     return rows[0] if rows else None
 
 
+def get_matched_skills(document_id: str, user_id: str) -> list[dict[str, Any]]:
+    return _rows(
+        _client().get(
+            "/rest/v1/profile_skills",
+            params={
+                "source_document_id": f"eq.{document_id}",
+                "user_id": f"eq.{user_id}",
+                "select": "source_name,match_score,skills(name,esco_id)",
+            },
+        )
+    )
+
+
 def update_document(document_id: str, fields: dict[str, Any]) -> None:
     _client().patch(
         "/rest/v1/documents", params={"id": f"eq.{document_id}"}, json=fields

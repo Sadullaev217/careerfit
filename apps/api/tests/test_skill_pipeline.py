@@ -251,13 +251,30 @@ def test_profile_endpoint_returns_only_the_owners_analysis(
     client: TestClient, fake_store: FakeStore
 ) -> None:
     document_id = "33333333-3333-3333-3333-333333333333"
-    fake_store.save_extraction(document_id, USER_ID, VALID_PROFILE, "v1", "m", False, False, [])
+    matched = {
+        "user_id": USER_ID,
+        "source_document_id": document_id,
+        "source_name": "Python",
+        "match_score": 0.9,
+        "skills": {"name": "Python (computer programming)", "esco_id": "esco/python"},
+    }
+    fake_store.save_extraction(
+        document_id, USER_ID, VALID_PROFILE, "v1", "m", False, False, [matched]
+    )
     url = f"/documents/{document_id}/profile"
 
     owned = client.get(url, headers=auth_headers())
     assert owned.status_code == 200
     assert owned.json()["promptVersion"] == "v1"
     assert owned.json()["profile"]["seniority"] == "mid"
+    assert owned.json()["matchedSkills"] == [
+        {
+            "sourceName": "Python",
+            "canonicalName": "Python (computer programming)",
+            "escoId": "esco/python",
+            "matchScore": 0.9,
+        }
+    ]
 
     assert client.get(url, headers=auth_headers(OTHER_USER_ID)).status_code == 404
     assert client.get(url).status_code == 401

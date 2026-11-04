@@ -20,6 +20,9 @@ venv
 .mypy_cache
 .ruff_cache
 
+# Local manual test files
+/test-resumes
+
 # Environment
 .env
 .env.local

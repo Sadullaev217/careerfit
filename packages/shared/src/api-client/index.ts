@@ -1,4 +1,11 @@
-import type { HealthResponse, Document, TargetRole, Analysis, Me } from '../types/index.js';
+import type {
+  HealthResponse,
+  Document,
+  DocumentAnalysis,
+  TargetRole,
+  Analysis,
+  Me,
+} from '../types/index.js';
 import type { TargetRoleInput, PortfolioLinkInput } from '../schemas/index.js';
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -90,6 +97,7 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       addPortfolioLink: (data: PortfolioLinkInput) => post<Document>('/documents/portfolio', data),
       delete: (id: string) => request<void>(`/documents/${id}`, { method: 'DELETE' }),
       status: (id: string) => request<Document>(`/documents/${id}/status`),
+      analysis: (id: string) => request<DocumentAnalysis>(`/documents/${id}/profile`),
     },
     targetRoles: {
       create: (data: TargetRoleInput) => post<TargetRole>('/target-roles', data),

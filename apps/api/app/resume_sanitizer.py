@@ -14,6 +14,8 @@ _INSTRUCTION = re.compile(
     | \bsystem\s+prompt\b
     | \byou\s+are\s+(now\s+)?(an?\s+|the\s+)?(ai|assistant|language\s+model)\b
     | \bset\s+(every|all|each)\s+confidence\b
+    | \b(list|mark|rate|rank|score|treat)\s+this\s+(candidate|applicant|person|resume)\b
+    | \b(укажи|отметь|оцени)\s+(этого|данного)\s+кандидата\b
     | \b(проигнорируй|игнорируй|забудь)\b.{0,40}\b(инструкци|предыдущ|прошл|указани)
     | \b(инструкци[яию]|указани[ея]|сообщение)\s+для\s+(ии|ai|модели|ассистента|нейросети|бота)\b
     | \bсистемн\w+\s+(промпт|инструкци)
@@ -38,6 +40,12 @@ _PERSONAL = re.compile(
 )
 
 
+# Short label lines like "Nationality: X" have no end punctuation either, and must not swallow the next line.
+_WRAPPED_LINE_MIN_CHARS = 60
+_SENTENCE_ENDINGS = (".", "!", "?", ":", ";")
+_MAX_CONTINUATION_LINES = 3
+
+
 @dataclass(frozen=True)
 class SanitizedResume:
     text: str
@@ -45,14 +53,44 @@ class SanitizedResume:
     instruction_lines_removed: int
 
 
+def _looks_wrapped(line: str) -> bool:
+    stripped = line.rstrip()
+    return len(stripped) >= _WRAPPED_LINE_MIN_CHARS and not stripped.endswith(_SENTENCE_ENDINGS)
+
+
+def _matches(pattern: re.Pattern[str], line: str, following: str | None) -> bool:
+    if pattern.search(line):
+        return True
+    # PDF text wraps, so a trigger phrase can start on one line and finish on the next.
+    # A match wholly on the next line is left for that line, so this one isn't lost with it.
+    if following is None or not _looks_wrapped(line) or pattern.search(following):
+        return False
+    return bool(pattern.search(f"{line} {following}"))
+
+
 def sanitize_resume(text: str) -> SanitizedResume:
+    lines = text.splitlines()
     kept: list[str] = []
     personal = instruction = 0
-    for line in text.splitlines():
-        if _INSTRUCTION.search(line):
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        following = lines[index + 1] if index + 1 < len(lines) else None
+
+        if _matches(_INSTRUCTION, line, following):
             instruction += 1
-        elif _PERSONAL.search(line):
+        elif _matches(_PERSONAL, line, following):
             personal += 1
         else:
             kept.append(line)
+            index += 1
+            continue
+
+        # The rest of a wrapped sentence must go too, or a fragment reads as a plain fact.
+        index += 1
+        for _ in range(_MAX_CONTINUATION_LINES):
+            if index >= len(lines) or not lines[index].strip() or not _looks_wrapped(line):
+                break
+            line = lines[index]
+            index += 1
     return SanitizedResume("\n".join(kept), personal, instruction)

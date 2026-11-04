@@ -33,6 +33,49 @@ export interface Document {
   createdAt: string;
 }
 
+export interface ExtractedProfile {
+  skills: Array<{
+    name: string;
+    name_en: string;
+    level: string;
+    years: number | null;
+    confidence: number;
+  }>;
+  work_history: Array<{
+    title_en: string;
+    employer: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    is_current: boolean;
+  }>;
+  education: Array<{
+    degree: string | null;
+    field_of_study: string | null;
+    institution: string | null;
+    end_year: number | null;
+  }>;
+  certifications: Array<{ name: string; issuer: string | null; year: number | null }>;
+  languages: Array<{ name_en: string; level: string | null }>;
+  projects: Array<{ name: string; demonstrates_en: string[] }>;
+  industry_en: string | null;
+  seniority: string;
+  flags: Array<{ field: string; issue: 'missing' | 'ambiguous' }>;
+}
+
+export interface DocumentAnalysis {
+  profile: ExtractedProfile;
+  matchedSkills: Array<{
+    sourceName: string | null;
+    canonicalName: string;
+    escoId: string | null;
+    matchScore: number | null;
+  }>;
+  promptVersion: string;
+  model: string;
+  truncated: boolean;
+  createdAt: string;
+}
+
 export interface Skill {
   id: string;
   name: string;

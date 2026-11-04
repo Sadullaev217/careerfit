@@ -102,6 +102,13 @@ class FakeStore:
         }
         self.profile_skills = skills
 
+    def get_matched_skills(self, document_id: str, user_id: str) -> list[dict[str, Any]]:
+        return [
+            row
+            for row in self.profile_skills
+            if row["source_document_id"] == document_id and row["user_id"] == user_id
+        ]
+
     def get_extracted_profile(self, document_id: str, user_id: str) -> dict[str, Any] | None:
         row = self.saved_extractions.get(document_id)
         return row if row and row["user_id"] == user_id else None

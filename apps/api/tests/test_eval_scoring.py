@@ -47,8 +47,8 @@ def test_mapping_score_counts_each_outcome() -> None:
 
 
 def test_eval_set_meets_the_brief() -> None:
-    assert len(RESUMES) == 10
-    assert len({resume["industry"] for resume in RESUMES}) == 10
+    assert len(RESUMES) >= 10
+    assert len({resume["industry"] for resume in RESUMES}) >= 10
     assert {resume["language"] for resume in RESUMES} == {"en", "ru"}
 
 
@@ -64,6 +64,8 @@ def test_eval_set_covers_the_risky_cases() -> None:
     # The sanitizer can't match this rewording, so it still tests the model itself.
     assert any("blockchain" in r["expected"]["forbidden"] for r in RESUMES)
     assert sum(bool(r["expected"]["forbidden"]) for r in RESUMES) >= 3
+    # Found in manual testing: a short resume with no skills section once returned no skills.
+    assert any(r["id"] == "short-no-skills-section-en" for r in RESUMES)
 
 
 def test_perfect_profile_scores_full_marks() -> None:

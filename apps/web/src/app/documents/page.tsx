@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link';
 import { apiErrorMessage, MAX_UPLOAD_BYTES, type Document } from '@careerfit/shared';
 import { getApi } from '@/lib/api';
+import { AnalysisPanel } from './AnalysisPanel';
 
 const POLL_INTERVAL_MS = 2000;
 
@@ -15,6 +16,12 @@ const STATUS_LABELS: Record<Document['status'], string> = {
   parsing: 'Reading…',
   ready: 'Ready',
   failed: 'Failed',
+};
+
+const EXTRACTION_LABELS: Record<'pending' | 'running' | 'failed', string> = {
+  pending: 'Waiting to be analysed…',
+  running: 'Analysing…',
+  failed: 'Analysis failed',
 };
 
 const TYPE_LABELS: Record<Document['type'], string> = {
@@ -48,7 +55,13 @@ export default function DocumentsPage() {
     void refresh();
   }, [refresh]);
 
-  const processing = documents?.some((d) => d.status === 'pending' || d.status === 'parsing');
+  const processing = documents?.some(
+    (d) =>
+      d.status === 'pending' ||
+      d.status === 'parsing' ||
+      d.extractionStatus === 'pending' ||
+      d.extractionStatus === 'running',
+  );
 
   useEffect(() => {
     if (!processing) return;
@@ -143,7 +156,9 @@ export default function DocumentsPage() {
         </label>
         {uploading && (
           <label className="flex flex-col gap-1">
-            Uploading… {Math.round(progress * 100)}%
+            {progress < 1
+              ? `Uploading… ${Math.round(progress * 100)}%`
+              : 'Uploaded. Reading your file, which can take a minute…'}
             <progress className="w-full" value={progress} max={1} />
           </label>
         )}
@@ -212,6 +227,22 @@ export default function DocumentsPage() {
                 </span>
                 {document.errorMessage && (
                   <span className="text-sm text-red-600">{document.errorMessage}</span>
+                )}
+                {document.extractionStatus && document.extractionStatus !== 'ready' && (
+                  <span className="text-sm">{EXTRACTION_LABELS[document.extractionStatus]}</span>
+                )}
+                {document.extractionErrorMessage && (
+                  <span className="text-sm text-red-600">{document.extractionErrorMessage}</span>
+                )}
+                {document.extractionStatus === 'ready' && (
+                  <details>
+                    <summary className="cursor-pointer text-sm font-medium underline">
+                      See what we found
+                    </summary>
+                    <div className="pt-2">
+                      <AnalysisPanel documentId={document.id} />
+                    </div>
+                  </details>
                 )}
               </div>
               <button

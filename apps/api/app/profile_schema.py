@@ -72,12 +72,13 @@ class InfoFlag(BaseModel):
 
 
 class ExtractedProfile(BaseModel):
-    skills: list[SkillItem]
+    # The model writes fields in this order. With skills first, it returned none for short resumes.
     work_history: list[JobItem]
     education: list[EducationItem]
     certifications: list[CertificationItem]
     languages: list[LanguageItem]
     projects: list[ProjectItem]
+    skills: list[SkillItem]
     industry_en: str | None
     industry_confidence: float = Confidence
     seniority: Seniority

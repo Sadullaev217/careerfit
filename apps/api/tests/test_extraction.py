@@ -71,6 +71,36 @@ def test_retry_names_fields_but_never_repeats_values() -> None:
     assert "SENTINEL-VALUE" not in retry_message
 
 
+NO_SKILLS = json.dumps({**VALID_PROFILE, "skills": []})
+
+
+def test_empty_skills_are_retried_with_a_hint() -> None:
+    llm = ScriptedLLM(NO_SKILLS, VALID)
+    result = extract_profile("resume text", llm)
+    assert len(result.profile.skills) == 2
+    assert result.attempts == 2
+    assert "no skills" in llm.calls[1]["user"]
+
+
+def test_resume_with_truly_no_skills_is_accepted_after_retries() -> None:
+    llm = ScriptedLLM(*[NO_SKILLS] * MAX_ATTEMPTS)
+    result = extract_profile("resume text", llm)
+    assert result.profile.skills == []
+    assert len(llm.calls) == MAX_ATTEMPTS
+
+
+def test_invalid_last_attempt_keeps_the_earlier_valid_answer() -> None:
+    llm = ScriptedLLM(NO_SKILLS, "not json", "still not json")
+    result = extract_profile("resume text", llm)
+    assert result.profile.seniority == "mid"
+    assert result.attempts == 1
+
+
+def test_model_writes_work_history_before_skills() -> None:
+    order = list(ExtractedProfile.model_json_schema()["properties"])
+    assert order.index("work_history") < order.index("skills")
+
+
 def test_gives_up_after_the_attempt_limit() -> None:
     llm = ScriptedLLM(*["nope"] * MAX_ATTEMPTS)
     with pytest.raises(ExtractionFailed) as caught:
