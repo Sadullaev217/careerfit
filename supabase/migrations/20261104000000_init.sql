@@ -16,7 +16,7 @@ create table public.profiles (
 
 create table public.documents (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users (id) on delete cascade,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   type public.document_type not null,
   file_name text,
   file_path text,
@@ -49,7 +49,7 @@ create index profile_skills_skill_id_idx on public.profile_skills (skill_id);
 
 create table public.target_roles (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users (id) on delete cascade,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   title text not null check (char_length(title) between 1 and 200),
   region text not null check (char_length(region) between 1 and 100),
   industry text check (char_length(industry) <= 100),

@@ -108,6 +108,14 @@ def test_user_cannot_update_or_delete_other_users_rows(conn: psycopg.Connection)
     assert deleted.rowcount == 0
 
 
+def test_user_can_create_own_rows(conn: psycopg.Connection) -> None:
+    act_as(conn, BOB)
+    conn.execute("insert into public.target_roles (title, region) values ('Dev', 'US')")
+    conn.execute("insert into public.documents (type, file_name) values ('resume', 'b.pdf')")
+    assert count(conn, "target_roles") == 1
+    assert count(conn, "documents") == 1
+
+
 def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> None:
     act_as(conn, BOB)
     with pytest.raises(psycopg.errors.InsufficientPrivilege):
