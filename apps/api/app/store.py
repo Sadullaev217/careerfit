@@ -96,6 +96,7 @@ def save_extraction(
     truncated: bool,
     suspicious_content: bool,
     skills: list[dict[str, Any]],
+    matched_skills: list[dict[str, Any]],
 ) -> None:
     _client().post(
         "/rest/v1/extracted_profiles",
@@ -109,6 +110,7 @@ def save_extraction(
             "model": model,
             "truncated": truncated,
             "suspicious_content": suspicious_content,
+            "matched_skills": matched_skills,
         },
     ).raise_for_status()
     # The newest resume replaces the skill list, so old resumes can't keep inflating it.
@@ -126,24 +128,11 @@ def get_extracted_profile(document_id: str, user_id: str) -> dict[str, Any] | No
             params={
                 "document_id": f"eq.{document_id}",
                 "user_id": f"eq.{user_id}",
-                "select": "data,prompt_version,model,truncated,created_at",
+                "select": "data,matched_skills,prompt_version,model,truncated,created_at",
             },
         )
     )
     return rows[0] if rows else None
-
-
-def get_matched_skills(document_id: str, user_id: str) -> list[dict[str, Any]]:
-    return _rows(
-        _client().get(
-            "/rest/v1/profile_skills",
-            params={
-                "source_document_id": f"eq.{document_id}",
-                "user_id": f"eq.{user_id}",
-                "select": "source_name,match_score,skills(name,esco_id)",
-            },
-        )
-    )
 
 
 def update_document(document_id: str, fields: dict[str, Any]) -> None:

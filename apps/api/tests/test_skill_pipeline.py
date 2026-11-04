@@ -12,7 +12,7 @@ from app import embeddings, skill_matching, tasks
 from app.extraction import ExtractionFailed
 from app.llm import LLMUnavailable
 from app.profile_schema import ExtractedProfile
-from app.skill_matching import MIN_MATCH_SIMILARITY, match_names, profile_skill_rows
+from app.skill_matching import MIN_MATCH_SIMILARITY, match_names, profile_skills
 from app.tasks import extract_resume, parse_document
 from scripts.seed_esco import START_URL, fetch_skills, to_rows
 from tests import sample_files
@@ -27,8 +27,49 @@ class FakeIndex:
         return self.rows.get(embedding[0])
 
 
-def hit(skill_id: str, similarity: float = 0.9) -> dict[str, Any]:
-    return {"id": skill_id, "name": f"canonical {skill_id}", "esco_id": f"esco/{skill_id}", "similarity": similarity}
+def hit(skill_id: str, similarity: float = 0.9, name: str = "Python SQL") -> dict[str, Any]:
+    return {"id": skill_id, "name": name, "esco_id": f"esco/{skill_id}", "similarity": similarity}
+
+
+@pytest.mark.parametrize(
+    ("name", "label"),
+    [
+        ("Python", "Python (computer programming)"),
+        ("C++", "C++"),
+        ("Machine learning", "utilise machine learning"),
+        ("Mentoring", "mentor individuals"),
+        ("Negotiation", "negotiate compromise"),
+        ("Menu planning", "plan menus"),
+        ("TIG welding", "welding techniques"),
+        ("Blueprint reading", "read standard blueprints"),
+    ],
+)
+def test_shared_word_accepts_real_matches(name: str, label: str) -> None:
+    assert skill_matching.shares_a_word(name, label)
+
+
+@pytest.mark.parametrize(
+    ("name", "label"),
+    [
+        ("Jotai", "Grovo"),
+        ("Vercel", "SPARK"),
+        ("Java", "JavaScript"),
+        ("Docker", "pin parquet"),
+        ("Git", "Grovo"),
+    ],
+)
+def test_shared_word_rejects_lookalikes(name: str, label: str) -> None:
+    assert not skill_matching.shares_a_word(name, label)
+
+
+def test_common_filler_words_do_not_count() -> None:
+    assert not skill_matching.shares_a_word("use of the", "the use of")
+
+
+def test_high_score_without_a_shared_word_stays_unmapped(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake_embed(monkeypatch, {"Jotai": 1.0})
+    brand = hit("a", 0.95, name="Grovo")
+    assert match_names(["Jotai"], FakeIndex({1.0: brand})) == [None]
 
 
 def fake_embed(monkeypatch: pytest.MonkeyPatch, vectors: dict[str, float]) -> None:
@@ -61,25 +102,25 @@ def test_no_names_means_no_embedding_work(monkeypatch: pytest.MonkeyPatch) -> No
 def test_rows_drop_unknown_level_and_unmapped_skills(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_embed(monkeypatch, {"Python": 1.0, "SQL": 2.0})
     profile = ExtractedProfile.model_validate(VALID_PROFILE)
-    rows = profile_skill_rows(profile, USER_ID, "doc-1", FakeIndex({1.0: hit("a"), 2.0: None}))
+    rows = profile_skills(profile, USER_ID, "doc-1", FakeIndex({1.0: hit("a"), 2.0: None})).rows
     assert len(rows) == 1
     assert rows[0]["skill_id"] == "a"
     assert rows[0]["level"] == "advanced"
     assert rows[0]["source_document_id"] == "doc-1"
 
     fake_embed(monkeypatch, {"Python": 1.0, "SQL": 2.0})
-    rows = profile_skill_rows(profile, USER_ID, "doc-1", FakeIndex({1.0: None, 2.0: hit("b")}))
+    rows = profile_skills(profile, USER_ID, "doc-1", FakeIndex({1.0: None, 2.0: hit("b")})).rows
     assert rows[0]["level"] is None
 
 
 def test_two_phrases_for_one_skill_keep_the_surest(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_embed(monkeypatch, {"Python": 1.0, "SQL": 2.0})
     profile = ExtractedProfile.model_validate(VALID_PROFILE)
-    rows = profile_skill_rows(
-        profile, USER_ID, "doc-1", FakeIndex({1.0: hit("a"), 2.0: hit("a")})
-    )
-    assert len(rows) == 1
-    assert rows[0]["source_name"] == "Python"
+    result = profile_skills(profile, USER_ID, "doc-1", FakeIndex({1.0: hit("a"), 2.0: hit("a")}))
+    assert len(result.rows) == 1
+    assert result.rows[0]["source_name"] == "Python"
+    # The analysis still records that both phrases matched, so neither shows as unmatched.
+    assert [match["source_name"] for match in result.matches] == ["Python", "SQL"]
 
 
 class FakeLLM:
@@ -131,6 +172,7 @@ def test_extraction_saves_profile_and_skills(
     assert saved["model"] == "fake-model"
     assert saved["data"]["skills"][0]["name_en"] == "Python"
     assert {skill["skill_id"] for skill in fake_store.profile_skills} == {"a", "b"}
+    assert [match["source_name"] for match in saved["matched_skills"]] == ["Python", "SQL"]
 
 
 def test_invalid_model_output_records_failure(
@@ -252,14 +294,13 @@ def test_profile_endpoint_returns_only_the_owners_analysis(
 ) -> None:
     document_id = "33333333-3333-3333-3333-333333333333"
     matched = {
-        "user_id": USER_ID,
-        "source_document_id": document_id,
         "source_name": "Python",
+        "canonical_name": "Python (computer programming)",
+        "esco_id": "esco/python",
         "match_score": 0.9,
-        "skills": {"name": "Python (computer programming)", "esco_id": "esco/python"},
     }
     fake_store.save_extraction(
-        document_id, USER_ID, VALID_PROFILE, "v1", "m", False, False, [matched]
+        document_id, USER_ID, VALID_PROFILE, "v1", "m", False, False, [], [matched]
     )
     url = f"/documents/{document_id}/profile"
 

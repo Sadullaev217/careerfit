@@ -30,5 +30,21 @@
   {"name": "CI pipelines", "accept": []},
   {"name": "Stock ordering", "accept": []},
   {"name": "Ventilator management", "accept": []},
-  {"name": "Patient education", "accept": []}
+  {"name": "Patient education", "accept": []},
+  {"name": "TypeScript", "accept": ["typescript"]},
+  {"name": "C++", "accept": ["c++"]},
+  {"name": "CSS", "accept": ["css"]},
+  {"name": "Agile", "accept": ["agile"]},
+  {"name": "Mentoring", "accept": ["mentor"]},
+  {"name": "Jotai", "accept": []},
+  {"name": "Vercel", "accept": []},
+  {"name": "SWR", "accept": []},
+  {"name": "Netlify", "accept": []},
+  {"name": "Git", "accept": []},
+  {"name": "GitHub", "accept": []},
+  {"name": "AWS", "accept": []},
+  {"name": "Flask", "accept": []},
+  {"name": "Node.js", "accept": []},
+  {"name": "MongoDB", "accept": []},
+  {"name": "SharePoint", "accept": []}
 ]

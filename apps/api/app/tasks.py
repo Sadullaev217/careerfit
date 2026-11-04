@@ -10,7 +10,7 @@ from app.celery_app import celery_app
 from app.extraction import ExtractionFailed, extract_profile
 from app.llm import LLMUnavailable, get_llm
 from app.parsing import ParseFailure, extract_text
-from app.skill_matching import profile_skill_rows
+from app.skill_matching import profile_skills
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ def extract_resume(self: Any, document_id: str) -> None:
 
     try:
         result = extract_profile(text, get_llm())
-        skills = profile_skill_rows(result.profile, document["user_id"], document_id, store)
+        skills = profile_skills(result.profile, document["user_id"], document_id, store)
         store.save_extraction(
             document_id,
             document["user_id"],
@@ -106,7 +106,8 @@ def extract_resume(self: Any, document_id: str) -> None:
             result.model,
             result.truncated,
             result.suspicious_content,
-            skills,
+            skills.rows,
+            skills.matches,
         )
     except ExtractionFailed as exc:
         _fail_extraction(document_id, exc.code)

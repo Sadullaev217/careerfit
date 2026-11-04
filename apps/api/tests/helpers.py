@@ -90,6 +90,7 @@ class FakeStore:
         truncated: bool,
         suspicious_content: bool,
         skills: list[dict[str, Any]],
+        matched_skills: list[dict[str, Any]],
     ) -> None:
         self.saved_extractions[document_id] = {
             "user_id": user_id,
@@ -98,16 +99,10 @@ class FakeStore:
             "model": model,
             "truncated": truncated,
             "suspicious_content": suspicious_content,
+            "matched_skills": matched_skills,
             "created_at": "2026-11-04T00:00:00+00:00",
         }
         self.profile_skills = skills
-
-    def get_matched_skills(self, document_id: str, user_id: str) -> list[dict[str, Any]]:
-        return [
-            row
-            for row in self.profile_skills
-            if row["source_document_id"] == document_id and row["user_id"] == user_id
-        ]
 
     def get_extracted_profile(self, document_id: str, user_id: str) -> dict[str, Any] | None:
         row = self.saved_extractions.get(document_id)

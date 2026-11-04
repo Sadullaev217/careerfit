@@ -210,18 +210,9 @@ def document_profile(document_id: UUID, user: User) -> ExtractedProfileResponse:
     row = store.get_extracted_profile(str(document_id), user.id)
     if row is None:
         raise _error(status.HTTP_404_NOT_FOUND, "not_found", "No analysis for this document yet.")
-    matched = store.get_matched_skills(str(document_id), user.id)
     return ExtractedProfileResponse(
         profile=row["data"],
-        matched_skills=[
-            MatchedSkill(
-                source_name=item["source_name"],
-                canonical_name=item["skills"]["name"],
-                esco_id=item["skills"]["esco_id"],
-                match_score=item["match_score"],
-            )
-            for item in matched
-        ],
+        matched_skills=[MatchedSkill(**item) for item in row["matched_skills"]],
         prompt_version=row["prompt_version"],
         model=row["model"],
         truncated=row["truncated"],

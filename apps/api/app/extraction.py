@@ -5,11 +5,11 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 
 from app.llm import LLMClient
-from app.profile_schema import ExtractedProfile
+from app.profile_schema import ExtractedProfile, InfoFlag
 from app.resume_sanitizer import sanitize_resume
 
 # Bump when the prompt changes, so stored results can be traced to the prompt that made them.
-PROMPT_VERSION = "2026-11-04.3"
+PROMPT_VERSION = "2026-11-04.4"
 MAX_ATTEMPTS = 3
 MAX_INPUT_CHARS = 24_000
 
@@ -72,6 +72,19 @@ def _user_message(text: str, retry_note: str) -> str:
     return f"{message}\n\n{retry_note}" if retry_note else message
 
 
+def _with_checked_flags(profile: ExtractedProfile) -> ExtractedProfile:
+    """These can be read straight off the data, and the model both missed them and invented them."""
+    checked = {("work_history", "missing"), ("education", "missing"), ("work_dates", "missing")}
+    flags = [flag for flag in profile.flags if (flag.field, flag.issue) not in checked]
+    if not profile.work_history:
+        flags.append(InfoFlag(field="work_history", issue="missing"))
+    if not profile.education:
+        flags.append(InfoFlag(field="education", issue="missing"))
+    if any(job.start_date is None for job in profile.work_history):
+        flags.append(InfoFlag(field="work_dates", issue="missing"))
+    return profile.model_copy(update={"flags": flags})
+
+
 def extract_profile(resume_text: str, llm: LLMClient) -> ExtractionResult:
     sanitized = sanitize_resume(resume_text)
     text = sanitized.text[:MAX_INPUT_CHARS]
@@ -99,7 +112,7 @@ def extract_profile(resume_text: str, llm: LLMClient) -> ExtractionResult:
         raise ExtractionFailed("invalid_model_output")
     # A resume can truly show no skills, so an empty but valid answer is kept once retries run out.
     return ExtractionResult(
-        profile=best[0],
+        profile=_with_checked_flags(best[0]),
         prompt_version=PROMPT_VERSION,
         model=llm.model,
         attempts=best[1],

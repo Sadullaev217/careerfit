@@ -101,6 +101,34 @@ def test_model_writes_work_history_before_skills() -> None:
     assert order.index("work_history") < order.index("skills")
 
 
+def flags_for(**overrides: Any) -> list[tuple[str, str]]:
+    llm = ScriptedLLM(json.dumps({**VALID_PROFILE, **overrides}))
+    return [(f.field, f.issue) for f in extract_profile("resume text", llm).profile.flags]
+
+
+def test_code_flags_a_resume_with_no_jobs() -> None:
+    assert flags_for(work_history=[]) == [("work_history", "missing")]
+
+
+def test_code_flags_a_resume_with_no_education() -> None:
+    assert flags_for(education=[]) == [("education", "missing")]
+
+
+def test_code_flags_a_job_with_no_dates() -> None:
+    job = {**VALID_PROFILE["work_history"][0], "start_date": None}
+    assert flags_for(work_history=[job]) == [("work_dates", "missing")]
+
+
+def test_code_removes_a_wrong_missing_flag_from_the_model() -> None:
+    wrong = [{"field": "education", "issue": "missing"}]
+    assert flags_for(flags=wrong) == []
+
+
+def test_other_model_flags_are_kept() -> None:
+    kept = [{"field": "seniority", "issue": "ambiguous"}]
+    assert flags_for(flags=kept) == [("seniority", "ambiguous")]
+
+
 def test_gives_up_after_the_attempt_limit() -> None:
     llm = ScriptedLLM(*["nope"] * MAX_ATTEMPTS)
     with pytest.raises(ExtractionFailed) as caught:
