@@ -219,6 +219,139 @@ def test_deleting_a_resume_removes_its_skills_and_analysis(conn: psycopg.Connect
     ).fetchone() == (0,)
 
 
+def add_posting(
+    conn: psycopg.Connection,
+    source_id: str,
+    salary: float | None,
+    region: str = "Ontario",
+    duplicate_key: str | None = None,
+    education: str | None = None,
+) -> None:
+    conn.execute(
+        "insert into public.job_postings (source, source_id, title, region, occupation_code, "
+        "salary_min, salary_max, posted_at, duplicate_key, education_level) "
+        "values ('test', %s, 'cook', %s, '63200', %s, %s, '2026-10-15', %s, %s)",
+        (source_id, region, salary, salary, duplicate_key or source_id, education),
+    )
+
+
+def stats(conn: psycopg.Connection, region: str | None = None) -> dict:
+    row = conn.execute("select public.market_stats('63200', %s)", (region,)).fetchone()
+    assert row
+    return dict(row[0])
+
+
+def test_market_stats_gives_percentiles_and_sample_size(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    for index, salary in enumerate((40000, 50000, 60000, 70000, 80000)):
+        add_posting(conn, f"j{index}", salary)
+    add_posting(conn, "no-pay", None)
+
+    result = stats(conn, "Ontario")
+    assert result["sample_size"] == 6
+    assert result["salary_sample_size"] == 5
+    assert result["salary_median"] == 60000
+    assert result["salary_p25"] == 50000
+    assert result["salary_p75"] == 70000
+    assert result["latest_posting"] == "2026-10-15"
+
+
+def test_market_stats_counts_repeated_ads_once(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    add_posting(conn, "real", 40000, duplicate_key="real")
+    add_posting(conn, "spam-on", 111360, "Ontario", "spam")
+    add_posting(conn, "spam-ab", 111360, "Alberta", "spam")
+    add_posting(conn, "spam-bc", 111360, "British Columbia", "spam")
+
+    national = stats(conn)
+    assert national["sample_size"] == 2
+    assert stats(conn, "Alberta")["sample_size"] == 1
+
+
+def test_market_stats_filters_by_region(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    add_posting(conn, "on", 40000, "Ontario")
+    add_posting(conn, "ab", 90000, "Alberta")
+    assert stats(conn, "Alberta")["salary_median"] == 90000
+
+
+def test_market_stats_counts_education_levels(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    add_posting(conn, "a", 40000, education="Bachelor's degree")
+    add_posting(conn, "b", 50000, education="Bachelor's degree")
+    add_posting(conn, "c", 60000, education="College/CEGEP")
+    add_posting(conn, "d", 70000)
+    assert stats(conn)["education"] == {"Bachelor's degree": 2, "College/CEGEP": 1}
+
+
+def test_market_stats_with_no_postings_is_empty(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    result = stats(conn)
+    assert result["sample_size"] == 0
+    assert result["salary_median"] is None
+    assert result["education"] == {}
+
+
+def test_match_occupation_finds_the_nearest_title(conn: psycopg.Connection) -> None:
+    near = "[1," + ",".join(["0"] * 383) + "]"
+    far = "[0,1," + ",".join(["0"] * 382) + "]"
+    conn.execute("reset role")
+    conn.execute("insert into public.occupations (code, name) values ('63200', 'Cooks')")
+    conn.execute(
+        "insert into public.occupation_titles (title, occupation_code, embedding) values "
+        "('cook', '63200', %s::extensions.vector), ('baker', '63200', %s::extensions.vector)",
+        (near, far),
+    )
+    row = conn.execute(
+        "select title, occupation_name, similarity from public.match_occupation(%s::extensions.vector)",
+        (near,),
+    ).fetchone()
+    assert row is not None
+    assert row[:2] == ("cook", "Cooks")
+    assert row[2] == pytest.approx(1.0)
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "select public.market_stats('63200', null)",
+        "select * from public.match_occupation(('[' || repeat('0,', 383) || '0]')::extensions.vector)",
+    ],
+)
+def test_clients_cannot_call_market_functions_directly(
+    conn: psycopg.Connection, statement: str
+) -> None:
+    act_as(conn, ALICE)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute(statement.encode())
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "insert into public.occupations (code, name) values ('x', 'Fake')",
+        "insert into public.job_postings (source, source_id, title, region) values ('a','b','c','d')",
+        "delete from public.occupation_skills",
+    ],
+)
+def test_clients_cannot_change_market_data(conn: psycopg.Connection, statement: str) -> None:
+    act_as(conn, ALICE)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute(statement.encode())
+
+
+def test_signed_in_users_can_read_market_data_but_anonymous_cannot(
+    conn: psycopg.Connection,
+) -> None:
+    conn.execute("reset role")
+    conn.execute("insert into public.occupations (code, name) values ('63200', 'Cooks')")
+    act_as(conn, ALICE)
+    assert count(conn, "occupations") == 1
+    act_as(conn, None)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        count(conn, "occupations")
+
+
 def test_documents_bucket_is_private(conn: psycopg.Connection) -> None:
     row = conn.execute("select public from storage.buckets where id = 'documents'").fetchone()
     assert row == (False,)

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "uv run --extra dev uvicorn app.main:app --reload --port 8000",
     "worker": "uv run --extra dev celery -A app.celery_app worker --loglevel=info --pool=solo",
+    "beat": "uv run --extra dev celery -A app.celery_app beat --loglevel=info",
     "lint": "uv run --extra dev ruff check .",
     "typecheck": "uv run --extra dev mypy app",
     "test": "uv run --extra dev pytest"

@@ -7,8 +7,11 @@ from kombu.exceptions import OperationalError
 
 from app import portfolio, store
 from app.celery_app import celery_app
+from app.embeddings import embed_texts
 from app.extraction import ExtractionFailed, extract_profile
+from app.job_sources import JobBankProvider
 from app.llm import LLMUnavailable, get_llm
+from app.market_data import refresh_market_data
 from app.parsing import ParseFailure, extract_text
 from app.skill_matching import profile_skills
 
@@ -79,6 +82,22 @@ def parse_document(self: Any, document_id: str) -> None:
     store.update_document(document_id, {"status": "ready", "parsed_text": text})
     if document["type"] == "resume":
         _queue_extraction(document_id)
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
+    name="refresh_market_data",
+    bind=True,
+    max_retries=2,
+    soft_time_limit=1800,
+    time_limit=1860,
+)
+def refresh_market_data_task(self: Any) -> None:
+    try:
+        summary = refresh_market_data(JobBankProvider(), store, embed_texts)
+    except httpx.HTTPError as exc:
+        logger.error("market refresh failed: %s", type(exc).__name__)
+        raise self.retry(exc=exc, countdown=1800) from None
+    logger.info("market refresh: %s", summary)
 
 
 @celery_app.task(  # type: ignore[untyped-decorator]

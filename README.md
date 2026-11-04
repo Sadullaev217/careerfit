@@ -76,6 +76,21 @@ uv run --extra dev python -m eval.run_mapping_eval
 
 All AI calls go through `apps/api/app/llm.py`, so moving to a hosted provider means adding one class there. A live deployment needs a GPU server or a hosted provider, and hosted providers must not reuse resume text for training.
 
+## Job market data
+
+Canada first, from [Job Bank open data](https://open.canada.ca/data/en/dataset/ea639e28-c0fc-48bf-b5dd-b8899bd43072) under the Open Government Licence – Canada, which allows commercial use and requires crediting the source. It has salary, occupation, location, and sometimes education and experience, but no job descriptions. So each occupation's skills come from ESCO instead, and describe what the occupation involves rather than what employers are asking for right now.
+
+Load or refresh the data:
+
+```bash
+cd apps/api
+uv run --extra dev python -m scripts.seed_market
+```
+
+A scheduled job refreshes postings weekly, which needs `pnpm --filter api worker` and `pnpm --filter api beat` running.
+
+`apps/api/data/noc_esco_map.json` links Canadian occupations to ESCO ones. It was built by `scripts.build_occupation_map`, using similarity to shortlist and the local AI to decide, and should be reviewed before changing. New countries or sources are one more provider in `apps/api/app/job_sources.py`. Adzuna's API allows commercial use only during a 14-day trial, and its descriptions are shortened.
+
 ## Checks
 
 ```bash

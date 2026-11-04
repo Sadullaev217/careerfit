@@ -2,6 +2,7 @@ import type {
   HealthResponse,
   Document,
   DocumentAnalysis,
+  MarketRequirements,
   TargetRole,
   Analysis,
   Me,
@@ -98,6 +99,12 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       delete: (id: string) => request<void>(`/documents/${id}`, { method: 'DELETE' }),
       status: (id: string) => request<Document>(`/documents/${id}/status`),
       analysis: (id: string) => request<DocumentAnalysis>(`/documents/${id}/profile`),
+    },
+    market: {
+      requirements: (role: string, region?: string) => {
+        const query = new URLSearchParams({ role, ...(region ? { region } : {}) });
+        return request<MarketRequirements>(`/market/requirements?${query.toString()}`);
+      },
     },
     targetRoles: {
       create: (data: TargetRoleInput) => post<TargetRole>('/target-roles', data),

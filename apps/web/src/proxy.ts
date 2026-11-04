@@ -7,7 +7,9 @@ export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const { pathname } = request.nextUrl;
-  const isProtected = pathname.startsWith('/account') || pathname.startsWith('/documents');
+  const isProtected = ['/account', '/documents', '/market'].some((path) =>
+    pathname.startsWith(path),
+  );
   if (!url || !key) {
     return isProtected ? NextResponse.redirect(new URL('/login', request.url)) : response;
   }

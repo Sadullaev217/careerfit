@@ -1,5 +1,6 @@
 """Server-side Supabase access. The secret key bypasses RLS, so callers must scope by user id."""
 
+from datetime import date
 from functools import lru_cache
 from typing import Any
 
@@ -133,6 +134,90 @@ def get_extracted_profile(document_id: str, user_id: str) -> dict[str, Any] | No
         )
     )
     return rows[0] if rows else None
+
+
+def _upsert(table: str, conflict_columns: str, rows: list[dict[str, Any]]) -> None:
+    _client().post(
+        f"/rest/v1/{table}",
+        params={"on_conflict": conflict_columns},
+        headers={"Prefer": "resolution=merge-duplicates"},
+        json=rows,
+    ).raise_for_status()
+
+
+def upsert_postings(rows: list[dict[str, Any]]) -> None:
+    _upsert("job_postings", "source,source_id", rows)
+
+
+def delete_postings_before(cutoff: date) -> None:
+    _client().delete(
+        "/rest/v1/job_postings", params={"posted_at": f"lt.{cutoff.isoformat()}"}
+    ).raise_for_status()
+
+
+def upsert_occupations(rows: list[dict[str, Any]]) -> None:
+    _upsert("occupations", "code", rows)
+
+
+def upsert_occupation_titles(rows: list[dict[str, Any]]) -> None:
+    _upsert("occupation_titles", "title,occupation_code", rows)
+
+
+def replace_occupation_skills(rows: list[dict[str, Any]]) -> None:
+    _upsert("occupation_skills", "occupation_code,skill_id", rows)
+
+
+def _all_skills() -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    page_size = 1000
+    while True:
+        page = _rows(
+            _client().get(
+                "/rest/v1/skills",
+                params={"select": "id,name,esco_id", "esco_id": "not.is.null", "order": "id"},
+                headers={"Range": f"{len(rows)}-{len(rows) + page_size - 1}"},
+            )
+        )
+        rows += page
+        if len(page) < page_size:
+            return rows
+
+
+def skill_ids_by_esco_uri() -> dict[str, str]:
+    return {row["esco_id"]: row["id"] for row in _all_skills()}
+
+
+def skill_names_by_esco_uri() -> dict[str, str]:
+    return {row["esco_id"]: row["name"] for row in _all_skills()}
+
+
+def match_occupation(embedding: list[float]) -> dict[str, Any] | None:
+    rows = _rows(
+        _client().post("/rest/v1/rpc/match_occupation", json={"query_embedding": embedding})
+    )
+    return rows[0] if rows else None
+
+
+def market_stats(occupation_code: str, region: str | None) -> dict[str, Any]:
+    response = _client().post(
+        "/rest/v1/rpc/market_stats", json={"p_code": occupation_code, "p_region": region}
+    )
+    response.raise_for_status()
+    stats: dict[str, Any] = response.json()
+    return stats
+
+
+def occupation_skills(occupation_code: str) -> list[dict[str, Any]]:
+    return _rows(
+        _client().get(
+            "/rest/v1/occupation_skills",
+            params={
+                "occupation_code": f"eq.{occupation_code}",
+                "select": "required,rank,skills(name,esco_id)",
+                "order": "rank",
+            },
+        )
+    )
 
 
 def update_document(document_id: str, fields: dict[str, Any]) -> None:

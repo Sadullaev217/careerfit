@@ -8,7 +8,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.config import settings
 from app.file_validation import MAX_FILE_BYTES
-from app.routers import account, documents, health
+from app.routers import account, documents, health, market
 
 logger = logging.getLogger(__name__)
 
@@ -93,3 +93,4 @@ def storage_unavailable(_request: Request, exc: httpx.HTTPError) -> JSONResponse
 app.include_router(health.router)
 app.include_router(account.router)
 app.include_router(documents.router)
+app.include_router(market.router)

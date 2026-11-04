@@ -76,6 +76,32 @@ export interface DocumentAnalysis {
   createdAt: string;
 }
 
+export interface MarketRequirements {
+  role: string;
+  matchedTitle: string;
+  occupationCode: string;
+  occupationName: string;
+  region: string;
+  sampleSize: number;
+  salary: {
+    p25: number;
+    median: number;
+    p75: number;
+    currency: string;
+    period: 'yearly';
+    sampleSize: number;
+    region: string;
+    confidence: 'low' | 'medium' | 'high';
+  } | null;
+  requiredSkills: string[];
+  preferredSkills: string[];
+  education: Record<string, number>;
+  experience: Record<string, number>;
+  latestPosting: string | null;
+  sources: string[];
+  limitations: string;
+}
+
 export interface Skill {
   id: string;
   name: string;
