@@ -16,7 +16,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+      - run: pnpm --filter @careerfit/shared build
+      - run: pnpm --filter "!api" -r --if-present typecheck
       - run: pnpm --filter @careerfit/shared lint
       - run: pnpm --filter web lint
       - run: pnpm --filter web build
