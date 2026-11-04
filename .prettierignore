@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+build
+.expo
+__pycache__
+*.pyc
+.venv
+venv

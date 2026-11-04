@@ -1,0 +1,24 @@
+{
+  "name": "careerfit",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @careerfit/shared build && concurrently -n api,web,mobile \"pnpm --filter api dev\" \"pnpm --filter web dev\" \"pnpm --filter mobile start\"",
+    "services": "docker compose up -d --wait",
+    "build": "pnpm --filter @careerfit/shared build && pnpm --filter web build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm --filter @careerfit/shared build && pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@11.8.0"
+}

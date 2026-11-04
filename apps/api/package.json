@@ -1,0 +1,11 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "uv run --extra dev uvicorn app.main:app --reload --port 8000",
+    "lint": "uv run --extra dev ruff check .",
+    "typecheck": "uv run --extra dev mypy app",
+    "test": "uv run --extra dev pytest"
+  }
+}
