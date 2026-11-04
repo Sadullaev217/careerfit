@@ -36,6 +36,19 @@ Copy each app's `.env.example` to `.env` to override defaults.
 
 Row-level security tests skip unless `TEST_DATABASE_URL` is set, and they wipe that database. CI always runs them; never point this variable at a real project.
 
+## Background jobs and OCR
+
+Uploaded files are parsed by a Celery worker, which needs Redis:
+
+```bash
+pnpm services
+pnpm --filter api worker
+```
+
+Without Docker, set `CELERY_TASK_ALWAYS_EAGER=true` in `apps/api/.env` to parse inside the API process instead. Use this for local development only, because uploads then wait for parsing to finish.
+
+Scanned PDFs need [Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) with the English and Russian language data on the PATH of whichever process does the parsing. Without it, scans fail with a clear message and other files still work.
+
 ## Checks
 
 ```bash

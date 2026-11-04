@@ -1,19 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createApiClient, type Me } from '@careerfit/shared';
+import type { Me } from '@careerfit/shared';
+import { getApi } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 
 const buttonClass = 'rounded border border-zinc-400 p-2 font-medium';
-
-function getApi() {
-  const supabase = createClient();
-  return createApiClient(
-    process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000',
-    async () => (await supabase.auth.getSession()).data.session?.access_token,
-  );
-}
 
 export default function AccountPage() {
   const router = useRouter();
@@ -48,6 +42,9 @@ export default function AccountPage() {
       <h1 className="text-2xl font-semibold">Your account</h1>
       {me && <p>Signed in as {me.email ?? me.id}</p>}
       {error && <p role="alert">{error}</p>}
+      <Link className={`${buttonClass} text-center`} href="/documents">
+        Your documents
+      </Link>
       <button className={buttonClass} onClick={signOut}>
         Log out
       </button>

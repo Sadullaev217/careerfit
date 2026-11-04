@@ -1,6 +1,8 @@
 import type { HealthResponse, Document, TargetRole, Analysis, Me } from '../types/index.js';
 import type { TargetRoleInput, PortfolioLinkInput } from '../schemas/index.js';
 
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -12,7 +14,23 @@ export class ApiError extends Error {
   }
 }
 
+export function apiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    const detail = (error.body as { detail?: { message?: unknown } } | undefined)?.detail;
+    if (typeof detail?.message === 'string') return detail.message;
+  }
+  return fallback;
+}
+
 type GetToken = () => string | null | undefined | Promise<string | null | undefined>;
+
+function parseBody(text: string): unknown {
+  try {
+    return text ? JSON.parse(text) : undefined;
+  } catch {
+    return text;
+  }
+}
 
 export function createApiClient(baseUrl: string, getToken?: GetToken) {
   async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -25,19 +43,37 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       },
     });
 
-    const text = await res.text();
-    let body: unknown = text;
-    try {
-      body = text ? JSON.parse(text) : undefined;
-    } catch {
-      // Non-JSON error pages are kept as text.
-    }
+    const body = parseBody(await res.text());
     if (!res.ok) throw new ApiError(res.status, `API error ${res.status}: ${path}`, body);
     return body as T;
   }
 
   const post = <T>(path: string, data: unknown) =>
     request<T>(path, { method: 'POST', body: JSON.stringify(data) });
+
+  // fetch can't report upload progress, and XMLHttpRequest works in browsers and React Native.
+  async function upload<T>(
+    path: string,
+    form: FormData,
+    onProgress?: (fraction: number) => void,
+  ): Promise<T> {
+    const token = await getToken?.();
+    return new Promise<T>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${baseUrl}${path}`);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) onProgress?.(event.loaded / event.total);
+      };
+      xhr.onload = () => {
+        const body = parseBody(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300) resolve(body as T);
+        else reject(new ApiError(xhr.status, `API error ${xhr.status}: ${path}`, body));
+      };
+      xhr.onerror = () => reject(new ApiError(0, `Network error: ${path}`));
+      xhr.send(form);
+    });
+  }
 
   return {
     health: {
@@ -49,9 +85,11 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
     },
     documents: {
       list: () => request<Document[]>('/documents'),
+      upload: (form: FormData, onProgress?: (fraction: number) => void) =>
+        upload<Document>('/documents', form, onProgress),
       addPortfolioLink: (data: PortfolioLinkInput) => post<Document>('/documents/portfolio', data),
       delete: (id: string) => request<void>(`/documents/${id}`, { method: 'DELETE' }),
-      parseStatus: (id: string) => request<{ status: string }>(`/documents/${id}/status`),
+      status: (id: string) => request<Document>(`/documents/${id}/status`),
     },
     targetRoles: {
       create: (data: TargetRoleInput) => post<TargetRole>('/target-roles', data),

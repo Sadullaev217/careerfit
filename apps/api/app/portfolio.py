@@ -21,7 +21,7 @@ MAX_TEXT_CHARS = 100_000
 TIMEOUT_SECONDS = 10
 
 _TEXT_CONTENT_TYPES = ("text/html", "application/xhtml+xml", "text/plain")
-_NOISE_TAGS = ("script", "style", "noscript", "nav", "footer", "header", "aside", "form", "svg")
+_NOISE_TAGS = ("script", "style", "noscript", "nav", "footer", "aside", "form", "svg")
 _DEFAULT_PORTS = {"http": 80, "https": 443}
 _GITHUB_USERNAME = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$")
 

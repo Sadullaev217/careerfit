@@ -8,7 +8,6 @@ export const TargetRoleSchema = z.object({
 
 export const PortfolioLinkSchema = z.object({
   url: z.string().url().max(2048),
-  type: z.enum(['github', 'behance', 'linkedin', 'personal', 'other']),
 });
 
 export const UploadDocumentSchema = z.object({

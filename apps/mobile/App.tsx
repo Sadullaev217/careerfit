@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { createApiClient } from '@careerfit/shared';
+import { DocumentsSection } from './DocumentsSection';
 import { supabase } from './lib/supabase';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
@@ -82,11 +83,16 @@ function LoginScreen({ client }: { client: SupabaseClient }) {
 }
 
 function AccountScreen({ client, session }: { client: SupabaseClient; session: Session }) {
+  const api = useMemo(
+    () =>
+      createApiClient(
+        API_URL,
+        async () => (await client.auth.getSession()).data.session?.access_token,
+      ),
+    [client],
+  );
+
   async function deleteAccount() {
-    const api = createApiClient(
-      API_URL,
-      async () => (await client.auth.getSession()).data.session?.access_token,
-    );
     try {
       await api.account.delete();
       await client.auth.signOut({ scope: 'local' });
@@ -96,7 +102,7 @@ function AccountScreen({ client, session }: { client: SupabaseClient; session: S
   }
 
   return (
-    <View style={styles.form}>
+    <View style={styles.account}>
       <Text style={styles.title}>CareerFit</Text>
       <Text>Signed in as {session.user.email ?? session.user.id}</Text>
       <Button title="Log out" onPress={() => client.auth.signOut()} />
@@ -110,6 +116,7 @@ function AccountScreen({ client, session }: { client: SupabaseClient; session: S
           ])
         }
       />
+      <DocumentsSection api={api} />
     </View>
   );
 }
@@ -146,6 +153,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24 },
   form: { alignSelf: 'stretch', gap: 12 },
+  account: { alignSelf: 'stretch', flex: 1, gap: 12, paddingTop: 32 },
   title: { fontSize: 28, fontWeight: '600' },
   input: { borderWidth: 1, borderColor: '#a1a1aa', borderRadius: 6, padding: 10 },
 });

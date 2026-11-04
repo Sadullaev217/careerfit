@@ -22,12 +22,12 @@ export interface Profile {
 
 export interface Document {
   id: string;
-  userId: string;
   type: DocumentType;
   fileName: string | null;
-  fileUrl: string | null;
-  parsedText: string | null;
+  url: string | null;
   status: 'pending' | 'parsing' | 'ready' | 'failed';
+  errorCode: string | null;
+  errorMessage: string | null;
   createdAt: string;
 }
 
