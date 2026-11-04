@@ -30,7 +30,7 @@ Copy each app's `.env.example` to `.env` to override defaults.
 ## Supabase setup
 
 1. Create a project at supabase.com. New projects use asymmetric JWT signing keys, which the API requires.
-2. Apply the schema: `npx supabase link --project-ref <ref>`, then `npx supabase db push`.
+2. Apply the schema: `npx supabase link --project-ref <ref>`, then `npx supabase db push --remote`.
 3. Fill in `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `apps/api/.env`, and the URL and publishable key in `apps/web/.env.local` and `apps/mobile/.env`. The secret key must stay server-side only.
 4. Under Authentication > URL Configuration, allow `http://localhost:3000/auth/callback` and `careerfit://auth/callback`. Enable Google and Apple under Providers.
 
