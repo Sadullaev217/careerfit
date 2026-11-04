@@ -57,15 +57,15 @@ def get_current_user(
     return CurrentUser(id=claims["sub"], email=claims.get("email"))
 
 
-async def delete_auth_user(user_id: str) -> None:
+def delete_auth_user(user_id: str) -> None:
     """Database rows cascade from auth.users."""
     key = settings.supabase_secret_key
     if not settings.supabase_url or not key:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Auth is not configured")
-    async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.delete(
-            f"{settings.supabase_url}/auth/v1/admin/users/{user_id}",
-            headers={"apikey": key, "Authorization": f"Bearer {key}"},
-        )
+    response = httpx.delete(
+        f"{settings.supabase_url}/auth/v1/admin/users/{user_id}",
+        headers={"apikey": key, "Authorization": f"Bearer {key}"},
+        timeout=10,
+    )
     if response.status_code not in (200, 204, 404):
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Could not delete account")

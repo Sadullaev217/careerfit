@@ -18,8 +18,17 @@ BOB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 SUPABASE_SHIM = """
 drop schema if exists public cascade;
 drop schema if exists auth cascade;
+drop schema if exists storage cascade;
 create schema public;
 create schema auth;
+create schema storage;
+create table storage.buckets (
+  id text primary key,
+  name text not null,
+  public boolean,
+  file_size_limit bigint,
+  allowed_mime_types text[]
+);
 do $$ begin
   if not exists (select from pg_roles where rolname = 'anon') then create role anon; end if;
   if not exists (select from pg_roles where rolname = 'authenticated') then create role authenticated; end if;
@@ -103,7 +112,7 @@ def test_anon_cannot_read_user_data(conn: psycopg.Connection) -> None:
 def test_user_cannot_update_or_delete_other_users_rows(conn: psycopg.Connection) -> None:
     act_as(conn, BOB)
     updated = conn.execute("update public.target_roles set title = 'Hacked'")
-    deleted = conn.execute("delete from public.documents")
+    deleted = conn.execute("delete from public.target_roles")
     assert updated.rowcount == 0
     assert deleted.rowcount == 0
 
@@ -111,9 +120,7 @@ def test_user_cannot_update_or_delete_other_users_rows(conn: psycopg.Connection)
 def test_user_can_create_own_rows(conn: psycopg.Connection) -> None:
     act_as(conn, BOB)
     conn.execute("insert into public.target_roles (title, region) values ('Dev', 'US')")
-    conn.execute("insert into public.documents (type, file_name) values ('resume', 'b.pdf')")
     assert count(conn, "target_roles") == 1
-    assert count(conn, "documents") == 1
 
 
 def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> None:
@@ -132,12 +139,19 @@ def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> N
         "update public.subscriptions set plan = 'pro'",
         "update public.documents set parsed_text = 'x'",
         "insert into public.skills (name) values ('Fake')",
+        "insert into public.documents (type, file_name) values ('resume', 'x.pdf')",
+        "delete from public.documents",
     ],
 )
 def test_user_cannot_write_server_owned_data(conn: psycopg.Connection, statement: str) -> None:
     act_as(conn, ALICE)
     with pytest.raises(psycopg.errors.InsufficientPrivilege):
         conn.execute(statement.encode())
+
+
+def test_documents_bucket_is_private(conn: psycopg.Connection) -> None:
+    row = conn.execute("select public from storage.buckets where id = 'documents'").fetchone()
+    assert row == (False,)
 
 
 def test_signup_creates_profile_and_free_subscription(conn: psycopg.Connection) -> None:

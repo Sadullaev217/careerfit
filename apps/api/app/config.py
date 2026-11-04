@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     # Supabase
     supabase_url: str = ""
     supabase_secret_key: str = ""
+    storage_bucket: str = "documents"
+
+    # Documents
+    ocr_languages: str = "eng+rus"
+    github_token: str = ""
+    celery_task_always_eager: bool = False
 
     # Redis / Celery
     redis_url: str = "redis://localhost:6379/0"

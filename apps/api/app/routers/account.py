@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
 
+from app import store
 from app.auth import CurrentUser, delete_auth_user, get_current_user
 
 router = APIRouter()
@@ -21,5 +22,7 @@ def me(user: User) -> MeResponse:
 
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_account(user: User) -> None:
-    await delete_auth_user(user.id)
+def delete_account(user: User) -> None:
+    # Files go first: if this fails the account still exists, so the user can retry.
+    store.delete_all_user_files(user.id)
+    delete_auth_user(user.id)

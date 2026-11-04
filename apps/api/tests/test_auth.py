@@ -1,39 +1,10 @@
 import time
-from collections.abc import Iterator
-from typing import Any
 
-import jwt
 import pytest
 from cryptography.hazmat.primitives.asymmetric import ec
 from fastapi.testclient import TestClient
 
-from app import auth
-from app.config import settings
-from app.main import app
-
-SUPABASE_URL = "https://test.supabase.co"
-USER_ID = "11111111-1111-1111-1111-111111111111"
-PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
-
-
-def make_token(key: Any = PRIVATE_KEY, algorithm: str = "ES256", **overrides: Any) -> str:
-    claims = {
-        "sub": USER_ID,
-        "email": "a@example.com",
-        "aud": "authenticated",
-        "iss": f"{SUPABASE_URL}/auth/v1",
-        "exp": int(time.time()) + 60,
-        **overrides,
-    }
-    return jwt.encode(claims, key, algorithm=algorithm)
-
-
-@pytest.fixture
-def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
-    monkeypatch.setattr(settings, "supabase_url", SUPABASE_URL)
-    monkeypatch.setattr(settings, "supabase_secret_key", "server-key")
-    monkeypatch.setattr(auth, "_signing_key", lambda _token: PRIVATE_KEY.public_key())
-    yield TestClient(app)
+from tests.helpers import USER_ID, FakeStore, make_token
 
 
 def get_me(client: TestClient, token: str) -> int:
@@ -70,18 +41,38 @@ def test_rejects_hs256(client: TestClient) -> None:
     assert get_me(client, make_token(key="x" * 32, algorithm="HS256")) == 401
 
 
-def test_delete_account_targets_token_user(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch
+def test_delete_account_removes_files_then_the_user(
+    client: TestClient, fake_store: FakeStore, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    deleted: list[str] = []
+    fake_store.upload_file(f"{USER_ID}/a.pdf", b"x", "application/pdf")
+    fake_store.upload_file("someone-else/b.pdf", b"y", "application/pdf")
 
-    async def fake_delete(user_id: str) -> None:
-        deleted.append(user_id)
+    def fake_delete(user_id: str) -> None:
+        fake_store.calls.append(f"delete_auth_user:{user_id}")
 
     monkeypatch.setattr("app.routers.account.delete_auth_user", fake_delete)
     response = client.delete("/account", headers={"Authorization": f"Bearer {make_token()}"})
+
     assert response.status_code == 204
-    assert deleted == [USER_ID]
+    assert fake_store.calls == [f"delete_all_user_files:{USER_ID}", f"delete_auth_user:{USER_ID}"]
+    assert list(fake_store.files) == ["someone-else/b.pdf"]
+
+
+def test_delete_account_keeps_user_if_files_cannot_be_removed(
+    client: TestClient, fake_store: FakeStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    deleted: list[str] = []
+
+    def failing(_user_id: str) -> None:
+        raise RuntimeError("storage down")
+
+    monkeypatch.setattr(fake_store, "delete_all_user_files", failing)
+    monkeypatch.setattr("app.routers.account.delete_auth_user", deleted.append)
+    no_raise = TestClient(client.app, raise_server_exceptions=False)
+    response = no_raise.delete("/account", headers={"Authorization": f"Bearer {make_token()}"})
+
+    assert response.status_code == 500
+    assert deleted == []
 
 
 def test_delete_account_requires_auth(client: TestClient) -> None:
