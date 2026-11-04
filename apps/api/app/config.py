@@ -12,8 +12,7 @@ class Settings(BaseSettings):
 
     # Supabase
     supabase_url: str = ""
-    supabase_anon_key: str = ""
-    supabase_service_role_key: str = ""
+    supabase_secret_key: str = ""
 
     # Redis / Celery
     redis_url: str = "redis://localhost:6379/0"
