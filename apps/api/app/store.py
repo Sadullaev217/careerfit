@@ -204,6 +204,15 @@ def match_occupation(embedding: list[float]) -> dict[str, Any] | None:
     return rows[0] if rows else None
 
 
+def match_occupations(embedding: list[float], count: int) -> list[dict[str, Any]]:
+    return _rows(
+        _client().post(
+            "/rest/v1/rpc/match_occupations",
+            json={"query_embedding": embedding, "match_count": count},
+        )
+    )
+
+
 def market_stats(occupation_code: str, region: str | None) -> dict[str, Any]:
     response = _client().post(
         "/rest/v1/rpc/market_stats", json={"p_code": occupation_code, "p_region": region}

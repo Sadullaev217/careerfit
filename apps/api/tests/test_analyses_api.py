@@ -49,6 +49,23 @@ RELEVANCE_ANSWER = {
 }
 
 
+ACTION_ANSWER = {
+    "gap": 1,
+    "type": "course",
+    "title": "Debugging basics",
+    "details": "Practise finding faults in small programs.",
+    "expected_result": "You can debug your own code.",
+    "providers": ["Coursera"],
+    "weeks": 3,
+    "unsure": False,
+}
+RESUME_LINE = "Patient assessment, wound care and triage in the emergency department."
+REWRITE_ANSWER = {
+    "line": 1,
+    "after": "Assessed patients, provided wound care, and performed triage in the emergency department.",
+}
+
+
 class FakeLLM:
     model = "fake-model"
 
@@ -60,9 +77,14 @@ class FakeLLM:
         self.calls += 1
         if self.error:
             raise self.error
-        return json.dumps(
-            SKILLS_ANSWER if "judgements" in schema["properties"] else RELEVANCE_ANSWER
-        )
+        properties = schema["properties"]
+        if "judgements" in properties:
+            return json.dumps(SKILLS_ANSWER)
+        if "actions" in properties:
+            return json.dumps({"actions": [ACTION_ANSWER]})
+        if "rewrites" in properties:
+            return json.dumps({"rewrites": [REWRITE_ANSWER]})
+        return json.dumps(RELEVANCE_ANSWER)
 
 
 class AnalysisFakeStore(FakeStore):
@@ -76,12 +98,20 @@ class AnalysisFakeStore(FakeStore):
     def match_occupation(self, _embedding: list[float]) -> dict[str, Any] | None:
         return MATCH
 
+    def match_occupations(self, _embedding: list[float], _count: int) -> list[dict[str, Any]]:
+        return [{"occupation_code": "21231", "occupation_name": "Software engineers", "similarity": 0.9}]
+
     def market_stats(self, _code: str, _region: str | None) -> dict[str, Any]:
         if self.market_error:
             raise self.market_error
         return STATS
 
-    def occupation_skills(self, _code: str) -> list[dict[str, Any]]:
+    def occupation_skills(self, code: str) -> list[dict[str, Any]]:
+        if code == "21231":
+            return [
+                {"required": True, "rank": n, "skills": {"name": f"skill {n}", "esco_id": str(n)}}
+                for n in range(6)
+            ]
         return SKILLS
 
     def get_or_create_target_role(self, user_id: str, title: str, region: str) -> str:
@@ -312,7 +342,10 @@ def test_running_again_gives_the_same_score_without_asking_the_ai_again(
     first = run(store, queue)
     start(client, document_id)
     second = run(store, queue)
-    assert llm.calls == 2  # the skills question and the relevance question, once each
+    # Each run asks about actions, but the saved skill answers for both jobs are reused.
+    questions_about_skills_and_fit = 4
+    actions_and_two_runs = 2
+    assert llm.calls == questions_about_skills_and_fit + actions_and_two_runs
     assert store.analyses[first]["result"] == store.analyses[second]["result"]
 
 
@@ -422,6 +455,104 @@ def test_ready_portfolio_links_count_and_failed_ones_dont(
     result = store.analyses[run(store, queue)]["result"]
     portfolio = next(c for c in result["categories"] if c["key"] == "portfolio")
     assert "1 portfolio link(s)" in portfolio["reason"]
+
+
+def test_the_full_report_is_saved_with_the_score(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    start(client, add_resume(store, parsed_text=RESUME_LINE))
+    analysis_id = run(store, queue)
+    body = client.get(f"/analyses/{analysis_id}", headers=auth_headers()).json()
+    assert body["status"] == "completed"
+    report = body["result"]["report"]
+    assert body["result"]["reportError"] is None
+    assert report["gaps"]
+    assert report["actions"][0]["title"] == "Debugging basics"
+    assert report["rewrites"] == [{"before": RESUME_LINE, "after": REWRITE_ANSWER["after"]}]
+    assert report["alternativeRoles"][0]["occupationName"] == "Software engineers"
+    assert report["plan"]["thirtyDays"]
+    assert report["notes"]
+    assert "not a guarantee" in body["result"]["disclaimer"]
+    # History and progress need these saved on the analysis itself.
+    assert store.analyses[analysis_id]["result"]["report"]["plan"]
+    assert store.analyses[analysis_id]["score"] == body["score"]
+
+
+def test_the_score_is_saved_before_recommendations_begin(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    llm: FakeLLM,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: list[dict[str, Any]] = []
+
+    def watch(**_kwargs: Any) -> Any:
+        row = next(iter(store.analyses.values()))
+        seen.append({"status": row["status"], "score": row["score"], "result": row["result"]})
+        raise ValueError("stop here")
+
+    monkeypatch.setattr(tasks, "build_report", watch)
+    start(client, add_resume(store))
+    run(store, queue)
+    assert seen[0]["status"] == "processing"
+    assert seen[0]["score"] is not None
+    assert seen[0]["result"]["score"] == seen[0]["score"]
+
+
+def test_the_page_can_show_the_score_while_the_report_is_being_made(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = start(client, add_resume(store)).json()["analysisId"]
+    run(store, queue)
+    row = store.analyses[analysis_id]
+    partial = {key: value for key, value in row["result"].items() if key not in ("report", "report_error")}
+    store.update_analysis(analysis_id, {"status": "processing", "result": partial, "completed_at": None})
+    body = client.get(f"/analyses/{analysis_id}", headers=auth_headers()).json()
+    assert body["status"] == "processing"
+    assert body["result"]["score"] == body["score"]
+    assert body["result"]["report"] is None
+
+
+def test_a_recommendation_failure_keeps_the_score(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    llm: FakeLLM,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def broken(**_kwargs: Any) -> Any:
+        raise ValueError("Jane Doe's resume says secret things")
+
+    monkeypatch.setattr(tasks, "build_report", broken)
+    start(client, add_resume(store))
+    row = store.analyses[run(store, queue)]
+    assert row["status"] == "completed"
+    assert row["score"] is not None
+    assert row["result"]["report"] is None
+    assert row["result"]["report_error"] == "analysis_error"
+
+
+def test_an_ai_outage_during_recommendations_keeps_the_score(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    llm: FakeLLM,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[int] = []
+
+    def down(**_kwargs: Any) -> Any:
+        calls.append(1)
+        raise LLMUnavailable()
+
+    monkeypatch.setattr(tasks, "build_report", down)
+    start(client, add_resume(store))
+    row = store.analyses[run(store, queue)]
+    assert len(calls) == tasks.MAX_RETRIES + 1
+    assert row["status"] == "completed"
+    assert row["score"] is not None
+    assert row["result"]["report_error"] == "ai_unavailable"
 
 
 def test_a_deleted_resume_fails_cleanly(

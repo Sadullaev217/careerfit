@@ -104,6 +104,14 @@ cd apps/api
 uv run --extra dev python -m eval.run_fairness_eval
 ```
 
+## Recommendations
+
+`apps/api/app/recommendations.py` adds a report to each analysis, saved with its score in the `analyses` table. Gaps are ranked by how much closing each one would really add to the score, found by rescoring. Alternative roles are scored the same way as the target role, and the 30, 60 and 90 day plan is built from the actions.
+
+AI only writes the suggested actions and resume rewrites. Code rejects links, statistics and invented details in actions, and limits where they send people to a fixed list. A rewrite must keep every number and name in the line and add almost nothing, because when the model was told which skills were missing, it wrote them into people's work history.
+
+Job Bank ads don't list skills, so gaps can't be ranked by how often employers ask for them, and the report says so.
+
 ## Checks
 
 ```bash

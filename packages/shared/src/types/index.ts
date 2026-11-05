@@ -163,37 +163,59 @@ export interface ScoreResult {
   asOf: string;
   marketLatestPosting: string | null;
   disclaimer: string;
+  report?: Report | null;
+  reportError?: string | null;
 }
 
-export interface SalaryRange {
-  min: number;
-  max: number;
-  median: number;
-  currency: string;
-  period: 'yearly' | 'monthly';
+export interface Gap {
+  kind: 'required_skill' | 'preferred_skill' | 'experience' | 'education' | 'portfolio';
+  title: string;
+  pointsAvailable: number;
+  detail: string;
 }
 
 export interface RecommendedAction {
-  type: 'course' | 'project' | 'resume_rewrite';
-  skill: string;
-  description: string;
+  gap: string;
+  kind: 'course' | 'certification' | 'project' | 'experience';
+  title: string;
+  details: string;
+  expectedResult: string | null;
+  providers: string[];
   effortWeeks: number;
   priority: 'high' | 'medium' | 'low';
-  beforeExample?: string;
-  afterExample?: string;
+  uncertain: boolean;
+}
+
+export interface ResumeRewrite {
+  before: string;
+  after: string;
 }
 
 export interface AlternativeRole {
-  title: string;
-  matchScore: number;
+  occupationCode: string;
+  occupationName: string;
+  score: number;
+  fit: 'strong' | 'one_step' | 'bigger_step';
   reason: string;
-  salaryRange: SalaryRange;
+  salary: ScoreResult['salary'];
+  payComparedToTarget: 'higher' | 'similar' | 'lower' | null;
+  mayNeedLicence: boolean;
 }
 
 export interface ImprovementPlan {
   thirtyDays: string[];
   sixtyDays: string[];
   ninetyDays: string[];
+  later: string[];
+}
+
+export interface Report {
+  gaps: Gap[];
+  actions: RecommendedAction[];
+  rewrites: ResumeRewrite[];
+  alternativeRoles: AlternativeRole[];
+  plan: ImprovementPlan;
+  notes: string[];
 }
 
 export interface Analysis {

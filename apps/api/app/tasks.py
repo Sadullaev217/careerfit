@@ -7,7 +7,7 @@ from celery.exceptions import SoftTimeLimitExceeded
 from kombu.exceptions import OperationalError
 
 from app import portfolio, store
-from app.analysis import analyze
+from app.analysis import prepare_score_input
 from app.celery_app import celery_app
 from app.embeddings import embed_texts
 from app.extraction import ExtractionFailed, extract_profile
@@ -15,7 +15,8 @@ from app.job_sources import JobBankProvider
 from app.llm import LLMUnavailable, get_llm
 from app.market_data import refresh_market_data
 from app.parsing import ParseFailure, extract_text
-from app.scoring import NothingToScore
+from app.recommendations import FullResult, Report, build_report
+from app.scoring import NothingToScore, ScoreResult, score_profile
 from app.skill_judgement import SkillJudgementFailed
 from app.skill_matching import profile_skills
 
@@ -155,6 +156,36 @@ def _fail_analysis(analysis_id: str, code: str) -> None:
     store.update_analysis(analysis_id, {"status": "failed", "error_code": code})
 
 
+def _finish_analysis(
+    analysis_id: str,
+    scored: ScoreResult,
+    finished_at: datetime,
+    report: Report | None = None,
+    report_error: str | None = None,
+) -> None:
+    result = FullResult(**scored.model_dump(), report=report, report_error=report_error)
+    store.update_analysis(
+        analysis_id,
+        {
+            "status": "completed",
+            "score": scored.score,
+            "result": result.model_dump(),
+            "error_code": None,
+            "completed_at": finished_at.isoformat(),
+        },
+    )
+
+
+def _end_analysis_early(
+    analysis_id: str, scored: ScoreResult | None, finished_at: datetime, code: str
+) -> None:
+    """A good score is still worth showing when only the recommendations couldn't be made."""
+    if scored is None:
+        _fail_analysis(analysis_id, code)
+    else:
+        _finish_analysis(analysis_id, scored, finished_at, report_error=code)
+
+
 @celery_app.task(  # type: ignore[untyped-decorator]
     name="run_analysis",
     bind=True,
@@ -179,45 +210,49 @@ def run_analysis(
     store.update_analysis(analysis_id, {"status": "processing", "error_code": None})
 
     now = datetime.now(UTC)
+    scored: ScoreResult | None = None
+    context: dict[str, Any] = {
+        "extraction": extraction,
+        "document_id": row["document_id"],
+        "user_id": row["user_id"],
+        "region": region,
+        "as_of": now.date(),
+        "store": store,
+        "llm": get_llm(),
+        "embed": embed_texts,
+    }
     try:
-        result = analyze(
-            extraction=extraction,
-            document_id=row["document_id"],
-            user_id=row["user_id"],
-            occupation_code=occupation_code,
-            occupation_name=occupation_name,
-            region=region,
-            as_of=now.date(),
-            store=store,
-            llm=get_llm(),
-            embed=embed_texts,
+        data = prepare_score_input(
+            occupation_code=occupation_code, occupation_name=occupation_name, **context
+        )
+        scored = score_profile(data)
+        # Recommendations take another minute or so, and the score shouldn't have to wait for them.
+        store.update_analysis(
+            analysis_id, {"score": scored.score, "result": scored.model_dump()}
+        )
+        report = build_report(
+            data=data,
+            result=scored,
+            resume_text=store.get_parsed_text(row["document_id"]),
+            **context,
         )
     except SkillJudgementFailed:
-        _fail_analysis(analysis_id, "invalid_model_output")
+        _end_analysis_early(analysis_id, scored, now, "invalid_model_output")
         return
     except NothingToScore:
-        _fail_analysis(analysis_id, "not_enough_market_data")
+        _end_analysis_early(analysis_id, scored, now, "not_enough_market_data")
         return
     except SoftTimeLimitExceeded:
-        _fail_analysis(analysis_id, "timeout")
+        _end_analysis_early(analysis_id, scored, now, "timeout")
         return
     except (LLMUnavailable, httpx.HTTPError) as exc:
         if self.request.retries < MAX_RETRIES:
             raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
-        _fail_analysis(analysis_id, "ai_unavailable")
+        _end_analysis_early(analysis_id, scored, now, "ai_unavailable")
         return
     except Exception as exc:
         logger.error("analysis %s failed: %s", analysis_id, type(exc).__name__)
-        _fail_analysis(analysis_id, "analysis_error")
+        _end_analysis_early(analysis_id, scored, now, "analysis_error")
         return
 
-    store.update_analysis(
-        analysis_id,
-        {
-            "status": "completed",
-            "score": result.score,
-            "result": result.model_dump(),
-            "error_code": None,
-            "completed_at": now.isoformat(),
-        },
-    )
+    _finish_analysis(analysis_id, scored, now, report=report)

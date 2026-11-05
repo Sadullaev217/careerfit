@@ -14,7 +14,8 @@ _INSTRUCTION = re.compile(
     | \bsystem\s+prompt\b
     | \byou\s+are\s+(now\s+)?(an?\s+|the\s+)?(ai|assistant|language\s+model)\b
     | \bset\s+(every|all|each)\s+confidence\b
-    | \b(list|mark|rate|rank|score|treat)\s+this\s+(candidate|applicant|person|resume)\b
+    | \b(list|mark|rate|rank|record|score|treat)\s+this\s+(candidate|applicant|person|resume)\b
+    | \b(screening|recruit\w*|hiring|applicant\s+tracking)\s+(tools?|software|systems?|bots?)\s+(should|must|shall)\b
     | \b(укажи|отметь|оцени)\s+(этого|данного)\s+кандидата\b
     | \b(проигнорируй|игнорируй|забудь)\b.{0,40}\b(инструкци|предыдущ|прошл|указани)
     | \b(инструкци[яию]|указани[ея]|сообщение)\s+для\s+(ии|ai|модели|ассистента|нейросети|бота)\b

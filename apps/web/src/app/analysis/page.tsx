@@ -7,6 +7,7 @@ import {
   type Analysis,
   type Document,
   type JudgedSkill,
+  type Report as ActionReport,
   type ScoreResult,
 } from '@careerfit/shared';
 import { getApi } from '@/lib/api';
@@ -51,6 +52,24 @@ const LEVEL_LABELS: Record<JudgedSkill['level'], string> = {
   no: 'Not found',
 };
 
+const PRIORITY_LABELS: Record<ActionReport['actions'][number]['priority'], string> = {
+  high: 'High priority',
+  medium: 'Medium priority',
+  low: 'Low priority',
+};
+
+const FIT_LABELS: Record<ActionReport['alternativeRoles'][number]['fit'], string> = {
+  strong: 'Strong match',
+  one_step: 'One step away',
+  bigger_step: 'A bigger step',
+};
+
+const PAY_LABELS = {
+  higher: 'Typically pays more than your target job.',
+  similar: 'Typically pays about the same as your target job.',
+  lower: 'Typically pays less than your target job.',
+};
+
 const inputClass = 'rounded border border-zinc-400 bg-transparent p-2';
 
 function money(amount: number): string {
@@ -75,6 +94,126 @@ function SkillTable({ title, skills }: { title: string; skills: JudgedSkill[] })
         ))}
       </ul>
     </section>
+  );
+}
+
+function PlanStage({ title, steps }: { title: string; steps: string[] }) {
+  if (steps.length === 0) return null;
+  return (
+    <div>
+      <p className="font-medium">{title}</p>
+      <ul className="list-disc pl-5 text-sm">
+        {steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ActionPlan({ report }: { report: ActionReport }) {
+  return (
+    <div data-testid="action-report" className="flex flex-col gap-5">
+      {report.gaps.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-lg font-medium">What would raise your score most</h2>
+          <ul className="flex flex-col gap-2 text-sm">
+            {report.gaps.map((gap) => (
+              <li key={gap.title} data-testid="gap">
+                <span className="font-medium">
+                  {gap.title}: about {gap.pointsAvailable}{' '}
+                  {gap.pointsAvailable === 1 ? 'point' : 'points'}
+                </span>
+                <span className="block text-xs text-zinc-500">{gap.detail}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {report.actions.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-lg font-medium">Suggested next steps</h2>
+          <ul className="flex flex-col gap-4">
+            {report.actions.map((action) => (
+              <li key={action.gap} data-testid="action" className="text-sm">
+                <p className="font-medium">{action.title}</p>
+                <p className="text-xs text-zinc-500">
+                  {PRIORITY_LABELS[action.priority]}. For: {action.gap}. About {action.effortWeeks}{' '}
+                  {action.effortWeeks === 1 ? 'week' : 'weeks'}.
+                </p>
+                <p>{action.details}</p>
+                {action.expectedResult && <p>You&apos;ll end up with: {action.expectedResult}</p>}
+                {action.providers.length > 0 && (
+                  <p>Places to look: {action.providers.join(', ')}.</p>
+                )}
+                {action.uncertain && (
+                  <p className="text-xs font-medium">
+                    Please check this one: it depends on where you live or the employer.
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {report.rewrites.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-lg font-medium">Clearer wording for your resume</h2>
+          <p className="text-sm">Use these only where they&apos;re true for you.</p>
+          <ul className="flex flex-col gap-3 text-sm">
+            {report.rewrites.map((rewrite) => (
+              <li key={rewrite.before} data-testid="rewrite">
+                <p className="text-zinc-500">Before: {rewrite.before}</p>
+                <p>After: {rewrite.after}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {report.alternativeRoles.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-lg font-medium">Other roles to consider</h2>
+          <ul className="flex flex-col gap-3 text-sm">
+            {report.alternativeRoles.map((role) => (
+              <li key={role.occupationCode} data-testid="alternative-role">
+                <p className="font-medium">
+                  {role.occupationName}: {role.score} out of 100
+                </p>
+                <p className="text-xs text-zinc-500">{FIT_LABELS[role.fit]}</p>
+                <p>{role.reason}</p>
+                {role.salary && (
+                  <p>
+                    Likely yearly pay: {money(role.salary.low)} to {money(role.salary.high)}{' '}
+                    {role.salary.currency}.{' '}
+                    {role.payComparedToTarget && PAY_LABELS[role.payComparedToTarget]}
+                  </p>
+                )}
+                {role.mayNeedLicence && (
+                  <p className="text-xs font-medium">This work may need a licence or registration.</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="flex flex-col gap-3" data-testid="plan">
+        <h2 className="text-lg font-medium">Your 30, 60 and 90 day plan</h2>
+        <PlanStage title="First 30 days" steps={report.plan.thirtyDays} />
+        <PlanStage title="Days 31 to 60" steps={report.plan.sixtyDays} />
+        <PlanStage title="Days 61 to 90" steps={report.plan.ninetyDays} />
+        <PlanStage title="After that" steps={report.plan.later} />
+      </section>
+
+      <ul className="flex list-disc flex-col gap-1 pl-5 text-xs text-zinc-500">
+        {report.notes.map((note) => (
+          <li key={note}>{note}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -289,9 +428,10 @@ export default function AnalysisPage() {
         </form>
       )}
 
-      {busy && (
+      {busy && !analysis?.result && (
         <p role="status" className="text-sm">
-          Comparing your resume with this job. This usually takes under a minute.
+          Comparing your resume with this job and preparing your action plan. This can take a couple
+          of minutes.
         </p>
       )}
 
@@ -301,7 +441,22 @@ export default function AnalysisPage() {
         </p>
       )}
 
-      {analysis?.status === 'completed' && analysis.result && <Report result={analysis.result} />}
+      {analysis?.result && <Report result={analysis.result} />}
+
+      {scoring && analysis?.result && (
+        <p role="status" className="text-sm">
+          Preparing your action plan. This usually takes a minute or two.
+        </p>
+      )}
+
+      {analysis?.result?.report && <ActionPlan report={analysis.result.report} />}
+
+      {analysis?.status === 'completed' && analysis.result && !analysis.result.report && (
+        <p role="alert" className="text-sm">
+          We couldn&apos;t prepare your action plan this time. Your score above is still valid. Please
+          try again in a few minutes.
+        </p>
+      )}
     </main>
   );
 }

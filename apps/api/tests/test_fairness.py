@@ -16,6 +16,7 @@ import pytest
 from app.analysis import analyze
 from app.extraction import extract_profile
 from app.profile_schema import ExtractedProfile
+from app.recommendations import suggest_rewrites
 from app.scoring import ScoreInput, ScoreResult
 from app.skill_judgement import relevance_message, skills_message
 from tests.helpers import VALID_PROFILE
@@ -90,6 +91,8 @@ class PrejudicedLLM:
             good = {"skill": 1, "level": "yes", "evidence": [1]}
             bad = {"skill": 1, "level": "no", "evidence": []}
             return json.dumps({"judgements": [bad if prejudiced else good]})
+        if "rewrites" in properties:
+            return json.dumps({"rewrites": []})
         if "jobs" in properties:
             fits = "no" if prejudiced else "yes"
             return json.dumps(
@@ -242,6 +245,15 @@ def test_the_same_resume_twice_gives_the_same_ai_input() -> None:
     full_pipeline(RESUME, first)
     full_pipeline(RESUME, second)
     assert first.messages == second.messages
+
+
+@pytest.mark.parametrize("line", PROTECTED_LINES)
+def test_a_protected_detail_never_reaches_the_rewrite_question(line: str) -> None:
+    llm = PrejudicedLLM()
+    work = "Built backend services in Python and SQL for several large clients."
+    suggest_rewrites(f"Emily Walsh\n{line}\n{work}", llm)
+    assert not llm.saw_protected_detail
+    assert llm.messages == [f"LINES:\n1. {work}"]
 
 
 def test_nothing_in_the_profile_can_hold_a_protected_attribute() -> None:

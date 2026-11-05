@@ -338,11 +338,38 @@ def test_match_occupation_finds_the_nearest_title(conn: psycopg.Connection) -> N
     assert row[2] == pytest.approx(1.0)
 
 
+def test_match_occupations_lists_each_occupation_once_nearest_first(
+    conn: psycopg.Connection,
+) -> None:
+    near = "[1," + ",".join(["0"] * 383) + "]"
+    close = "[1,1," + ",".join(["0"] * 382) + "]"
+    far = "[0,1," + ",".join(["0"] * 382) + "]"
+    conn.execute("reset role")
+    conn.execute(
+        "insert into public.occupations (code, name) values "
+        "('63200', 'Cooks'), ('62200', 'Chefs'), ('72106', 'Welders')"
+    )
+    conn.execute(
+        "insert into public.occupation_titles (title, occupation_code, embedding) values "
+        "('cook', '63200', %s::extensions.vector), ('line cook', '63200', %s::extensions.vector), "
+        "('chef', '62200', %s::extensions.vector), ('welder', '72106', %s::extensions.vector)",
+        (near, near, close, far),
+    )
+    rows = conn.execute(
+        "select occupation_code, occupation_name, similarity "
+        "from public.match_occupations(%s::extensions.vector, 2)",
+        (near,),
+    ).fetchall()
+    assert [row[:2] for row in rows] == [("63200", "Cooks"), ("62200", "Chefs")]
+    assert rows[0][2] == pytest.approx(1.0)
+
+
 @pytest.mark.parametrize(
     "statement",
     [
         "select public.market_stats('63200', null)",
         "select * from public.match_occupation(('[' || repeat('0,', 383) || '0]')::extensions.vector)",
+        "select * from public.match_occupations(('[' || repeat('0,', 383) || '0]')::extensions.vector, 5)",
     ],
 )
 def test_clients_cannot_call_market_functions_directly(

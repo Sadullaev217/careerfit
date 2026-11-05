@@ -9,7 +9,7 @@ from pydantic.alias_generators import to_camel
 
 from app import market_lookup, store
 from app.auth import CurrentUser, get_current_user
-from app.scoring import ScoreResult
+from app.recommendations import FullResult
 from app.tasks import run_analysis
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class AnalysisResponse(CamelModel):
     role: str | None
     region: str | None
     score: int | None
-    result: ScoreResult | None
+    result: FullResult | None
     error_code: str | None
     created_at: str
     completed_at: str | None
