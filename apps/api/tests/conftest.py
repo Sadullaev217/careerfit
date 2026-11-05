@@ -7,7 +7,7 @@ from app import auth, tasks
 from app.celery_app import celery_app
 from app.config import settings
 from app.main import app
-from app.routers import account, documents
+from app.routers import account, documents, notifications
 from tests.helpers import PRIVATE_KEY, SUPABASE_URL, FakeStore
 
 
@@ -38,6 +38,7 @@ def fake_store(monkeypatch: pytest.MonkeyPatch) -> FakeStore:
     fake = FakeStore()
     monkeypatch.setattr(documents, "store", fake)
     monkeypatch.setattr(account, "store", fake)
+    monkeypatch.setattr(notifications, "store", fake)
     monkeypatch.setattr(tasks, "store", fake)
     monkeypatch.setattr(tasks, "extract_resume", _NoQueue())
     return fake

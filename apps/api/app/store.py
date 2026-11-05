@@ -1,6 +1,6 @@
 """Server-side Supabase access. The secret key bypasses RLS, so callers must scope by user id."""
 
-from datetime import date
+from datetime import UTC, date, datetime
 from functools import lru_cache
 from typing import Any
 
@@ -443,3 +443,40 @@ def delete_all_user_files(user_id: str) -> None:
             return
         delete_files([f"{user_id}/{file['name']}" for file in files])
     raise RuntimeError("user files could not be removed")
+
+
+def save_push_token(user_id: str, token: str, platform: str, language: str) -> None:
+    # A phone that signs in to another account takes its token with it.
+    _client().post(
+        "/rest/v1/push_tokens",
+        params={"on_conflict": "token"},
+        headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+        json={
+            "token": token,
+            "user_id": user_id,
+            "platform": platform,
+            "language": language,
+            "updated_at": datetime.now(UTC).isoformat(),
+        },
+    ).raise_for_status()
+
+
+def delete_push_token(user_id: str, token: str) -> None:
+    _client().delete(
+        "/rest/v1/push_tokens", params={"token": f"eq.{token}", "user_id": f"eq.{user_id}"}
+    ).raise_for_status()
+
+
+def list_push_tokens(user_id: str) -> list[dict[str, Any]]:
+    return _rows(
+        _client().get(
+            "/rest/v1/push_tokens",
+            params={"user_id": f"eq.{user_id}", "select": "token,platform,language"},
+        )
+    )
+
+
+def forget_push_tokens(tokens: list[str]) -> None:
+    """For tokens the push service says no longer reach a phone."""
+    quoted = ",".join(f'"{token}"' for token in tokens)
+    _client().delete("/rest/v1/push_tokens", params={"token": f"in.({quoted})"}).raise_for_status()

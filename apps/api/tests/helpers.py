@@ -72,6 +72,8 @@ class FakeStore:
         self.saved_extractions: dict[str, dict[str, Any]] = {}
         self.profile_skills: list[dict[str, Any]] = []
         self.skill_matches: dict[str, dict[str, Any] | None] = {}
+        # Keyed by token, like the real table.
+        self.push_tokens: dict[str, dict[str, Any]] = {}
 
     def get_parsed_text(self, document_id: str) -> str | None:
         row = self.documents.get(document_id)
@@ -155,3 +157,22 @@ class FakeStore:
     def delete_all_user_files(self, user_id: str) -> None:
         self.calls.append(f"delete_all_user_files:{user_id}")
         self.files = {k: v for k, v in self.files.items() if not k.startswith(f"{user_id}/")}
+
+    def save_push_token(self, user_id: str, token: str, platform: str, language: str) -> None:
+        self.push_tokens[token] = {"user_id": user_id, "platform": platform, "language": language}
+
+    def delete_push_token(self, user_id: str, token: str) -> None:
+        row = self.push_tokens.get(token)
+        if row and row["user_id"] == user_id:
+            del self.push_tokens[token]
+
+    def list_push_tokens(self, user_id: str) -> list[dict[str, Any]]:
+        return [
+            {"token": token, "platform": row["platform"], "language": row["language"]}
+            for token, row in self.push_tokens.items()
+            if row["user_id"] == user_id
+        ]
+
+    def forget_push_tokens(self, tokens: list[str]) -> None:
+        for token in tokens:
+            self.push_tokens.pop(token, None)

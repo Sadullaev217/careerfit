@@ -773,3 +773,54 @@ def test_only_the_owner_can_read_an_analysis(
 def test_reading_requires_sign_in(client: TestClient, store: AnalysisFakeStore) -> None:
     assert client.get("/analyses").status_code == 401
     assert client.get(f"/analyses/{uuid4()}").status_code == 401
+
+
+# --- Telling the phone ---
+
+
+def test_a_finished_analysis_alerts_the_persons_phones(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    llm: FakeLLM,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sent: list[tuple[str, str]] = []
+    monkeypatch.setattr(
+        tasks.push, "send_report_ready", lambda user_id, analysis_id, **_: sent.append((user_id, analysis_id))
+    )
+    start(client, add_resume(store))
+    analysis_id = run(store, queue)
+    assert store.analyses[analysis_id]["status"] == "completed"
+    assert sent == [(USER_ID, analysis_id)]
+
+
+def test_a_score_without_its_plan_still_alerts(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    llm: FakeLLM,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sent: list[str] = []
+    monkeypatch.setattr(tasks.push, "send_report_ready", lambda _user, analysis_id, **_: sent.append(analysis_id))
+    # Any real score will do, so one is taken from a normal run.
+    start(client, add_resume(store))
+    finished = store.analyses[run(store, queue)]
+    scored = tasks.ScoreResult.model_validate(finished["result"])
+    sent.clear()
+    store.analyses["partial"] = {"user_id": USER_ID}
+    tasks._end_analysis_early("partial", USER_ID, scored, tasks.datetime.now(tasks.UTC), "timeout")
+    assert store.analyses["partial"]["status"] == "completed"
+    assert sent == ["partial"]
+
+
+def test_a_failed_analysis_sends_no_alert(
+    store: AnalysisFakeStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sent: list[str] = []
+    monkeypatch.setattr(tasks.push, "send_report_ready", lambda _user, analysis_id, **_: sent.append(analysis_id))
+    store.analyses["failed"] = {"user_id": USER_ID}
+    tasks._end_analysis_early("failed", USER_ID, None, tasks.datetime.now(tasks.UTC), "timeout")
+    assert store.analyses["failed"]["status"] == "failed"
+    assert sent == []

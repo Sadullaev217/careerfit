@@ -136,6 +136,8 @@ _EN = {
     "evidence.degree": "Degree: ",
     "evidence.certification": "Certification: ",
     "evidence.related": " (a related skill)",
+    "push.report_ready_title": "Your CareerFit report is ready",
+    "push.report_ready_body": "Tap to see your score and your plan.",
 }
 
 _RU = {
@@ -273,6 +275,8 @@ _RU = {
     "evidence.degree": "Образование: ",
     "evidence.certification": "Сертификат: ",
     "evidence.related": " (связанный навык)",
+    "push.report_ready_title": "Ваш отчёт CareerFit готов",
+    "push.report_ready_body": "Нажмите, чтобы увидеть оценку и план.",
 }
 
 _CATALOGUE: dict[str, dict[str, str]] = {"en": _EN, "ru": _RU}

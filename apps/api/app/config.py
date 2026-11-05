@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 300
     ollama_url: str = "http://localhost:11434"
 
+    # Push notifications. The token is only needed if push security is turned on at expo.dev.
+    expo_push_url: str = "https://exp.host/--/api/v2/push/send"
+    expo_access_token: str = ""
+
     # Stripe
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""

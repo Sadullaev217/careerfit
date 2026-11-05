@@ -6,7 +6,7 @@ import httpx
 from celery.exceptions import SoftTimeLimitExceeded
 from kombu.exceptions import OperationalError
 
-from app import portfolio, store
+from app import portfolio, push, store
 from app.analysis import prepare_score_input
 from app.celery_app import celery_app
 from app.embeddings import embed_texts
@@ -160,6 +160,7 @@ def _fail_analysis(analysis_id: str, code: str) -> None:
 
 def _finish_analysis(
     analysis_id: str,
+    user_id: str,
     scored: ScoreResult,
     finished_at: datetime,
     report: Report | None = None,
@@ -177,16 +178,18 @@ def _finish_analysis(
             "completed_at": finished_at.isoformat(),
         },
     )
+    # A report takes a couple of minutes, so people put the phone down and need telling.
+    push.send_report_ready(user_id, analysis_id, push_store=store)
 
 
 def _end_analysis_early(
-    analysis_id: str, scored: ScoreResult | None, finished_at: datetime, code: str
+    analysis_id: str, user_id: str, scored: ScoreResult | None, finished_at: datetime, code: str
 ) -> None:
     """A good score is still worth showing when only the recommendations couldn't be made."""
     if scored is None:
         _fail_analysis(analysis_id, code)
     else:
-        _finish_analysis(analysis_id, scored, finished_at, report_error=code)
+        _finish_analysis(analysis_id, user_id, scored, finished_at, report_error=code)
 
 
 @celery_app.task(  # type: ignore[untyped-decorator]
@@ -207,6 +210,7 @@ def run_analysis(
     row = store.get_analysis(analysis_id)
     if row is None:
         return
+    user_id = row["user_id"]
     extraction = (
         store.get_extracted_profile(row["document_id"], row["user_id"])
         if row["document_id"]
@@ -253,22 +257,22 @@ def run_analysis(
             **context,
         )
     except SkillJudgementFailed:
-        _end_analysis_early(analysis_id, scored, now, "invalid_model_output")
+        _end_analysis_early(analysis_id, user_id, scored, now,"invalid_model_output")
         return
     except NothingToScore:
-        _end_analysis_early(analysis_id, scored, now, "not_enough_market_data")
+        _end_analysis_early(analysis_id, user_id, scored, now,"not_enough_market_data")
         return
     except SoftTimeLimitExceeded:
-        _end_analysis_early(analysis_id, scored, now, "timeout")
+        _end_analysis_early(analysis_id, user_id, scored, now,"timeout")
         return
     except (LLMUnavailable, httpx.HTTPError) as exc:
         if self.request.retries < MAX_RETRIES:
             raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
-        _end_analysis_early(analysis_id, scored, now, "ai_unavailable")
+        _end_analysis_early(analysis_id, user_id, scored, now,"ai_unavailable")
         return
     except Exception as exc:
         logger.error("analysis %s failed: %s", analysis_id, type(exc).__name__)
-        _end_analysis_early(analysis_id, scored, now, "analysis_error")
+        _end_analysis_early(analysis_id, user_id, scored, now,"analysis_error")
         return
 
-    _finish_analysis(analysis_id, scored, now, report=report)
+    _finish_analysis(analysis_id, user_id, scored, now, report=report)

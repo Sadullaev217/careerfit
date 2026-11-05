@@ -142,6 +142,10 @@ def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> N
         "select * from public.term_translations",
         "insert into public.term_translations (term, language, translation) values ('a', 'ru', 'b')",
         "update public.skill_judgements set result = '{}'",
+        "select * from public.push_tokens",
+        "insert into public.push_tokens (token, user_id, platform) "
+        "values ('ExponentPushToken[x]', auth.uid(), 'android')",
+        "delete from public.push_tokens",
         "update public.subscriptions set plan = 'pro'",
         "update public.documents set parsed_text = 'x'",
         "insert into public.skills (name) values ('Fake')",
@@ -423,8 +427,15 @@ def test_signup_creates_profile_and_free_subscription(conn: psycopg.Connection) 
 
 
 def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:
-    conn.execute("delete from auth.users where id = %s", (ALICE,))
     conn.execute("reset role")
+    conn.execute(
+        "insert into public.push_tokens (token, user_id, platform) "
+        "values ('ExponentPushToken[alice]', %s, 'android')",
+        (ALICE,),
+    )
+    conn.execute("delete from auth.users where id = %s", (ALICE,))
+    tokens = conn.execute("select count(*) from public.push_tokens where user_id = %s", (ALICE,))
+    assert tokens.fetchone() == (0,)
     for table in USER_TABLES:
         row = conn.execute(
             f"select count(*) from public.{table} where "
