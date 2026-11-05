@@ -10,8 +10,19 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   if (code) {
     const supabase = await createClient();
+    // A password reset link signs the person in like any other link, and this event is what tells them apart.
+    let isPasswordReset = false;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') isPasswordReset = true;
+    });
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(`/${locale}/analyses`, request.url));
+    subscription.unsubscribe();
+    if (!error) {
+      const next = isPasswordReset ? 'reset-password' : 'analyses';
+      return NextResponse.redirect(new URL(`/${locale}/${next}`, request.url));
+    }
   }
   return NextResponse.redirect(new URL(`/${locale}/login?error=auth`, request.url));
 }

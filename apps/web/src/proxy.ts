@@ -2,7 +2,14 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { isLocale, LOCALE_COOKIE, preferredLocale } from '@/i18n/config';
 
-const PROTECTED_ROUTES = ['/onboarding', '/documents', '/analyses', '/market', '/settings'];
+const PROTECTED_ROUTES = [
+  '/onboarding',
+  '/documents',
+  '/analyses',
+  '/market',
+  '/settings',
+  '/reset-password',
+];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

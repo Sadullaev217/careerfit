@@ -32,7 +32,8 @@ Copy each app's `.env.example` to `.env` to override defaults.
 1. Create a project at supabase.com. New projects use asymmetric JWT signing keys, which the API requires.
 2. Apply the schema: `npx supabase link --project-ref <ref>`, then `npx supabase db push --remote`.
 3. Fill in `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `apps/api/.env`, and the URL and publishable key in `apps/web/.env.local` and `apps/mobile/.env`. The secret key must stay server-side only.
-4. Under Authentication > URL Configuration, allow `http://localhost:3000/auth/callback` and `careerfit://auth/callback`. Enable Google and Apple under Providers.
+4. Under Authentication > URL Configuration, allow `http://localhost:3000/auth/callback` and `careerfit://auth/callback`. The Google and Apple buttons only appear once those are enabled under Providers.
+5. Connect your own mail service (custom SMTP) before real people sign up. Supabase's built-in email only reaches addresses on your organization's team, at most 2 messages an hour, with no delivery guarantee. Anyone else sees "We can't send email to this address yet".
 
 Row-level security tests skip unless `TEST_DATABASE_URL` is set, and they wipe that database. CI always runs them; never point this variable at a real project.
 
