@@ -1,17 +1,34 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { isLocale, LOCALE_COOKIE, preferredLocale } from '@/i18n/config';
+
+const PROTECTED_ROUTES = ['/onboarding', '/documents', '/analyses', '/market', '/settings'];
 
 export async function proxy(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
+  const firstSegment = pathname.split('/')[1];
+  const isAuthRoute = pathname.startsWith('/auth/');
+
+  if (!isAuthRoute && !isLocale(firstSegment)) {
+    const locale = preferredLocale(
+      request.cookies.get(LOCALE_COOKIE)?.value,
+      request.headers.get('accept-language'),
+    );
+    const target = `/${locale}${pathname === '/' ? '' : pathname}${search}`;
+    return NextResponse.redirect(new URL(target, request.url));
+  }
+
   let response = NextResponse.next({ request });
+  const route = isAuthRoute ? pathname : pathname.slice(firstSegment.length + 1) || '/';
+  const isProtected = PROTECTED_ROUTES.some(
+    (path) => route === path || route.startsWith(`${path}/`),
+  );
+  const loginUrl = new URL(`/${firstSegment}/login`, request.url);
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  const { pathname } = request.nextUrl;
-  const isProtected = ['/account', '/analysis', '/documents', '/market'].some((path) =>
-    pathname.startsWith(path),
-  );
   if (!url || !key) {
-    return isProtected ? NextResponse.redirect(new URL('/login', request.url)) : response;
+    return isProtected ? NextResponse.redirect(loginUrl) : response;
   }
 
   const supabase = createServerClient(url, key, {
@@ -32,7 +49,7 @@ export async function proxy(request: NextRequest) {
 
   const { data } = await supabase.auth.getClaims();
   if (isProtected && !data?.claims) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(loginUrl);
   }
   return response;
 }

@@ -112,6 +112,17 @@ AI only writes the suggested actions and resume rewrites. Code rejects links, st
 
 Job Bank ads don't list skills, so gaps can't be ranked by how often employers ask for them, and the report says so.
 
+## Languages
+
+The site is in English and Russian. Page text lives in `apps/web/src/i18n/en.json` and `ru.json`, and TypeScript refuses to build if a key is missing from either. Sentences the server writes, like score reasons, live in `apps/api/app/messages.py`, and a test checks both languages have the same messages. Reports stay in the language chosen when they were run.
+
+ESCO has no Russian, so official skill and occupation names are translated by the local AI the first time they're needed and saved in `term_translations`. To translate occupation names ahead of time, so searching in Russian shows Russian names:
+
+```bash
+cd apps/api
+uv run --extra dev python -m scripts.seed_translations --language ru
+```
+
 ## Checks
 
 ```bash
