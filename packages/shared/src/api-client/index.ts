@@ -137,6 +137,12 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       get: (id: string) => request<Analysis>(`/analyses/${id}`),
       list: () => request<Analysis[]>('/analyses'),
     },
+    notifications: {
+      register: (data: { token: string; platform: 'ios' | 'android'; language?: 'en' | 'ru' }) =>
+        request<void>('/push-tokens', { method: 'PUT', body: JSON.stringify(data) }),
+      remove: (token: string) =>
+        request<void>(`/push-tokens/${encodeURIComponent(token)}`, { method: 'DELETE' }),
+    },
   };
 }
 

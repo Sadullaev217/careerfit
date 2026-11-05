@@ -18,6 +18,7 @@ jobs:
       - run: pnpm --filter "!api" -r --if-present typecheck
       - run: pnpm --filter @careerfit/shared lint
       - run: pnpm --filter web lint
+      - run: pnpm --filter mobile exec eslint .
       - run: pnpm --filter web build
 
   api:

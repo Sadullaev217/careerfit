@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase service account keys are secret. google-services.json is not, and may be committed.
+*firebase-adminsdk*.json
+*service-account*.json

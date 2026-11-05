@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 // SecureStore warns above 2048 bytes per value, and Supabase sessions can exceed that.
 const CHUNK_SIZE = 1800;
 
+// The session lives in the phone's encrypted keychain or keystore, never in plain storage.
 const chunkedSecureStorage = {
   async getItem(key: string) {
     const count = await SecureStore.getItemAsync(`${key}.count`);
@@ -17,9 +18,7 @@ const chunkedSecureStorage = {
   },
   async removeItem(key: string) {
     const count = Number((await SecureStore.getItemAsync(`${key}.count`)) ?? 0);
-    await Promise.all(
-      Array.from({ length: count }, (_, i) => SecureStore.deleteItemAsync(`${key}.${i}`)),
-    );
+    await Promise.all(Array.from({ length: count }, (_, i) => SecureStore.deleteItemAsync(`${key}.${i}`)));
     await SecureStore.deleteItemAsync(`${key}.count`);
   },
   async setItem(key: string, value: string) {
@@ -30,12 +29,12 @@ const chunkedSecureStorage = {
   },
 };
 
-const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+export const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+export const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase =
-  url && key
-    ? createClient(url, key, {
+  SUPABASE_URL && SUPABASE_KEY
+    ? createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
           storage: chunkedSecureStorage,
           autoRefreshToken: true,
