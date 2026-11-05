@@ -1,6 +1,8 @@
 """Removes lines before the AI sees them. Prompt rules alone failed in evaluation on both models.
 
-These patterns reduce risk but can't catch every wording, so model output is still untrusted.
+These patterns reduce risk but can't catch every wording, so model output is still untrusted. They
+also have to leave real work alone: people who build AI tools write "system prompt" as a skill, so
+only its use as a label or a command counts.
 """
 
 import re
@@ -11,7 +13,9 @@ _INSTRUCTION = re.compile(
     \b(ignore|disregard|forget)\s+(all\s+|any\s+|the\s+|your\s+)*(previous|prior|above|earlier|preceding)\b
     | \b(instruction|instructions|note|message|prompt)\s+(to|for)\s+(the\s+)?
       ((ai|llm|chatbot|gpt|claude)\b | (assistant|model)(?=\s*([:.,;]|$)))
-    | \bsystem\s+prompt\b
+    | \bsystem\s+prompt\s*[:=\]>]
+    | \b(print|reveal|show|repeat|output|ignore|disregard|override|forget|replace|bypass)\s+
+      (the\s+|your\s+|this\s+|my\s+)?(\w+\s+)?system\s+prompt\b
     | \byou\s+are\s+(now\s+)?(an?\s+|the\s+)?(ai|assistant|language\s+model)\b
     | \bset\s+(every|all|each)\s+confidence\b
     | \b(list|mark|rate|rank|record|score|treat)\s+this\s+(candidate|applicant|person|resume)\b
@@ -19,7 +23,9 @@ _INSTRUCTION = re.compile(
     | \b(укажи|отметь|оцени)\s+(этого|данного)\s+кандидата\b
     | \b(проигнорируй|игнорируй|забудь)\b.{0,40}\b(инструкци|предыдущ|прошл|указани)
     | \b(инструкци[яию]|указани[ея]|сообщение)\s+для\s+(ии|ai|модели|ассистента|нейросети|бота)\b
-    | \bсистемн\w+\s+(промпт|инструкци)
+    | \bсистемн\w+\s+(промпт|инструкци)\w*\s*[:=\]>]
+    | \b(покажи|выведи|раскрой|повтори|проигнорируй|игнорируй|забудь|замени|обойди)\b
+      .{0,30}\bсистемн\w+\s+(промпт|инструкци)
     """,
     re.IGNORECASE | re.VERBOSE,
 )
