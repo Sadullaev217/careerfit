@@ -289,7 +289,17 @@ def test_market_stats_with_no_postings_is_empty(conn: psycopg.Connection) -> Non
     result = stats(conn)
     assert result["sample_size"] == 0
     assert result["salary_median"] is None
+    assert result["salary_top_share"] is None
     assert result["education"] == {}
+
+
+def test_market_stats_reports_how_many_ads_share_one_pay_figure(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    for index in range(3):
+        add_posting(conn, f"same{index}", 75213)
+    add_posting(conn, "other", 60000)
+    add_posting(conn, "no-pay", None)
+    assert stats(conn)["salary_top_share"] == pytest.approx(0.75)
 
 
 def test_match_occupation_finds_the_nearest_title(conn: psycopg.Connection) -> None:

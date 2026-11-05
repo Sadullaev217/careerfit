@@ -20,8 +20,9 @@ MAX_REDIRECTS = 3
 
 # Hourly pay is shown as a full-time yearly figure, so part-time jobs stay comparable.
 ANNUAL_FACTORS = {"Hour": 2080, "Day": 260, "Week": 52, "Bi-weekly": 26, "Month": 12, "Year": 1}
-# The data has entry errors, such as one salary working out to $386 million a year.
-MIN_PLAUSIBLE_ANNUAL = 20_000
+# The data has entry errors: one salary works out to $386 million a year, and 43 software ads say
+# "$101 daily". Full-time at Canada's lowest minimum wages is about $31,000, hence the floor.
+MIN_PLAUSIBLE_ANNUAL = 30_000
 MAX_PLAUSIBLE_ANNUAL = 500_000
 _MISSING_VALUES = {"", "na", "*no data", "n/a"}
 

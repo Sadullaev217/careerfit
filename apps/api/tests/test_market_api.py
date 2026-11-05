@@ -1,12 +1,18 @@
 import json
 from typing import Any
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
 from app.routers import market
 from scripts import build_occupation_map as mapper
-from scripts.seed_market import MAX_PREFERRED_SKILLS, occupation_skill_rows, rank_by_relevance
+from scripts.seed_market import (
+    MAX_PREFERRED_SKILLS,
+    all_occupation_rows,
+    occupation_skill_rows,
+    rank_by_relevance,
+)
 from tests.helpers import auth_headers
 
 STATS = {
@@ -15,6 +21,7 @@ STATS = {
     "salary_p25": 60000.4,
     "salary_median": 70000.6,
     "salary_p75": 81000.2,
+    "salary_top_share": 0.1,
     "latest_posting": "2026-10-30",
     "education": {"Bachelor's degree": 12},
     "experience": {"5 years or more": 3},
@@ -75,6 +82,7 @@ def test_returns_salary_skills_and_sample_size(client: TestClient, fake_market: 
         "sampleSize": 110,
         "region": "Ontario",
         "confidence": "high",
+        "concentrated": False,
     }
     assert body["requiredSkills"] == ["accounting techniques"]
     assert body["preferredSkills"] == ["perform risk analysis"]
@@ -154,6 +162,22 @@ def test_confidence_follows_sample_size(
 ) -> None:
     fake_market.stats[None] = {**STATS, "salary_sample_size": size}
     assert get(client, role="Accountant").json()["salary"]["confidence"] == expected
+
+
+def test_one_repeated_pay_figure_lowers_confidence_and_is_flagged(
+    client: TestClient, fake_market: FakeMarket
+) -> None:
+    fake_market.stats[None] = {**STATS, "salary_sample_size": 354, "salary_top_share": 1.0}
+    salary = get(client, role="Accountant").json()["salary"]
+    assert salary["concentrated"] is True
+    assert salary["confidence"] == "low"
+
+
+def test_exactly_half_sharing_one_figure_is_not_flagged(
+    client: TestClient, fake_market: FakeMarket
+) -> None:
+    fake_market.stats[None] = {**STATS, "salary_top_share": 0.5}
+    assert get(client, role="Accountant").json()["salary"]["concentrated"] is False
 
 
 def test_thin_regional_data_falls_back_to_national_and_says_so(
@@ -259,14 +283,125 @@ def test_summary_handles_missing_fields() -> None:
     assert summary["essential_skills"] == []
 
 
-def test_map_file_entries_are_complete_when_present() -> None:
-    if not mapper.MAP_PATH.exists():
-        pytest.skip("map not built yet")
-    rows = json.loads(mapper.MAP_PATH.read_text(encoding="utf-8"))
-    assert rows
-    for row in rows:
+def esco_client(handler: Any) -> httpx.Client:
+    return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+def test_esco_server_errors_are_retried(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(mapper, "RETRY_BASE_SECONDS", 0)
+    replies = [httpx.Response(500), httpx.Response(429), httpx.Response(200, json={"ok": True})]
+    with esco_client(lambda _request: replies.pop(0)) as client:
+        assert mapper._get_json(client, mapper.DETAIL_URL) == {"ok": True}
+
+
+def test_esco_network_errors_are_retried(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(mapper, "RETRY_BASE_SECONDS", 0)
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        if len(calls) == 1:
+            raise httpx.ConnectTimeout("slow")
+        return httpx.Response(200, json={"ok": True})
+
+    with esco_client(handler) as client:
+        assert mapper._get_json(client, mapper.DETAIL_URL) == {"ok": True}
+
+
+def test_esco_gives_up_after_the_attempt_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(mapper, "RETRY_BASE_SECONDS", 0)
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(500)
+
+    with esco_client(handler) as client, pytest.raises(httpx.HTTPStatusError):
+        mapper._get_json(client, mapper.DETAIL_URL)
+    assert len(calls) == mapper.FETCH_ATTEMPTS
+
+
+def test_esco_not_found_is_not_retried(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(mapper, "RETRY_BASE_SECONDS", 0)
+    calls: list[int] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(404)
+
+    with esco_client(handler) as client, pytest.raises(httpx.HTTPStatusError):
+        mapper._get_json(client, mapper.DETAIL_URL)
+    assert len(calls) == 1
+
+
+def test_esco_refuses_another_host() -> None:
+    with esco_client(lambda _request: httpx.Response(200)) as client, pytest.raises(RuntimeError):
+        mapper._get_json(client, "https://evil.example/x")
+
+
+def test_records_failing_on_the_default_version_use_the_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(mapper, "RETRY_BASE_SECONDS", 0)
+    versions: list[str | None] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        version = request.url.params.get("selectedVersion")
+        versions.append(version)
+        if version is None:
+            return httpx.Response(500)
+        return httpx.Response(200, json={"uri": "esco/civil", "title": "civil engineer"})
+
+    with esco_client(handler) as client:
+        assert mapper.fetch_occupation(client, "esco/civil")["title"] == "civil engineer"
+    assert versions[-1] == mapper.FALLBACK_VERSION
+
+
+def load_map() -> dict[str, dict[str, Any]]:
+    return {row["code"]: row for row in json.loads(mapper.MAP_PATH.read_text(encoding="utf-8"))}
+
+
+def test_map_entries_are_complete() -> None:
+    rows = load_map()
+    assert len(rows) >= 490
+    for row in rows.values():
         assert row["code"] and row["name"]
         assert bool(row["esco_uri"]) == bool(row["esco_title"])
+
+
+@pytest.mark.parametrize(
+    ("code", "expected"),
+    [
+        ("11100", "accountant"),
+        ("21232", "software developer"),
+        ("21300", "civil engineer"),
+        ("31301", "nurse responsible for general care"),
+        ("32101", "nurse assistant"),
+        ("33100", "dental chairside assistant"),
+        ("41220", "secondary school teacher"),
+        ("63200", "cook"),
+        ("65200", "waiter/waitress"),
+        ("72106", "welder"),
+        ("72400", "industrial machinery mechanic"),
+    ],
+)
+def test_important_occupations_link_to_the_right_esco_entry(code: str, expected: str) -> None:
+    assert load_map()[code]["esco_title"] == expected
+
+
+@pytest.mark.parametrize(
+    ("code", "wrong"),
+    [
+        ("72400", "milliner"),
+        ("65200", "food and beverage packaging technologist"),
+        ("73111", "glass-blower"),
+        ("92022", "footwear assembly supervisor"),
+        ("53121", "circus artist"),
+        ("21300", "installation engineer"),
+    ],
+)
+def test_known_wrong_links_stay_gone(code: str, wrong: str) -> None:
+    assert load_map()[code]["esco_title"] != wrong
 
 
 def fake_vectors(monkeypatch: pytest.MonkeyPatch, by_text: dict[str, list[float]]) -> None:
@@ -281,6 +416,15 @@ def test_skills_rank_by_closeness_to_the_occupation(monkeypatch: pytest.MonkeyPa
         {"accountant": [1, 0], "film production process": [0, 1], "manage accounts": [1, 0.1]},
     )
     assert rank_by_relevance("accountant", ["film production process", "manage accounts"]) == [1, 0]
+
+
+def test_occupations_with_no_ads_this_month_are_still_stored() -> None:
+    rows = all_occupation_rows(
+        {"21332": {"name": "Petroleum engineers", "esco_uri": "e/1", "esco_title": "petroleum engineer"}}
+    )
+    assert rows == [
+        {"code": "21332", "name": "Petroleum engineers", "esco_uri": "e/1", "esco_title": "petroleum engineer"}
+    ]
 
 
 def test_no_skills_to_rank_needs_no_embedding() -> None:

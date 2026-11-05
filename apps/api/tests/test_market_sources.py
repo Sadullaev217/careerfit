@@ -3,6 +3,8 @@ from datetime import date
 import httpx
 import pytest
 
+from app import tasks
+from app.celery_app import celery_app
 from app.job_sources import (
     MAX_PLAUSIBLE_ANNUAL,
     JobBankProvider,
@@ -78,7 +80,9 @@ def test_pay_periods_become_yearly_amounts(amount: str, per: str, expected: floa
     ("amount", "per"),
     [
         ("185640", "Hour"),  # a yearly figure entered as hourly gives $386 million
-        ("5", "Year"),
+        ("101", "Day"),  # an hourly rate entered as daily gives $26,260
+        ("21", "Year"),  # "$21.00 to $23.00 annually"
+        ("10000", "Year"),
         ("", "Hour"),
         ("abc", "Hour"),
         ("20", "NA"),
@@ -242,6 +246,38 @@ def test_refresh_stores_in_dependency_order_then_removes_old_postings() -> None:
     assert len(store.postings) == 1
     assert (summary.fetched, summary.duplicates, summary.stored, summary.occupations) == (2, 1, 1, 1)
     assert (TODAY - store.cutoff).days == MAX_POSTING_AGE_DAYS
+
+
+def test_market_refresh_is_scheduled() -> None:
+    entry = celery_app.conf.beat_schedule["refresh-market-data"]
+    assert entry["task"] == "refresh_market_data"
+    assert entry["task"] in celery_app.tasks
+
+
+def test_scheduled_task_runs_the_refresh(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+
+    def fake_refresh(*_args: object) -> str:
+        calls.append("refreshed")
+        return "summary"
+
+    monkeypatch.setattr(tasks, "refresh_market_data", fake_refresh)
+    monkeypatch.setattr(tasks, "JobBankProvider", lambda: "provider")
+    tasks.refresh_market_data_task.apply()
+    assert calls == ["refreshed"]
+
+
+def test_scheduled_task_retries_when_the_source_is_down(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+
+    def failing_refresh(*_args: object) -> str:
+        calls.append("tried")
+        raise httpx.ConnectError("source down")
+
+    monkeypatch.setattr(tasks, "refresh_market_data", failing_refresh)
+    monkeypatch.setattr(tasks, "JobBankProvider", lambda: "provider")
+    tasks.refresh_market_data_task.apply()
+    assert len(calls) == tasks.refresh_market_data_task.max_retries + 1
 
 
 def test_refresh_is_safe_with_no_data() -> None:

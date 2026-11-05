@@ -92,6 +92,7 @@ export interface MarketRequirements {
     sampleSize: number;
     region: string;
     confidence: 'low' | 'medium' | 'high';
+    concentrated: boolean;
   } | null;
   requiredSkills: string[];
   preferredSkills: string[];

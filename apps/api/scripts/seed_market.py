@@ -54,8 +54,22 @@ def occupation_skill_rows(
     return list(rows.values())
 
 
+def all_occupation_rows(occupation_map: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "code": code,
+            "name": row["name"],
+            "esco_uri": row.get("esco_uri"),
+            "esco_title": row.get("esco_title"),
+        }
+        for code, row in occupation_map.items()
+    ]
+
+
 def load_skills() -> None:
     occupation_map = load_occupation_map()
+    # Some occupations have no ads this month but still need their skills for when they do.
+    store.upsert_occupations(all_occupation_rows(occupation_map))
     esco = {occupation["uri"]: occupation for occupation in load_esco_occupations()}
     skill_ids = store.skill_ids_by_esco_uri()
     print(f"ESCO skills available: {len(skill_ids)}", flush=True)

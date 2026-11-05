@@ -27,6 +27,9 @@ CACHE_PATH = ROOT / ".cache" / "esco_occupations.json"
 SEARCH_URL = "https://ec.europa.eu/esco/api/search?type=occupation&language=en&limit=100&full=false"
 DETAIL_URL = "https://ec.europa.eu/esco/api/resource/occupation"
 REQUEST_DELAY_SECONDS = 0.2
+FETCH_ATTEMPTS = 4
+RETRY_BASE_SECONDS = 2
+FALLBACK_VERSION = "v1.2.0"
 SHORTLIST_SIZE = 8
 TOP_TITLES = 4
 MAX_ATTEMPTS = 2
@@ -49,10 +52,24 @@ class Choice(BaseModel):
 def _get_json(client: httpx.Client, url: str, **params: Any) -> dict[str, Any]:
     if urlsplit(url).hostname != "ec.europa.eu":
         raise RuntimeError("ESCO pointed at another host")
-    response = client.get(url, params=params or None, headers={"Accept": "application/json"})
-    response.raise_for_status()
-    body: dict[str, Any] = response.json()
-    return body
+    for attempt in range(FETCH_ATTEMPTS):
+        try:
+            response = client.get(
+                url, params=params or None, headers={"Accept": "application/json"}
+            )
+            # Other 4xx errors won't change on retry.
+            if response.status_code < 500 and response.status_code != 429:
+                response.raise_for_status()
+                body: dict[str, Any] = response.json()
+                return body
+            failure: Exception = httpx.HTTPStatusError(
+                f"ESCO returned {response.status_code}", request=response.request, response=response
+            )
+        except httpx.TransportError as exc:
+            failure = exc
+        if attempt + 1 < FETCH_ATTEMPTS:
+            time.sleep(RETRY_BASE_SECONDS * 2**attempt)
+    raise failure
 
 
 def _english(field: dict[str, Any] | None) -> Any:
@@ -75,6 +92,16 @@ def summarize_occupation(detail: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def fetch_occupation(client: httpx.Client, uri: str) -> dict[str, Any]:
+    try:
+        return summarize_occupation(_get_json(client, DETAIL_URL, language="en", uri=uri))
+    except httpx.HTTPStatusError:
+        # A few records, including civil engineer, fail on the default version but load on this one.
+        return summarize_occupation(
+            _get_json(client, DETAIL_URL, language="en", uri=uri, selectedVersion=FALLBACK_VERSION)
+        )
+
+
 def load_esco_occupations() -> list[dict[str, Any]]:
     """Cached and resumable, because this takes many requests."""
     cached: dict[str, dict[str, Any]] = {}
@@ -93,16 +120,21 @@ def load_esco_occupations() -> list[dict[str, Any]]:
         missing = [uri for uri in uris if uri not in cached]
         print(f"ESCO occupations: {len(uris)}, already cached: {len(uris) - len(missing)}", flush=True)
         CACHE_PATH.parent.mkdir(exist_ok=True)
+        failed = 0
         for done, uri in enumerate(missing, start=1):
-            cached[uri] = summarize_occupation(
-                _get_json(client, DETAIL_URL, language="en", uri=uri)
-            )
+            try:
+                cached[uri] = fetch_occupation(client, uri)
+            except httpx.HTTPError as exc:
+                # One bad record shouldn't lose the rest. A rerun tries the skipped ones again.
+                failed += 1
+                print(f"skipped {uri}: {type(exc).__name__}", flush=True)
             if done % 100 == 0:
                 CACHE_PATH.write_text(json.dumps(list(cached.values())), encoding="utf-8")
-                print(f"fetched {done}/{len(missing)}", flush=True)
+                print(f"fetched {done}/{len(missing)}, skipped {failed}", flush=True)
             time.sleep(REQUEST_DELAY_SECONDS)
 
     CACHE_PATH.write_text(json.dumps(list(cached.values())), encoding="utf-8")
+    print(f"ESCO occupations cached: {len(cached)} of {len(uris)}", flush=True)
     return list(cached.values())
 
 

@@ -1,0 +1,6608 @@
+[
+ {
+  "code": "00011",
+  "name": "Senior government managers and officials",
+  "titles": [
+   "general manager - government services",
+   "director general - government services",
+   "executive director - government services",
+   "regional municipality general director"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0752ed49-03e7-4d75-8314-a051b3771a1d",
+  "esco_title": "public administration manager",
+  "similarity": 0.889
+ },
+ {
+  "code": "00012",
+  "name": "Senior managers - financial, communications and other business services",
+  "titles": [
+   "CFO (chief financial officer) - financial, communications and other business services",
+   "general manager - financial, communications and other business services",
+   "CEO (chief executive officer) - financial, communications and other business services",
+   "executive director - financial, communications and other business services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/544cd9cf-e2ee-4ac0-8a02-7147af6b97d7",
+  "esco_title": "business manager",
+  "similarity": 0.835
+ },
+ {
+  "code": "00013",
+  "name": "Senior managers - health, education, social and community services and membership organizations",
+  "titles": [
+   "business general manager",
+   "executive director - health, education, social and community services and membership organizations",
+   "executive general manager - health, education, social and community services and membership organizations",
+   "director general - health, education, social and community services and membership organizations"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4a29eab1-5f02-4723-a863-e2d5a0614dfa",
+  "esco_title": "healthcare institution manager",
+  "similarity": 0.918
+ },
+ {
+  "code": "00014",
+  "name": "Senior managers - trade, broadcasting and other services",
+  "titles": [
+   "Restaurant general manager",
+   "operations general manager",
+   "operations manager - trade, broadcasting and other services",
+   "hotel general manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c6bd511a-d966-4df9-a48e-4f800354f268",
+  "esco_title": "operations manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "00015",
+  "name": "Senior managers - construction, transportation, production and utilities",
+  "titles": [
+   "general manager - goods production, utilities, transportation and construction",
+   "project executive – construction",
+   "operations vice-president - goods production, utilities, transportation and construction",
+   "construction general manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/faed05c0-c1d1-4e34-b575-0dea96459e56",
+  "esco_title": "construction manager",
+  "similarity": 0.911
+ },
+ {
+  "code": "10010",
+  "name": "Financial managers",
+  "titles": [
+   "finance manager",
+   "manager, accounting",
+   "financial controller",
+   "controller - financial services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/30f3ea93-882a-4525-841c-1d5b4b64076f",
+  "esco_title": "financial manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "10011",
+  "name": "Human resources managers",
+  "titles": [
+   "diversity manager",
+   "human resources manager",
+   "director, human resources",
+   "manager, human resources"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f605bcd2-90b6-45a0-a558-d05016d68a77",
+  "esco_title": "human resources manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "10012",
+  "name": "Purchasing managers",
+  "titles": [
+   "supply chain manager",
+   "strategic sourcing director",
+   "procurement manager",
+   "purchasing manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/aacc3918-b5d3-484b-9480-5d29aa550d74",
+  "esco_title": "supply chain manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "10019",
+  "name": "Other administrative services managers",
+  "titles": [
+   "administrative manager",
+   "operations chief",
+   "administrative services manager",
+   "manager, administrative services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c6bd511a-d966-4df9-a48e-4f800354f268",
+  "esco_title": "operations manager",
+  "similarity": 0.929
+ },
+ {
+  "code": "10020",
+  "name": "Insurance, real estate and financial brokerage managers",
+  "titles": [
+   "insurance manager",
+   "business development manager - damage insurance",
+   "real estate developer",
+   "realtor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/594170bc-5663-40b0-97ef-c9f1ad51b2a0",
+  "esco_title": "insurance agency manager",
+  "similarity": 0.96
+ },
+ {
+  "code": "10021",
+  "name": "Banking, credit and other investment managers",
+  "titles": [
+   "accounts manager - banking, credit and investment",
+   "financial services manager",
+   "credit manager",
+   "business operations manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/32fafe2c-0099-4852-889e-46614ce9a9ae",
+  "esco_title": "credit manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "10022",
+  "name": "Advertising, marketing and public relations managers",
+  "titles": [
+   "marketing manager",
+   "manager, marketing",
+   "social media manager",
+   "director, marketing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6fcf4638-e7c7-4978-9302-9a7b63a3d57c",
+  "esco_title": "marketing manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "10029",
+  "name": "Other business services managers",
+  "titles": [
+   "well and facilities asset manager",
+   "professional services manager - business services",
+   "manager, private investigation and security service",
+   "security service manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3c136897-4e0e-41ef-bb57-d8152323b93a",
+  "esco_title": "business service manager",
+  "similarity": 0.938
+ },
+ {
+  "code": "10030",
+  "name": "Telecommunication carriers managers",
+  "titles": [
+   "network operations manager",
+   "network services manager - telecommunications",
+   "technical services manager",
+   "telecommunications manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3ce4691e-ecea-4278-939e-b89ab01087b8",
+  "esco_title": "telecommunications manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "11100",
+  "name": "Financial auditors and accountants",
+  "titles": [
+   "accountant",
+   "senior accountant",
+   "accountant-controller",
+   "junior accountant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/eda0d957-3c3c-4139-b89a-a18bc9e18897",
+  "esco_title": "accountant",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "11101",
+  "name": "Financial and investment analysts",
+  "titles": [
+   "financial analyst",
+   "senior financial analyst",
+   "portfolio manager",
+   "investment analyst"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b7f47c25-bdf3-42fa-a68e-ad32754b2dba",
+  "esco_title": "investment analyst",
+  "similarity": 1.0
+ },
+ {
+  "code": "11102",
+  "name": "Financial advisors",
+  "titles": [
+   "account manager",
+   "financial security advisor",
+   "financial planner",
+   "wealth advisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/21de0f3b-a71a-4263-a9ba-90c5f3721b4d",
+  "esco_title": "financial planner",
+  "similarity": 1.0
+ },
+ {
+  "code": "11103",
+  "name": "Securities agents, investment dealers and brokers",
+  "titles": [
+   "broker",
+   "equity trader",
+   "securities agent",
+   "associate investment officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c01cdf85-3ce0-4d12-ae86-e4e63493fafa",
+  "esco_title": "financial broker",
+  "similarity": 1.0
+ },
+ {
+  "code": "11109",
+  "name": "Other financial officers",
+  "titles": [
+   "finance and credit administrator",
+   "bank inspector",
+   "mortgage underwriter",
+   "credit advisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/075e4d25-74b3-46fb-9b6e-6b53cdb196e7",
+  "esco_title": "credit analyst",
+  "similarity": 0.879
+ },
+ {
+  "code": "11200",
+  "name": "Human resources professionals",
+  "titles": [
+   "human resources generalist",
+   "human resources coordinator",
+   "human resources adviser",
+   "human resources specialist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d3e32e5e-7f24-48e3-b939-e4f800eb62fb",
+  "esco_title": "human resources officer",
+  "similarity": 0.921
+ },
+ {
+  "code": "11201",
+  "name": "Professional occupations in business management consulting",
+  "titles": [
+   "testing, adjusting and balancing (tab) technician for heating, ventilating and air conditioning (hvac)",
+   "account executive",
+   "consultant, management",
+   "business consultant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6a29d804-f775-446c-bec7-35fc4e28ac97",
+  "esco_title": "business consultant",
+  "similarity": 1.0
+ },
+ {
+  "code": "11202",
+  "name": "Professional occupations in advertising, marketing and public relations",
+  "titles": [
+   "marketing coordinator",
+   "marketing specialist",
+   "digital marketing specialist",
+   "marketing assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/47e81c7f-2d04-4a60-a8ff-9913c36d8344",
+  "esco_title": "marketing assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "12010",
+  "name": "Supervisors, general office and administrative support workers",
+  "titles": [
+   "operations supervisor",
+   "office supervisor",
+   "administrative supervisor",
+   "telephone service supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6e6839b6-099c-4802-906e-7f2c8203ee69",
+  "esco_title": "office manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "12011",
+  "name": "Supervisors, finance and insurance office workers",
+  "titles": [
+   "accounting supervisor",
+   "billing coordinator",
+   "assistant accountant",
+   "bookkeeping supervisor"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "12012",
+  "name": "Supervisors, library, correspondence and related information workers",
+  "titles": [
+   "court reporters supervisor"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "12013",
+  "name": "Supervisors, supply chain, tracking and scheduling coordination occupations",
+  "titles": [
+   "warehouse supervisor",
+   "logistics supervisor",
+   "dispatchers supervisor",
+   "supply chain supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/823db06f-25e1-4658-b063-d6ef956b41f5",
+  "esco_title": "logistics and distribution manager",
+  "similarity": 0.949
+ },
+ {
+  "code": "12100",
+  "name": "Executive assistants",
+  "titles": [
+   "executive assistant",
+   "corporate secretary",
+   "constituency assistant",
+   "legislative assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2a04a1df-a3b9-403e-a245-e7f93fdddd44",
+  "esco_title": "executive assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "12101",
+  "name": "Human resources and recruitment officers",
+  "titles": [
+   "human resources officer",
+   "recruitment specialist",
+   "recruitment consultant",
+   "recruitment assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d3e32e5e-7f24-48e3-b939-e4f800eb62fb",
+  "esco_title": "human resources officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "12102",
+  "name": "Procurement and purchasing agents and officers",
+  "titles": [
+   "buyer - purchasing",
+   "sourcing specialist",
+   "procurement officer",
+   "purchasing agent"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/29fa406d-de89-4515-be8d-0fe7bda993f1",
+  "esco_title": "purchaser",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "12103",
+  "name": "Conference and event planners",
+  "titles": [
+   "event coordinator",
+   "event planner",
+   "events operations supervisor",
+   "exhibition coordinator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1b38a27d-ef98-4d9f-b1b2-8c109bf47e79",
+  "esco_title": "event manager",
+  "similarity": 0.989
+ },
+ {
+  "code": "12104",
+  "name": "Employment insurance and revenue officers",
+  "titles": [
+   "officer, taxation",
+   "taxation officer",
+   "revenue agent",
+   "appeal officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c766198e-5b9c-4c85-9fef-be27c783ab19",
+  "esco_title": "tax inspector",
+  "similarity": 0.846
+ },
+ {
+  "code": "12110",
+  "name": "Court reporters, medical transcriptionists and related occupations",
+  "titles": [
+   "medical transcriptionist",
+   "transcriptionist",
+   "transcriber"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5d5fde2c-47ce-4dcd-99f0-ba651b7b908f",
+  "esco_title": "medical transcriptionist",
+  "similarity": 1.0
+ },
+ {
+  "code": "12111",
+  "name": "Health information management occupations",
+  "titles": [
+   "health information management practitioner",
+   "health information management professional",
+   "health information management supervisor",
+   "clinical data manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/983c2816-a339-4817-97f4-151a9ff3e64d",
+  "esco_title": "medical records manager",
+  "similarity": 0.868
+ },
+ {
+  "code": "12112",
+  "name": "Records management technicians",
+  "titles": [
+   "documentation technician",
+   "records technician",
+   "information management technician",
+   "Information Management Technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9ab0f0db-1128-4050-becd-b09db5eabdaa",
+  "esco_title": "file clerk",
+  "similarity": 0.915
+ },
+ {
+  "code": "12113",
+  "name": "Statistical officers and related research support occupations",
+  "titles": [
+   "statistical technician",
+   "statistical officer",
+   "research assistant - generalist (except university)",
+   "Statistical Officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d2e63d7e-2605-4af1-bb7d-b1ed9ad08825",
+  "esco_title": "statistical assistant",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "12200",
+  "name": "Accounting technicians and bookkeepers",
+  "titles": [
+   "bookkeeper",
+   "accounting technician",
+   "accounting bookkeeper",
+   "senior bookkeeper"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c3aae59e-1441-4b3e-bdd1-6da50dc7cf42",
+  "esco_title": "bookkeeper",
+  "similarity": 1.0
+ },
+ {
+  "code": "12201",
+  "name": "Insurance adjusters and claims examiners",
+  "titles": [
+   "adjuster",
+   "claims examiner",
+   "claims adjuster - insurance",
+   "insurance adjuster"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e91bc34c-0c4f-4ac9-8e2f-8f337d75f9ca",
+  "esco_title": "loss adjuster",
+  "similarity": 0.843
+ },
+ {
+  "code": "12202",
+  "name": "Insurance underwriters",
+  "titles": [
+   "personal lines underwriter",
+   "commercial underwriter - insurance",
+   "casualty underwriter - insurance",
+   "surety underwriter - insurance"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e937449a-d9e0-4ab7-9ea5-4d3ac673be6d",
+  "esco_title": "insurance underwriter",
+  "similarity": 1.0
+ },
+ {
+  "code": "12203",
+  "name": "Assessors, business valuators and appraisers",
+  "titles": [
+   "real estate appraisal technician",
+   "property appraiser",
+   "appraisal technician",
+   "accredited appraiser"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/50760da6-abc3-424c-b159-8ddf0818e016",
+  "esco_title": "business valuer",
+  "similarity": 0.909
+ },
+ {
+  "code": "13100",
+  "name": "Administrative officers",
+  "titles": [
+   "office administrator",
+   "office manager",
+   "administrative officer",
+   "administrative coordinator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6e6839b6-099c-4802-906e-7f2c8203ee69",
+  "esco_title": "office manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "13101",
+  "name": "Property administrators",
+  "titles": [
+   "property administrator",
+   "property rentals manager",
+   "residential property manager",
+   "accommodation officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/cee31c49-abe9-4f29-ad10-5eefe63f2a57",
+  "esco_title": "real estate leasing manager",
+  "similarity": 0.939
+ },
+ {
+  "code": "13102",
+  "name": "Payroll administrators",
+  "titles": [
+   "payroll administrator",
+   "payroll clerk",
+   "payroll officer",
+   "benefits and pension plan officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ade351da-7bda-424e-8682-bbdcab2a25be",
+  "esco_title": "payroll clerk",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "13110",
+  "name": "Administrative assistants",
+  "titles": [
+   "administrative assistant",
+   "administrative assistant - office",
+   "office administrative assistant",
+   "administrative secretary"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/044d78cc-f62f-4532-83a5-8e04f2889652",
+  "esco_title": "administrative assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "13111",
+  "name": "Legal administrative assistants",
+  "titles": [
+   "legal assistant",
+   "legal secretary",
+   "legal administrative assistant",
+   "administrative assistant, legal"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/929ef41d-afd0-4d5a-b85b-69eab68fa368",
+  "esco_title": "legal assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "13112",
+  "name": "Medical administrative assistants",
+  "titles": [
+   "medical administrative assistant",
+   "medical secretary",
+   "administrative assistant, medical",
+   "administrative assistant - medical"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/045f05f2-4ff8-46b2-9d08-e12a81657498",
+  "esco_title": "medical administrative assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "13200",
+  "name": "Customs, ship and other brokers",
+  "titles": [
+   "customs broker",
+   "supply chain specialist - customs brokerage",
+   "customs rater",
+   "customs consultant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/61b859ed-24d8-48cf-9c1b-67d7a6c62bb5",
+  "esco_title": "import export specialist",
+  "similarity": 0.825
+ },
+ {
+  "code": "13201",
+  "name": "Production and transportation logistics coordinators",
+  "titles": [
+   "logistics coordinator",
+   "production coordinator",
+   "transportation logistics coordinator",
+   "shipping coordinator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c8b296be-54ae-48cf-be21-031fa8457937",
+  "esco_title": "supply chain assistant",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "14100",
+  "name": "General office support workers",
+  "titles": [
+   "office assistant",
+   "office clerk",
+   "unit clerk",
+   "administrative clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6c999fc7-c6b7-4ef3-a4b9-af124a1783a2",
+  "esco_title": "office clerk",
+  "similarity": 1.0
+ },
+ {
+  "code": "14101",
+  "name": "Receptionists",
+  "titles": [
+   "receptionist",
+   "medical office assistant",
+   "dental receptionist",
+   "medical receptionist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3469cbcc-5332-41dc-977a-29cf1b7ef7be",
+  "esco_title": "front line medical receptionist",
+  "similarity": 1.0
+ },
+ {
+  "code": "14102",
+  "name": "Personnel clerks",
+  "titles": [
+   "human resources assistant",
+   "human resources clerk",
+   "personnel services clerk",
+   "staffing clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d8ed1703-9c03-4ea0-83cc-b6169bc54ffd",
+  "esco_title": "human resources assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "14103",
+  "name": "Court clerks and related court services occupations",
+  "titles": [
+   "prosecution clerk",
+   "court officer",
+   "judicial officer - court administrative services",
+   "court clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0f63619d-63ea-4345-81f5-4673353fe8d2",
+  "esco_title": "court clerk",
+  "similarity": 1.0
+ },
+ {
+  "code": "14110",
+  "name": "Survey interviewers and statistical clerks",
+  "titles": [
+   "survey interviewer",
+   "interviewer - survey or poll",
+   "meter reader"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a1cf1406-3632-494c-bff3-0bd5d5327d8f",
+  "esco_title": "survey enumerator",
+  "similarity": 0.849
+ },
+ {
+  "code": "14111",
+  "name": "Data entry clerks",
+  "titles": [
+   "data entry clerk",
+   "data entry operator",
+   "data input clerk",
+   "data processor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6353b3e8-e8f2-4ecb-b230-186927139892",
+  "esco_title": "data entry clerk",
+  "similarity": 1.0
+ },
+ {
+  "code": "14112",
+  "name": "Desktop publishing operators and related occupations",
+  "titles": [
+   "preproduction operator",
+   "Ludlow machine operator",
+   "page compositor",
+   "terminal operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/cf578f1d-1832-4a4d-a3b2-e0a00517b51d",
+  "esco_title": "prepress operator",
+  "similarity": 0.8
+ },
+ {
+  "code": "14200",
+  "name": "Accounting and related clerks",
+  "titles": [
+   "accounting clerk",
+   "accounts payable clerk",
+   "accounting assistant",
+   "accounts receivable clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bfe142b9-a049-4d41-89c4-fd2f34ac56b6",
+  "esco_title": "accounting assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "14201",
+  "name": "Banking, insurance and other financial clerks",
+  "titles": [
+   "real estate clerk",
+   "policy clerk - insurance",
+   "accounts representative - financial sector",
+   "credit clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9a39a143-d93c-4093-ba3b-47fb67ade318",
+  "esco_title": "insurance clerk",
+  "similarity": 0.877
+ },
+ {
+  "code": "14202",
+  "name": "Collection clerks",
+  "titles": [
+   "bill collector",
+   "collection clerk",
+   "collector",
+   "collection officer (except taxation)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/50a66df6-c141-4b4a-937a-d3bc55737ae3",
+  "esco_title": "debt collector",
+  "similarity": 1.0
+ },
+ {
+  "code": "14300",
+  "name": "Library assistants and clerks",
+  "titles": [
+   "library assistant",
+   "clerk, library",
+   "library clerk",
+   "assistant, library"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/37b15470-3b2d-4ae0-816c-c7c06ed15c99",
+  "esco_title": "library assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "14301",
+  "name": "Correspondence, publication and regulatory clerks",
+  "titles": [
+   "registration clerk",
+   "by-law clerk",
+   "permit clerk",
+   "registry clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9ab0f0db-1128-4050-becd-b09db5eabdaa",
+  "esco_title": "file clerk",
+  "similarity": 0.868
+ },
+ {
+  "code": "14400",
+  "name": "Shippers and receivers",
+  "titles": [
+   "shipper-receiver",
+   "shipping and receiving clerk",
+   "shipping clerk",
+   "warehouse receiver"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8bc845cb-0702-47e4-aabc-4036032b0a8d",
+  "esco_title": "shipping agent",
+  "similarity": 0.837
+ },
+ {
+  "code": "14401",
+  "name": "Storekeepers and partspersons",
+  "titles": [
+   "warehouse associate",
+   "parts clerk",
+   "parts technician",
+   "magazine keeper"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d7a9f9e0-e2f5-4804-a0e0-b21ebb1403ee",
+  "esco_title": "inventory coordinator",
+  "similarity": 0.866
+ },
+ {
+  "code": "14402",
+  "name": "Production logistics workers",
+  "titles": [
+   "production agent",
+   "production clerk",
+   "shipping control clerk",
+   "vehicle servicing clerk"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "14403",
+  "name": "Purchasing and inventory control workers",
+  "titles": [
+   "inventory clerk",
+   "purchasing clerk",
+   "inventory control clerk",
+   "inventory analyst"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d7a9f9e0-e2f5-4804-a0e0-b21ebb1403ee",
+  "esco_title": "inventory coordinator",
+  "similarity": 0.926
+ },
+ {
+  "code": "14404",
+  "name": "Dispatchers",
+  "titles": [
+   "truck dispatcher",
+   "dispatcher, trucks",
+   "service dispatcher",
+   "radio dispatcher"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/49e28648-4fa8-4b36-ac4d-781c108547bf",
+  "esco_title": "freight transport dispatcher",
+  "similarity": 0.868
+ },
+ {
+  "code": "14405",
+  "name": "Transportation route and crew schedulers",
+  "titles": [
+   "crew dispatcher",
+   "fleet administrator",
+   "logistics clerk - transportation",
+   "transportation clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/49e28648-4fa8-4b36-ac4d-781c108547bf",
+  "esco_title": "freight transport dispatcher",
+  "similarity": 0.875
+ },
+ {
+  "code": "20010",
+  "name": "Engineering managers",
+  "titles": [
+   "engineering service project manager",
+   "engineering manager",
+   "manager, engineering service",
+   "director of engineering"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "20011",
+  "name": "Architecture and science managers",
+  "titles": [
+   "director of sustainability",
+   "environmental services manager",
+   "sustainability manager",
+   "research and development manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/73ceb2f9-18e3-4cfe-9c06-e9fb31ece440",
+  "esco_title": "research and development manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "20012",
+  "name": "Computer and information systems managers",
+  "titles": [
+   "cloud operations manager",
+   "cybersecurity manager",
+   "computer projects manager",
+   "information systems manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8b6388a4-4904-471b-9331-d3b1211f5525",
+  "esco_title": "ICT project manager",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "21100",
+  "name": "Physicists and astronomers",
+  "titles": [
+   "physicist",
+   "research scientist, physics",
+   "metrologist",
+   "electronics physicist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7f2761eb-4edc-48ad-9fbf-eed0a0db9a21",
+  "esco_title": "physicist",
+  "similarity": 1.0
+ },
+ {
+  "code": "21101",
+  "name": "Chemists",
+  "titles": [
+   "chemist",
+   "analytical chemist",
+   "chemistry researcher",
+   "medical biochemist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0d93706d-32fd-4de3-aa08-be1003e325da",
+  "esco_title": "chemist",
+  "similarity": 1.0
+ },
+ {
+  "code": "21102",
+  "name": "Geoscientists and oceanographers",
+  "titles": [
+   "geologist",
+   "hydrogeologist",
+   "mine geologist",
+   "environmental geologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c6196b21-20f9-4608-83fb-6f143afc740d",
+  "esco_title": "geologist",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "21109",
+  "name": "Other professional occupations in physical sciences",
+  "titles": [
+   "materials scientist",
+   "firearms expert",
+   "firearms examiner",
+   "materials engineering scientist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4a375b68-88a0-4e5f-99ce-9b01341dfb81",
+  "esco_title": "materials engineer",
+  "similarity": 0.95
+ },
+ {
+  "code": "21110",
+  "name": "Biologists and related scientists",
+  "titles": [
+   "clinical research associate",
+   "microbiologist",
+   "research biologist",
+   "biological scientist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/eee68e13-8248-43bb-a9fb-959832a6c217",
+  "esco_title": "biologist",
+  "similarity": 0.947
+ },
+ {
+  "code": "21111",
+  "name": "Forestry professionals",
+  "titles": [
+   "engineer, forest",
+   "forester",
+   "forester, parks and recreation",
+   "forester, private lands"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f04eaeff-52f5-4d52-93ad-6f846884827f",
+  "esco_title": "forester",
+  "similarity": 1.0
+ },
+ {
+  "code": "21112",
+  "name": "Agricultural representatives, consultants and specialists",
+  "titles": [
+   "agronomist",
+   "agricultural specialist",
+   "sales agronomist",
+   "agricultural advisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c40ef517-d4ab-4932-b184-9c2ea5b24fe2",
+  "esco_title": "agronomist",
+  "similarity": 1.0
+ },
+ {
+  "code": "21120",
+  "name": "Public and environmental health and safety professionals",
+  "titles": [
+   "public health inspector",
+   "environmental officer",
+   "environmental health officer",
+   "environmental health and safety technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a092cb70-f3e3-4224-98a3-b97c0114de77",
+  "esco_title": "environmental health inspector",
+  "similarity": 1.0
+ },
+ {
+  "code": "21200",
+  "name": "Architects",
+  "titles": [
+   "architect",
+   "Information systems specialists",
+   "architectural standards specialist",
+   "architectural project manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8c3f536e-ba66-4321-ba40-363dc39f129b",
+  "esco_title": "architect",
+  "similarity": 1.0
+ },
+ {
+  "code": "21201",
+  "name": "Landscape architects",
+  "titles": [
+   "architect, landscape",
+   "landscape architect",
+   "landscape planner",
+   "Landscape Architect"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/52207284-2681-40d3-a317-ec81ca1b3e41",
+  "esco_title": "landscape architect",
+  "similarity": 1.0
+ },
+ {
+  "code": "21202",
+  "name": "Urban and land use planners",
+  "titles": [
+   "planner",
+   "urban planner",
+   "city planner",
+   "land use planner"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e14548c8-c2b9-4ef8-8670-d5967d7ad804",
+  "esco_title": "urban planner",
+  "similarity": 1.0
+ },
+ {
+  "code": "21203",
+  "name": "Land surveyors",
+  "titles": [
+   "land surveyor",
+   "surveyor, city",
+   "property surveyor",
+   "land surveying party chief"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d8e502b4-1be6-4d10-a224-151688f8f0c8",
+  "esco_title": "land surveyor",
+  "similarity": 1.0
+ },
+ {
+  "code": "21210",
+  "name": "Mathematicians, statisticians and actuaries",
+  "titles": [
+   "actuary",
+   "statistical analyst",
+   "Information systems specialists",
+   "actuarial analyst"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ac8b3cd1-a127-4e6a-8208-5cfcf7111955",
+  "esco_title": "statistician",
+  "similarity": 0.964
+ },
+ {
+  "code": "21211",
+  "name": "Data scientists",
+  "titles": [
+   "data engineer",
+   "data scientist",
+   "big data analyst",
+   "artificial intelligence (AI) consultant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/258e46f9-0075-4a2e-adae-1ff0477e0f30",
+  "esco_title": "data scientist",
+  "similarity": 1.0
+ },
+ {
+  "code": "21220",
+  "name": "Cybersecurity specialists",
+  "titles": [
+   "informatics security consultant",
+   "cybersecurity consultant",
+   "analyst, informatics security",
+   "cybersecurity specialist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0ce5a9f4-e00a-4bbe-b255-3c63407167a4",
+  "esco_title": "ICT security consultant",
+  "similarity": 0.946
+ },
+ {
+  "code": "21221",
+  "name": "Business systems specialists",
+  "titles": [
+   "business systems analyst",
+   "information systems business analyst",
+   "IT (information technology) business analyst",
+   "business systems consultant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fe0fa514-b48d-4a53-9757-a283c0baacf0",
+  "esco_title": "ICT business analyst",
+  "similarity": 0.92
+ },
+ {
+  "code": "21222",
+  "name": "Information systems specialists",
+  "titles": [
+   "information technology (IT) analyst",
+   "analyst, computer",
+   "systems analyst",
+   "informatics consultant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a6a0b60f-08da-4faa-bf54-942987efb471",
+  "esco_title": "ICT system analyst",
+  "similarity": 1.0
+ },
+ {
+  "code": "21223",
+  "name": "Database analysts and data administrators",
+  "titles": [
+   "data analyst - informatics and systems",
+   "DBA (database analyst)",
+   "data administrator",
+   "database analyst"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8c57af09-719c-42b3-be40-6ed4946236cc",
+  "esco_title": "database administrator",
+  "similarity": 1.0
+ },
+ {
+  "code": "21230",
+  "name": "Computer systems developers and programmers",
+  "titles": [
+   "programmer analyst",
+   "computer programmer",
+   "systems programmer",
+   "programmer, systems"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+  "esco_title": "software developer",
+  "similarity": 0.873
+ },
+ {
+  "code": "21231",
+  "name": "Software engineers and designers",
+  "titles": [
+   "cloud administrator",
+   "software engineer",
+   "devops engineer",
+   "cloud engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bd272aee-adc9-4a06-a15c-a73b4b4a46a7",
+  "esco_title": "ICT application developer",
+  "similarity": 0.915
+ },
+ {
+  "code": "21232",
+  "name": "Software developers and programmers",
+  "titles": [
+   "software developer",
+   "cloud developer",
+   "senior software developer",
+   "developer, software"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+  "esco_title": "software developer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21233",
+  "name": "Web designers",
+  "titles": [
+   "Web designer",
+   "multimedia consultant",
+   "Web site designer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d5a43cd3-230e-46d0-ba05-d67d61e5cfbb",
+  "esco_title": "digital media designer",
+  "similarity": 0.855
+ },
+ {
+  "code": "21234",
+  "name": "Web developers and programmers",
+  "titles": [
+   "Web developer",
+   "full stack developer",
+   "full stack Web developer",
+   "Web application developer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c40a2919-48a9-40ea-b506-1f34f693496d",
+  "esco_title": "web developer",
+  "similarity": 0.999
+ },
+ {
+  "code": "21300",
+  "name": "Civil engineers",
+  "titles": [
+   "civil engineer",
+   "project engineer, construction",
+   "structural engineer",
+   "environmental engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d7d986e1-7333-431b-9719-0c5c6939e360",
+  "esco_title": "civil engineer",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "21301",
+  "name": "Mechanical engineers",
+  "titles": [
+   "mechanical engineer",
+   "mechanical design engineer",
+   "building systems engineer",
+   "robotics engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/579254cf-6d69-4889-9000-9c79dc568644",
+  "esco_title": "mechanical engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21310",
+  "name": "Electrical and electronics engineers",
+  "titles": [
+   "electrical engineer",
+   "automation engineer",
+   "electrical controls engineer",
+   "design engineer, electrical"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/86ca306c-ab99-420a-9e2a-aa73c5c4de22",
+  "esco_title": "electrical engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21311",
+  "name": "Computer engineers (except software engineers and designers)",
+  "titles": [
+   "hardware engineer",
+   "network infrastructure engineer",
+   "computer engineer",
+   "engineer, computer (except software)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/92bb3d8c-8a9f-4cd7-80ec-247bbf173004",
+  "esco_title": "computer hardware engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21320",
+  "name": "Chemical engineers",
+  "titles": [
+   "chemical process engineer",
+   "chemical engineer",
+   "chemical coating engineer",
+   "chemical engineer, environmental"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ec21ce88-ce14-49b6-be0a-cc53cf5a3a67",
+  "esco_title": "chemical engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21321",
+  "name": "Industrial and manufacturing engineers",
+  "titles": [
+   "engineer, manufacturing",
+   "manufacturing engineer",
+   "industrial engineer",
+   "quality control engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/53d2052f-edc0-4f44-8be1-164526412bfe",
+  "esco_title": "industrial engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21322",
+  "name": "Metallurgical and materials engineers",
+  "titles": [
+   "metallurgical engineer",
+   "ceramics engineer",
+   "welding engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4a375b68-88a0-4e5f-99ce-9b01341dfb81",
+  "esco_title": "materials engineer",
+  "similarity": 0.985
+ },
+ {
+  "code": "21330",
+  "name": "Mining engineers",
+  "titles": [
+   "mine planning engineer",
+   "engineer, mining",
+   "consulting mining engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7b99007f-c6bf-4703-85d3-f168bc6a9f28",
+  "esco_title": "mine planning engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21331",
+  "name": "Geological engineers",
+  "titles": [
+   "geotechnical engineer",
+   "engineer, geotechnical",
+   "geological engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1bdb7d70-1769-4338-aa90-d25a90fe8a6d",
+  "esco_title": "geological engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21332",
+  "name": "Petroleum engineers",
+  "titles": [
+   "subsea equipment engineer, offshore drilling rig",
+   "subsea engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7569f423-2c37-49aa-947e-41acb66ec909",
+  "esco_title": "petroleum engineer",
+  "similarity": 0.997
+ },
+ {
+  "code": "21390",
+  "name": "Aerospace engineers",
+  "titles": [
+   "aerospace engineer - design and development",
+   "aerospace engineer",
+   "aeronautical engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d7e663b2-f042-47d8-9fda-b5b8ba30ca04",
+  "esco_title": "aerospace engineer",
+  "similarity": 1.0
+ },
+ {
+  "code": "21399",
+  "name": "Other professional engineers",
+  "titles": [
+   "engineer in agronomy",
+   "Technical advisor - construction",
+   "architect, naval",
+   "biomedical engineer"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22100",
+  "name": "Chemical technologists and technicians",
+  "titles": [
+   "technician, food",
+   "food processing quality control technician",
+   "quality control technician - chemistry",
+   "water purification technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/87775d69-ae88-449e-ad71-6f9875711816",
+  "esco_title": "chemistry technician",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22101",
+  "name": "Geological and mineral technologists and technicians",
+  "titles": [
+   "geological survey technician",
+   "geological technician",
+   "soil science technician - mining",
+   "geotechnician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fb3f5f35-e6f7-4168-aef2-e4dfb7f2a3ee",
+  "esco_title": "geology technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22110",
+  "name": "Biological technologists and technicians",
+  "titles": [
+   "agricultural technician",
+   "biological technician",
+   "biological technologist",
+   "agricultural technologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/31cc4199-703c-4f8a-9b46-a2070a6d35df",
+  "esco_title": "biology technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22111",
+  "name": "Agricultural and fish products inspectors",
+  "titles": [
+   "slaughtering and meat processing plant inspector",
+   "agricultural products inspector",
+   "fish inspector",
+   "fish products inspector"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/715b902f-b1b6-4366-afc6-ddb8ab715229",
+  "esco_title": "agricultural inspector",
+  "similarity": 0.938
+ },
+ {
+  "code": "22112",
+  "name": "Forestry technologists and technicians",
+  "titles": [
+   "forestry technologist",
+   "forestry technician",
+   "forest engineering technician",
+   "field office supervisor - forestry"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fbf3aefb-70ff-440b-8724-bac3ed5e2c93",
+  "esco_title": "forestry technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22113",
+  "name": "Conservation and fishery officers",
+  "titles": [
+   "arborist assistant",
+   "conservation officer",
+   "park ranger",
+   "dockside observer - fisheries"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/80d880ec-3bae-45a2-a2d3-41345ee0b319",
+  "esco_title": "nature conservation officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "22114",
+  "name": "Landscape and horticulture technicians and specialists",
+  "titles": [
+   "landscaper",
+   "arborist",
+   "landscape technician",
+   "landscape gardener"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e7970c7a-7769-4002-87d3-0a8ea94fdd6f",
+  "esco_title": "landscape gardener",
+  "similarity": 1.0
+ },
+ {
+  "code": "22210",
+  "name": "Architectural technologists and technicians",
+  "titles": [
+   "architectural technologist",
+   "technologist, architectural",
+   "architectural design technician",
+   "architectural technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/364cb5ca-3002-425f-b815-aefa513df78a",
+  "esco_title": "architectural drafter",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22211",
+  "name": "Industrial designers",
+  "titles": [
+   "designer, industrial",
+   "product designer",
+   "industrial designer",
+   "designer, furniture"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ab7bccb2-6f81-4a3d-a0c0-fca5d47d2775",
+  "esco_title": "industrial designer",
+  "similarity": 1.0
+ },
+ {
+  "code": "22212",
+  "name": "Drafting technologists and technicians",
+  "titles": [
+   "detailer",
+   "drafting technician",
+   "design draftsperson",
+   "draftsman/woman"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a4869ae9-2dfe-48cc-bd97-f803880f3407",
+  "esco_title": "drafter",
+  "similarity": 0.85
+ },
+ {
+  "code": "22213",
+  "name": "Land survey technologists and technicians",
+  "titles": [
+   "land survey technician",
+   "engineering survey technician",
+   "geomatics technician - land surveying",
+   "land survey technologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/624986f9-21ef-4cdf-8cf6-8407a337ec2f",
+  "esco_title": "surveying technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22214",
+  "name": "Technical occupations in geomatics and meteorology",
+  "titles": [
+   "geographic information systems (gis) analyst",
+   "geographic information systems (GIS) technician",
+   "technologist, geological information system",
+   "Geomatics Officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9af8907f-56a7-4170-83b1-3c6ba0997cfa",
+  "esco_title": "geographic information systems specialist",
+  "similarity": 0.919
+ },
+ {
+  "code": "22220",
+  "name": "Computer network and web technicians",
+  "titles": [
+   "computer network technician",
+   "network system administrator",
+   "server administrator",
+   "network administrator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/81480b40-a318-47f3-9b2c-56b69ed67d95",
+  "esco_title": "ICT network administrator",
+  "similarity": 0.975
+ },
+ {
+  "code": "22221",
+  "name": "User support technicians",
+  "titles": [
+   "user support technician",
+   "computer technician",
+   "information technology (IT) support technician",
+   "deskside support technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/aaeec9a7-dc57-4485-890c-86b3eef735f9",
+  "esco_title": "ICT help desk agent",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22222",
+  "name": "Information systems testing technicians",
+  "titles": [
+   "systems testing technician",
+   "software tester",
+   "software testing technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/52d5edc9-7902-4cd3-8b06-6bd77c98d440",
+  "esco_title": "ICT system tester",
+  "similarity": 0.857
+ },
+ {
+  "code": "22230",
+  "name": "Non-destructive testers and inspectors",
+  "titles": [
+   "non-destructive test technician",
+   "technician, NDT (non-destructive testing) maintenance",
+   "welding inspector",
+   "non-destructive inspector"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/82d75f3b-644a-4582-ad6b-a2a1833e44cb",
+  "esco_title": "non-destructive testing specialist",
+  "similarity": 0.976
+ },
+ {
+  "code": "22231",
+  "name": "Engineering inspectors and regulatory officers",
+  "titles": [
+   "quality assurance officer",
+   "engineering inspector",
+   "railway inspector",
+   "boiler inspector"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22232",
+  "name": "Occupational health and safety specialists",
+  "titles": [
+   "health and safety officer",
+   "occupational health and safety coordinator",
+   "health and safety advisor",
+   "safety officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/789517fb-95ee-43d1-9530-c2860be1a439",
+  "esco_title": "health and safety officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "22233",
+  "name": "Construction inspectors",
+  "titles": [
+   "building inspector",
+   "construction safety officer",
+   "construction field inspector",
+   "construction inspector"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f0978ec0-ae7d-4c4a-8f80-3fd200edddac",
+  "esco_title": "construction quality inspector",
+  "similarity": 0.89
+ },
+ {
+  "code": "22300",
+  "name": "Civil engineering technologists and technicians",
+  "titles": [
+   "civil engineering technologist",
+   "civil engineering technician",
+   "environmental technician",
+   "construction technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0f5cc4eb-925d-4b99-be6d-b0964a253a9a",
+  "esco_title": "civil engineering technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22301",
+  "name": "Mechanical engineering technologists and technicians",
+  "titles": [
+   "drone technician",
+   "heating, ventilation and air conditioning (HVAC) systems specialist",
+   "mechanical engineering technologist",
+   "mechanical engineering technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b31e404e-9af6-457d-a58a-208f612eeba3",
+  "esco_title": "mechanical engineering technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22302",
+  "name": "Industrial engineering and manufacturing technologists and technicians",
+  "titles": [
+   "manufacturing technician",
+   "quality assurance technologist",
+   "quality assurance (qa) technician",
+   "quality control technician (except chemical)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bcc21c63-7eee-4520-8fa7-43eefd389668",
+  "esco_title": "industrial engineering technician",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22303",
+  "name": "Construction estimators",
+  "titles": [
+   "construction estimator",
+   "certified construction estimator",
+   "estimator, construction",
+   "construction cost estimator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0cca32c2-9308-4927-adb2-14771ab787f0",
+  "esco_title": "quantity surveyor",
+  "similarity": 0.895
+ },
+ {
+  "code": "22310",
+  "name": "Electrical and electronics engineering technologists and technicians",
+  "titles": [
+   "electrical technician",
+   "electronics technician",
+   "electrical engineering technician",
+   "electromechanical technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9aa2a36f-296e-45fe-9798-b7839e0ed389",
+  "esco_title": "electrical engineering technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "22311",
+  "name": "Electronic service technicians (household and business equipment)",
+  "titles": [
+   "videoconference technician",
+   "computer service technician",
+   "fire alarm technician",
+   "security systems technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f8ab2e08-d14e-4938-a2cd-c04821556db7",
+  "esco_title": "consumer electronics repair technician",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "22312",
+  "name": "Industrial instrument technicians and mechanics",
+  "titles": [
+   "industrial instrument mechanic",
+   "industrial instrumentation and control technician",
+   "industrial instrument service technician",
+   "instrumentation and control technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2bb8adee-2b84-4d7b-84f9-0620bc09ada8",
+  "esco_title": "instrumentation engineering technician",
+  "similarity": 0.956
+ },
+ {
+  "code": "22313",
+  "name": "Aircraft instrument, electrical and avionics mechanics, technicians and inspectors",
+  "titles": [
+   "AME (aircraft maintenance engineer) - avionics",
+   "aircraft maintenance engineer (AME) - avionics",
+   "avionics mechanic",
+   "aircraft avionics technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d9ab0f3d-078d-42a7-a502-3e739e0aeff6",
+  "esco_title": "avionics technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "30010",
+  "name": "Managers in health care",
+  "titles": [
+   "chief of laboratory medicine",
+   "manager, nursing services - medical services",
+   "director of surgery",
+   "clinical services manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4a29eab1-5f02-4723-a863-e2d5a0614dfa",
+  "esco_title": "healthcare institution manager",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "31100",
+  "name": "Specialists in clinical and laboratory medicine",
+  "titles": [
+   "internal medicine specialist",
+   "psychiatrist",
+   "pediatrician",
+   "radiologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9b889f07-c39c-464d-b9d9-b2daa650f9ac",
+  "esco_title": "specialised doctor",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "31101",
+  "name": "Specialists in surgery",
+  "titles": [
+   "obstetrician-gynecologist",
+   "ophthalmologist",
+   "otolaryngologist",
+   "plastic surgeon"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9b889f07-c39c-464d-b9d9-b2daa650f9ac",
+  "esco_title": "specialised doctor",
+  "similarity": 0.815
+ },
+ {
+  "code": "31102",
+  "name": "General practitioners and family physicians",
+  "titles": [
+   "family physician",
+   "physician, family",
+   "resident",
+   "intern"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/71f09c8b-a172-408c-b9e7-32e580e39ff6",
+  "esco_title": "general practitioner",
+  "similarity": 0.771
+ },
+ {
+  "code": "31103",
+  "name": "Veterinarians",
+  "titles": [
+   "veterinarian",
+   "doctor of veterinary medicine (DVM)",
+   "emergency veterinarian",
+   "small animal veterinarian"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/eb6efbb9-9216-4e86-bc3b-de2223cd4667",
+  "esco_title": "general veterinarian",
+  "similarity": 0.949
+ },
+ {
+  "code": "31110",
+  "name": "Dentists",
+  "titles": [
+   "dentist",
+   "orthodontist",
+   "dental surgeon",
+   "endodontist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a580e79a-b752-49c1-b033-b5ab2b34bfba",
+  "esco_title": "specialist dentist",
+  "similarity": 0.976
+ },
+ {
+  "code": "31111",
+  "name": "Optometrists",
+  "titles": [
+   "optometrist",
+   "OD (doctor of optometry)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bffbe18a-cb8b-4f90-bd87-7505cd3b16f5",
+  "esco_title": "optometrist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31112",
+  "name": "Audiologists and speech-language pathologists",
+  "titles": [
+   "speech-language pathologist",
+   "audiologist",
+   "therapist, speech",
+   "pathologist, speech"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c4d6d07a-ae90-40ce-bc5a-c952805a9bf3",
+  "esco_title": "audiologist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31120",
+  "name": "Pharmacists",
+  "titles": [
+   "pharmacist",
+   "clinical pharmacist",
+   "community pharmacist",
+   "druggist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7c132147-428b-4ea3-87e1-70f7abb691ce",
+  "esco_title": "pharmacist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31121",
+  "name": "Dietitians and nutritionists",
+  "titles": [
+   "dietitian",
+   "dietitian, registered",
+   "nutritionist",
+   "dietitian-nutritionist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8a53f8d3-d995-4c7b-a70d-d79f76bdcb3f",
+  "esco_title": "dietitian",
+  "similarity": 1.0
+ },
+ {
+  "code": "31200",
+  "name": "Psychologists",
+  "titles": [
+   "psychologist",
+   "registered psychologist",
+   "clinical psychologist",
+   "psychologist, school"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c3c8c56c-b3ab-4425-a38a-abcace020d22",
+  "esco_title": "clinical psychologist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31201",
+  "name": "Chiropractors",
+  "titles": [
+   "chiropractor",
+   "chiropractic doctor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/49e4e358-8ba3-4a05-8ef9-abb73156f5f7",
+  "esco_title": "chiropractor",
+  "similarity": 1.0
+ },
+ {
+  "code": "31202",
+  "name": "Physiotherapists",
+  "titles": [
+   "physiotherapist",
+   "registered physiotherapist",
+   "physical therapist",
+   "clinical physiotherapist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/006cc1f9-2841-41c3-991a-dc3f2f3bd533",
+  "esco_title": "physiotherapist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31203",
+  "name": "Occupational therapists",
+  "titles": [
+   "occupational therapist (OT)",
+   "OT (occupational therapist)",
+   "occupational therapist, community practice",
+   "community practice occupational therapist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/33da5532-8c4e-4d1b-b52e-c201ee1bc7ab",
+  "esco_title": "occupational therapist",
+  "similarity": 0.921
+ },
+ {
+  "code": "31204",
+  "name": "Kinesiologists and other professional occupations in therapy and assessment",
+  "titles": [
+   "kinesiologist",
+   "registered kinesiologist",
+   "athletic therapist",
+   "exercise physiologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/11a6d0f6-e692-4774-aa5f-193b67d31022",
+  "esco_title": "kinesiologist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31209",
+  "name": "Other professional occupations in health diagnosing and treating",
+  "titles": [
+   "chiropodist",
+   "naturopathic doctor (ND)",
+   "podiatrist",
+   "ND (naturopathic doctor)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/cf9b6da9-3a59-4780-bec9-500b148b8878",
+  "esco_title": "podiatrist",
+  "similarity": 1.0
+ },
+ {
+  "code": "31300",
+  "name": "Nursing coordinators and supervisors",
+  "titles": [
+   "patient care coordinator",
+   "nursing coordinator",
+   "clinical resource nurse",
+   "supervisor, personal care attendants"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8d3e8aaa-791b-4c75-a465-f3f827028f50",
+  "esco_title": "nurse responsible for general care",
+  "similarity": 0.881
+ },
+ {
+  "code": "31301",
+  "name": "Registered nurses and registered psychiatric nurses",
+  "titles": [
+   "nurse",
+   "registered nurse (R.N.)",
+   "RN (registered nurse)",
+   "visiting nurse"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8d3e8aaa-791b-4c75-a465-f3f827028f50",
+  "esco_title": "nurse responsible for general care",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "31302",
+  "name": "Nurse practitioners",
+  "titles": [
+   "nurse practitioner",
+   "nurse practitioner - primary health care",
+   "primary health care nurse practitioner (PHCNP)",
+   "nurse practitioner - extended class"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/36494988-69d2-4420-9db4-eb56605ac983",
+  "esco_title": "advanced nurse practitioner",
+  "similarity": 0.96
+ },
+ {
+  "code": "31303",
+  "name": "Physician assistants, midwives and allied health professionals",
+  "titles": [
+   "pathologists' assistant",
+   "physician assistant",
+   "registered midwife (RM)",
+   "licensed midwife"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "32100",
+  "name": "Opticians",
+  "titles": [
+   "optician",
+   "dispensing optician",
+   "optician, student",
+   "licensed optician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6e0e068b-cd5c-4400-8899-54056087fa14",
+  "esco_title": "optician",
+  "similarity": 1.0
+ },
+ {
+  "code": "32101",
+  "name": "Licensed practical nurses",
+  "titles": [
+   "licensed practical nurse (L.P.N.)",
+   "registered practical nurse (R.P.N.)",
+   "L.P.N. (licensed practical nurse)",
+   "licensed nursing assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
+  "esco_title": "nurse assistant",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "32102",
+  "name": "Paramedical occupations",
+  "titles": [
+   "primary care paramedic",
+   "emergency medical technician (EMT)",
+   "advanced care paramedic",
+   "emergency medical technician, paramedic"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0b5dfc02-b825-4445-811d-d39ed442657e",
+  "esco_title": "paramedic in emergency responses",
+  "similarity": 0.95
+ },
+ {
+  "code": "32103",
+  "name": "Respiratory therapists, clinical perfusionists and cardiopulmonary technologists",
+  "titles": [
+   "respiratory therapist",
+   "therapist, respiratory",
+   "registered respiratory therapist (RRT)",
+   "perfusionist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/57a73b7c-cf10-4852-b067-c25833fa149e",
+  "esco_title": "clinical perfusion scientist",
+  "similarity": 0.953
+ },
+ {
+  "code": "32104",
+  "name": "Animal health technologists and veterinary technicians",
+  "titles": [
+   "registered veterinary technician (RVT)",
+   "veterinary technician",
+   "veterinary assistant",
+   "animal health technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/99ebf2c2-1811-4c77-b2e6-7008cba29ea0",
+  "esco_title": "veterinary technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "32109",
+  "name": "Other technical occupations in therapy and assessment",
+  "titles": [
+   "physiotherapy assistant",
+   "ophthalmic technician",
+   "communicative disorders assistant",
+   "rehabilitation assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f88124d7-ee7e-4d21-9036-0658b496c119",
+  "esco_title": "physiotherapy assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "32110",
+  "name": "Denturists",
+  "titles": [
+   "denturist",
+   "denture technician",
+   "denture therapist",
+   "technician, dentures"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/76bded28-876a-40b2-9efb-3123c8f14cf6",
+  "esco_title": "dental technician",
+  "similarity": 0.926
+ },
+ {
+  "code": "32111",
+  "name": "Dental hygienists and dental therapists",
+  "titles": [
+   "registered dental hygienist",
+   "dental hygienist",
+   "Dental hygienists and dental therapists",
+   "orthodontic hygienist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d18deca3-3063-4970-9ddc-e3c70404a28c",
+  "esco_title": "dental hygienist",
+  "similarity": 1.0
+ },
+ {
+  "code": "32112",
+  "name": "Dental technologists and technicians",
+  "titles": [
+   "dental technician",
+   "dental ceramist",
+   "dental technologist",
+   "registered dental technologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/76bded28-876a-40b2-9efb-3123c8f14cf6",
+  "esco_title": "dental technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "32120",
+  "name": "Medical laboratory technologists",
+  "titles": [
+   "medical laboratory technologist",
+   "combined laboratory and x-ray technologist",
+   "medical technologist - medical laboratory",
+   "medical technologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2e8820ba-5b2d-4572-92a1-942dbd02a6d6",
+  "esco_title": "biomedical scientist",
+  "similarity": 0.963
+ },
+ {
+  "code": "32121",
+  "name": "Medical radiation technologists",
+  "titles": [
+   "technologist, medical radiation",
+   "nuclear medicine technologist",
+   "medical radiation technologist (MRT)",
+   "radiation therapist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7639a601-6db0-41ed-9fb0-813d9b8beb05",
+  "esco_title": "radiographer",
+  "similarity": 1.0
+ },
+ {
+  "code": "32122",
+  "name": "Medical sonographers",
+  "titles": [
+   "ultrasound technologist",
+   "diagnostic medical sonographer",
+   "cardiac sonographer",
+   "registered diagnostic cardiac sonographer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7d092380-1c2e-48fe-81de-0d191b4e96d6",
+  "esco_title": "diagnostic radiographer",
+  "similarity": 0.744
+ },
+ {
+  "code": "32123",
+  "name": "Cardiology technologists and electrophysiological diagnostic technologists",
+  "titles": [
+   "technologist, cardiology",
+   "cardiovascular technologist",
+   "electroneurophysiology (ENP) technologist",
+   "cardiology technologist"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "32124",
+  "name": "Pharmacy technicians",
+  "titles": [
+   "registered pharmacy technician",
+   "technician, pharmacy",
+   "pharmacy technician",
+   "certified pharmacy technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7b74626d-b487-48a1-9e80-47faf9928210",
+  "esco_title": "pharmacy technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "32129",
+  "name": "Other medical technologists and technicians",
+  "titles": [
+   "certified orthotist (CO)",
+   "food and nutrition technician - dietetics",
+   "certified prosthetist",
+   "prosthetist-orthotist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/929b5c9d-2fbf-44f2-980d-2ac6c0dc212f",
+  "esco_title": "prosthetist-orthotist",
+  "similarity": 1.0
+ },
+ {
+  "code": "32200",
+  "name": "Traditional Chinese medicine practitioners and acupuncturists",
+  "titles": [
+   "acupuncturist",
+   "registered acupuncturist",
+   "traditional Chinese medicine practitioner and acupuncturist",
+   "Chinese medicine practitioner"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2dcb5dad-1902-4051-9023-d725485479a7",
+  "esco_title": "acupuncturist",
+  "similarity": 1.0
+ },
+ {
+  "code": "32201",
+  "name": "Massage therapists",
+  "titles": [
+   "registered massage therapist (RMT)",
+   "therapist, massage",
+   "MT (massage therapist)",
+   "RMT (registered massage therapist)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9487f835-b5a9-4742-8ecf-35520911e28c",
+  "esco_title": "massage therapist",
+  "similarity": 0.964
+ },
+ {
+  "code": "32209",
+  "name": "Other practitioners of natural healing",
+  "titles": [
+   "osteopathic manual practitioner",
+   "osteopathic manual therapist",
+   "osteopath - manual therapy",
+   "reflexologist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a7198837-139d-49c7-8fd0-eb8d8c1ee844",
+  "esco_title": "osteopath",
+  "similarity": 0.853
+ },
+ {
+  "code": "33100",
+  "name": "Dental assistants and dental laboratory assistants",
+  "titles": [
+   "dental assistant",
+   "certified dental assistant",
+   "registered dental assistant",
+   "dental laboratory assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bdc74965-1d1a-4f8e-a490-9cf71f494e02",
+  "esco_title": "dental chairside assistant",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "33101",
+  "name": "Medical laboratory assistants and related technical occupations",
+  "titles": [
+   "medical laboratory assistant",
+   "phlebotomist",
+   "medical laboratory technician",
+   "technical assistant - medical laboratory"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0044c991-c26f-4261-a213-4bd1c0564a4c",
+  "esco_title": "medical laboratory assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "33102",
+  "name": "Nurse aides, orderlies and patient service associates",
+  "titles": [
+   "health care aide",
+   "medical orderly",
+   "continuing care assistant",
+   "personal support worker – nursing care"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d38c2107-98f2-47b7-8bb4-f69750d51082",
+  "esco_title": "healthcare assistant",
+  "similarity": 0.922
+ },
+ {
+  "code": "33103",
+  "name": "Pharmacy technical assistants and pharmacy assistants",
+  "titles": [
+   "pharmacy assistant",
+   "pharmacy technical assistant",
+   "pharmacy aide",
+   "pharmacy supply assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7b74626d-b487-48a1-9e80-47faf9928210",
+  "esco_title": "pharmacy technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "33109",
+  "name": "Other assisting occupations in support of health services",
+  "titles": [
+   "optometric assistant",
+   "chiropractic assistant",
+   "medical device reprocessing technician",
+   "chiropractic office assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/66ca3643-e6f3-4c75-9300-40d813185b3e",
+  "esco_title": "chiropractic assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "40010",
+  "name": "Government managers - health and social policy development and program administration",
+  "titles": [
+   "manager, social services planning",
+   "community planning director - government services",
+   "health programs assistant director - government services",
+   "health strategies manager - government services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d4d6842b-27f0-4222-85db-c542acf6d434",
+  "esco_title": "public health policy officer",
+  "similarity": 0.8
+ },
+ {
+  "code": "40011",
+  "name": "Government managers - economic analysis, policy development and program administration",
+  "titles": [
+   "business development manager",
+   "director, business development",
+   "trade development director",
+   "economic development director - government services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c418ed9a-132f-48cd-ae5c-dd375070ee0e",
+  "esco_title": "trade development officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "40012",
+  "name": "Government managers - education policy development and program administration",
+  "titles": [
+   "director, learning programs - secondary education",
+   "services manager - education programs",
+   "education director",
+   "education programs support director - public administration"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d89b23c2-d042-4ca6-a917-109fe5a0b30c",
+  "esco_title": "curriculum administrator",
+  "similarity": 0.897
+ },
+ {
+  "code": "40019",
+  "name": "Other managers in public administration",
+  "titles": [
+   "director of public works",
+   "emergency management coordinator - government services",
+   "public works superintendent",
+   "director, legislative services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0752ed49-03e7-4d75-8314-a051b3771a1d",
+  "esco_title": "public administration manager",
+  "similarity": 0.916
+ },
+ {
+  "code": "40020",
+  "name": "Administrators - post-secondary education and vocational training",
+  "titles": [
+   "Tutoring services director",
+   "pedagogical coordinator",
+   "program coordinator - post-secondary education",
+   "business college director"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2c1ed9dd-9799-4882-8bfa-40b841f7d4a1",
+  "esco_title": "further education principal",
+  "similarity": 0.824
+ },
+ {
+  "code": "40021",
+  "name": "School principals and administrators of elementary and secondary education",
+  "titles": [
+   "principal",
+   "assistant principal",
+   "community school principal",
+   "administrator, board of education"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c9d89e09-d57f-4980-9164-880e60711e97",
+  "esco_title": "primary school head teacher",
+  "similarity": 0.904
+ },
+ {
+  "code": "40030",
+  "name": "Managers in social, community and correctional services",
+  "titles": [
+   "case manager",
+   "child-care centre director",
+   "social services manager",
+   "Daycare director"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c18fddf5-cfc4-4f9c-94d6-86608faaa1dd",
+  "esco_title": "social services manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "40040",
+  "name": "Commissioned police officers and related occupations in public protection services",
+  "titles": [
+   "deputy chief of police",
+   "chief of police",
+   "railway police supervisor",
+   "police superintendent"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2ae275fe-4f11-4a38-9e95-d466d74b42a3",
+  "esco_title": "police commissioner",
+  "similarity": 0.975
+ },
+ {
+  "code": "40041",
+  "name": "Fire chiefs and senior firefighting officers",
+  "titles": [
+   "deputy fire chief",
+   "fire chief",
+   "fire department duty officer",
+   "fire department assistant manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a05d0a6d-7b60-445a-8dcb-282c7d5a6852",
+  "esco_title": "chief fire officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "40042",
+  "name": "Commissioned officers of the Canadian Armed Forces",
+  "titles": [
+   "general",
+   "captain",
+   "major"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c6a26e11-bdf1-47a1-849d-fdcf819d458d",
+  "esco_title": "armed forces officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "41100",
+  "name": "Judges",
+  "titles": [
+   "justice"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/07bd65d7-c13f-443a-bdf6-88903f3822be",
+  "esco_title": "judge",
+  "similarity": 0.946
+ },
+ {
+  "code": "41101",
+  "name": "Lawyers and Quebec notaries",
+  "titles": [
+   "associate lawyer",
+   "attorney",
+   "lawyer",
+   "family and estates lawyer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/974d4eab-fbee-4c52-b16e-73bdd8c25b53",
+  "esco_title": "lawyer",
+  "similarity": 1.0
+ },
+ {
+  "code": "41200",
+  "name": "University professors and lecturers",
+  "titles": [
+   "professor, university",
+   "assistant professor - university",
+   "agriculture professor - university",
+   "psychology professor - university"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c262bb96-03bb-4c97-a45b-0cf36db5b048",
+  "esco_title": "assistant lecturer",
+  "similarity": 0.943
+ },
+ {
+  "code": "41201",
+  "name": "Post-secondary teaching and research assistants",
+  "titles": [
+   "demonstrator, laboratory - post-secondary teaching assistance",
+   "research assistant - post-secondary",
+   "research assistant, university",
+   "tutor - post-secondary teaching assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5ac65daa-0896-4193-9f0e-8b00746b78a1",
+  "esco_title": "university research assistant",
+  "similarity": 0.985
+ },
+ {
+  "code": "41210",
+  "name": "College and other vocational instructors",
+  "titles": [
+   "college lecturer",
+   "business law teacher",
+   "instructor, college",
+   "CEGEP teacher"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/81f8d141-3f67-4fb0-a349-db0147ef7b3a",
+  "esco_title": "vocational teacher",
+  "similarity": 0.889
+ },
+ {
+  "code": "41220",
+  "name": "Secondary school teachers",
+  "titles": [
+   "high school teacher",
+   "academic subjects high school teacher",
+   "remedial teacher, secondary school",
+   "high school teacher, special education"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5efb2c08-ba3a-4659-a2e4-1883f54e77b6",
+  "esco_title": "secondary school teacher",
+  "similarity": 0.89
+ },
+ {
+  "code": "41221",
+  "name": "Elementary school and kindergarten teachers",
+  "titles": [
+   "elementary school teacher",
+   "elementary school substitute teacher",
+   "French teacher - elementary school",
+   "elementary school reading clinician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/03d79393-7b30-4159-945b-01963eddd302",
+  "esco_title": "primary school teacher",
+  "similarity": 0.924
+ },
+ {
+  "code": "41300",
+  "name": "Social workers",
+  "titles": [
+   "social worker",
+   "registered social worker",
+   "caseworker - social work",
+   "child welfare social worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4b05bef2-ded4-4b09-ab94-f4c6a555a775",
+  "esco_title": "social worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "41301",
+  "name": "Therapists in counselling and related specialized therapies",
+  "titles": [
+   "addictions counsellor",
+   "psychoeducator",
+   "mental health counsellor",
+   "registered clinical counsellor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/af69484e-b43f-4685-b22d-f3418df45c4d",
+  "esco_title": "psychotherapist",
+  "similarity": 0.864
+ },
+ {
+  "code": "41302",
+  "name": "Religious leaders",
+  "titles": [
+   "chaplain",
+   "parish priest",
+   "imam",
+   "minister"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ed256ed0-0432-4969-8544-3e5e01a517a9",
+  "esco_title": "minister of religion",
+  "similarity": 0.901
+ },
+ {
+  "code": "41310",
+  "name": "Police investigators and other investigative occupations",
+  "titles": [
+   "wellness program manager",
+   "investigator - police",
+   "coroner"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3880e9e8-bc2b-48d9-8afc-a0f258c1c4b0",
+  "esco_title": "police detective",
+  "similarity": 0.903
+ },
+ {
+  "code": "41311",
+  "name": "Probation and parole officers",
+  "titles": [
+   "probation and parole officer",
+   "probation officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6a7212c9-40da-4346-a190-3896bdd9a925",
+  "esco_title": "probation officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "41320",
+  "name": "Educational counsellors",
+  "titles": [
+   "counsellor, school",
+   "educational counsellor",
+   "student counsellor",
+   "adviser, academic"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/abab3d6a-82b9-49bd-8a4b-7bc678130558",
+  "esco_title": "academic advisor",
+  "similarity": 0.942
+ },
+ {
+  "code": "41321",
+  "name": "Career development practitioners and career counsellors (except education)",
+  "titles": [
+   "counsellor, employment",
+   "vocational counsellor (except education)",
+   "employment assistance officer",
+   "job counsellor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5d0cc30d-068a-424c-8463-f42872a7149e",
+  "esco_title": "career guidance advisor",
+  "similarity": 0.885
+ },
+ {
+  "code": "41400",
+  "name": "Natural and applied science policy researchers, consultants and program officers",
+  "titles": [
+   "environmental project manager",
+   "sustainability program coordinator",
+   "environmental program coordinator",
+   "researcher, natural and applied sciences"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b5d2db88-9e2b-4efa-8f2f-0e62a494791e",
+  "esco_title": "environmental policy officer",
+  "similarity": 0.889
+ },
+ {
+  "code": "41401",
+  "name": "Economists and economic policy researchers and analysts",
+  "titles": [
+   "risk management analyst",
+   "economic advisor",
+   "business analyst - economics",
+   "agricultural economist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/56afc09a-75a0-49c7-a5cb-256df45d8f2d",
+  "esco_title": "economic adviser",
+  "similarity": 0.97
+ },
+ {
+  "code": "41402",
+  "name": "Business development officers and market researchers and analysts",
+  "titles": [
+   "business development officer",
+   "agriculture and food sector development consultant",
+   "economic development officer",
+   "sales analyst"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9e1e8379-6377-4969-b141-0d2337218fc9",
+  "esco_title": "economic development coordinator",
+  "similarity": 1.0
+ },
+ {
+  "code": "41403",
+  "name": "Social policy researchers, consultants and program officers",
+  "titles": [
+   "settlement practitioner",
+   "immigration consultant",
+   "community social development officer",
+   "community organizer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d6ef013f-57e9-4100-bbe5-3e4930664dee",
+  "esco_title": "social services policy officer",
+  "similarity": 0.878
+ },
+ {
+  "code": "41404",
+  "name": "Health policy researchers, consultants and program officers",
+  "titles": [
+   "wellness coordinator",
+   "health educator",
+   "wellness consultant",
+   "health services researcher"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d4d6842b-27f0-4222-85db-c542acf6d434",
+  "esco_title": "public health policy officer",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "41405",
+  "name": "Education policy researchers, consultants and program officers",
+  "titles": [
+   "literacy coach",
+   "consultant, education",
+   "education program coordinator",
+   "languages coordinator - education"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f817aab2-ec8a-45ec-88ef-c11e0f19fd85",
+  "esco_title": "education policy officer",
+  "similarity": 0.877
+ },
+ {
+  "code": "41406",
+  "name": "Recreation, sports and fitness policy researchers, consultants and program officers",
+  "titles": [
+   "recreation coordinator",
+   "recreation programmer",
+   "community recreation coordinator",
+   "recreation supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fdf7b000-d923-4086-9660-eb8ee5e77ef0",
+  "esco_title": "recreation policy officer",
+  "similarity": 0.895
+ },
+ {
+  "code": "41407",
+  "name": "Program officers unique to government",
+  "titles": [
+   "elections officer",
+   "second secretary - foreign service",
+   "intelligence analyst - security",
+   "Foreign Service Officer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1fb92021-9576-4c85-8759-f6918e9f0ad4",
+  "esco_title": "diplomat",
+  "similarity": 0.995
+ },
+ {
+  "code": "41409",
+  "name": "Other professional occupations in social science",
+  "titles": [
+   "psychometrist",
+   "cultural anthropologist",
+   "psychometrician",
+   "historian"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/acf69cab-8629-45c8-ae10-c8fb15f474b6",
+  "esco_title": "anthropologist",
+  "similarity": 1.0
+ },
+ {
+  "code": "42100",
+  "name": "Police officers (except commissioned)",
+  "titles": [
+   "constable",
+   "peace officer",
+   "police officer",
+   "community services officer - police"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5793c124-c037-47b2-85b6-dd4a705968dc",
+  "esco_title": "police officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "42101",
+  "name": "Firefighters",
+  "titles": [
+   "firefighter",
+   "industrial firefighter",
+   "fire inspector",
+   "fire captain"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/88721b6c-d2ce-41c6-8878-73c0d3aacf39",
+  "esco_title": "firefighter",
+  "similarity": 1.0
+ },
+ {
+  "code": "42102",
+  "name": "Specialized members of the Canadian Armed Forces",
+  "titles": [
+   "weapons engineering technician",
+   "electronic-optronic technician"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "42200",
+  "name": "Paralegals and related occupations",
+  "titles": [
+   "paralegal",
+   "legal technician",
+   "law clerk",
+   "corporate law clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/929ef41d-afd0-4d5a-b85b-69eab68fa368",
+  "esco_title": "legal assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "42201",
+  "name": "Social and community service workers",
+  "titles": [
+   "youth worker",
+   "child and youth worker",
+   "social services worker",
+   "community worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4b05bef2-ded4-4b09-ab94-f4c6a555a775",
+  "esco_title": "social worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "42202",
+  "name": "Early childhood educators and assistants",
+  "titles": [
+   "early childhood educator (ECE)",
+   "registered early childhood educator  (RECE)",
+   "early childhood educator (ECE) assistant",
+   "child care worker assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4d27152a-a8ee-4f5a-9f93-a2fb4fb2b2e3",
+  "esco_title": "early years teaching assistant",
+  "similarity": 0.927
+ },
+ {
+  "code": "42203",
+  "name": "Instructors of persons with disabilities",
+  "titles": [
+   "instructor of persons with special needs",
+   "instructor of persons with disabilities",
+   "special education technician - persons with disabilities",
+   "teacher for persons with autism"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/976cbfcc-8958-4800-a435-71d15405a42a",
+  "esco_title": "special educational needs teacher",
+  "similarity": 0.957
+ },
+ {
+  "code": "42204",
+  "name": "Religion workers",
+  "titles": [
+   "Spiritual care practitioner",
+   "religious education worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/665266cb-50dd-44a5-a920-ab04c67e251a",
+  "esco_title": "pastoral worker",
+  "similarity": 0.92
+ },
+ {
+  "code": "43100",
+  "name": "Elementary and secondary school teacher assistants",
+  "titles": [
+   "assistant, educational",
+   "assistant, special education",
+   "special needs educational assistant",
+   "educational assistant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1f137f0b-7097-4583-9d1b-b69e57369319",
+  "esco_title": "special educational needs assistant",
+  "similarity": 0.99
+ },
+ {
+  "code": "43109",
+  "name": "Other instructors",
+  "titles": [
+   "driving instructor",
+   "tutor - secondary school subjects",
+   "first aid instructor",
+   "tutor - elementary school subjects"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bca2528a-5a87-4576-a3b5-1edbbce40a9f",
+  "esco_title": "driving instructor",
+  "similarity": 1.0
+ },
+ {
+  "code": "43200",
+  "name": "Sheriffs and bailiffs",
+  "titles": [
+   "process server",
+   "sheriff's officer",
+   "bailiff",
+   "sheriff"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b471350e-23ce-4789-a821-5500b28cffe1",
+  "esco_title": "court enforcement officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "43201",
+  "name": "Correctional service officers",
+  "titles": [
+   "detention guard",
+   "correctional officer",
+   "correctional service officer",
+   "correctional services unit supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3327a087-cd36-4b02-ac1b-6455f59f9312",
+  "esco_title": "prison officer",
+  "similarity": 0.968
+ },
+ {
+  "code": "43202",
+  "name": "By-law enforcement and other regulatory officers",
+  "titles": [
+   "by-law enforcement officer",
+   "inspector - by-law enforcement",
+   "animal control officer",
+   "transport compliance officer"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "43203",
+  "name": "Border services, customs, and immigration officers",
+  "titles": [
+   "immigration agent"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6296faea-1909-4943-b0e0-662b43ad855d",
+  "esco_title": "immigration officer",
+  "similarity": 0.906
+ },
+ {
+  "code": "43204",
+  "name": "Operations Members of the Canadian Armed Forces",
+  "titles": [
+   "naval acoustics operator"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "44100",
+  "name": "Home child care providers",
+  "titles": [
+   "home child care provider",
+   "child caregiver - private home",
+   "nanny",
+   "child care provider - private home"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0a5356bc-7f81-4e40-971d-c1dc789c5fb4",
+  "esco_title": "nanny",
+  "similarity": 1.0
+ },
+ {
+  "code": "44101",
+  "name": "Home support workers, caregivers and related occupations",
+  "titles": [
+   "home support worker",
+   "personal support worker - home support",
+   "family caregiver",
+   "live-in caregiver - seniors"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1391bdf9-bd61-4fb5-91ca-c29036ab2b60",
+  "esco_title": "home care aide",
+  "similarity": 0.885
+ },
+ {
+  "code": "44200",
+  "name": "Primary combat members of the Canadian Armed Forces",
+  "titles": [
+   "armour soldier - Canadian Armed Forces (CAF)"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "45100",
+  "name": "Student monitors, crossing guards and related occupations",
+  "titles": [
+   "lunch supervisor",
+   "crossing guard",
+   "student monitor",
+   "school crossing guard"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/12da0bb1-26c8-46eb-9476-797f4f1c441e",
+  "esco_title": "crossing guard",
+  "similarity": 1.0
+ },
+ {
+  "code": "50010",
+  "name": "Library, archive, museum and art gallery managers",
+  "titles": [
+   "head librarian",
+   "arts administrator",
+   "art gallery coordinator",
+   "art gallery director"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/cc937d5f-4072-4fe7-bc23-2c9a465b8754",
+  "esco_title": "museum director",
+  "similarity": 1.0
+ },
+ {
+  "code": "50011",
+  "name": "Managers - publishing, motion pictures, broadcasting and performing arts",
+  "titles": [
+   "theatre manager",
+   "manager, book publishing",
+   "newspaper managing editor",
+   "editor-in-chief"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "50012",
+  "name": "Recreation, sports and fitness program and service directors",
+  "titles": [
+   "manager, recreation",
+   "recreation manager",
+   "fitness club manager",
+   "administrator, leisure"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/825ab049-2f0c-4acf-b402-9c6bb51acca2",
+  "esco_title": "sport facility manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "51100",
+  "name": "Librarians",
+  "titles": [
+   "librarian",
+   "reference librarian",
+   "law librarian",
+   "associate librarian"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/60f7eb23-a7ea-4cbe-98a5-1248291f62d5",
+  "esco_title": "librarian",
+  "similarity": 1.0
+ },
+ {
+  "code": "51101",
+  "name": "Conservators and curators",
+  "titles": [
+   "art gallery curator",
+   "curator",
+   "conservator - museum",
+   "assistant curator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/691d30cc-6b2c-4025-89b4-3e719fe664c7",
+  "esco_title": "exhibition curator",
+  "similarity": 1.0
+ },
+ {
+  "code": "51102",
+  "name": "Archivists",
+  "titles": [
+   "archivist",
+   "historical archivist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e3b08984-19fe-4d51-a1b0-990676fc7234",
+  "esco_title": "archivist",
+  "similarity": 1.0
+ },
+ {
+  "code": "51110",
+  "name": "Editors",
+  "titles": [
+   "editor",
+   "bilingual editor",
+   "caption editor",
+   "editor, newspaper"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/26ce22fe-4018-4387-8e6b-c2555f5fc0ac",
+  "esco_title": "newspaper editor",
+  "similarity": 0.983
+ },
+ {
+  "code": "51111",
+  "name": "Authors and writers (except technical)",
+  "titles": [
+   "narrative designer",
+   "writer",
+   "content creator - writing",
+   "copywriter"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b06a1dde-e5a1-4219-9491-2bedd0282e4b",
+  "esco_title": "writer",
+  "similarity": 1.0
+ },
+ {
+  "code": "51112",
+  "name": "Technical writers",
+  "titles": [
+   "technical writer",
+   "proposal writer",
+   "instructional designer",
+   "technical writer - pharmaceutical industry"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8cb59bc4-1f39-477e-beea-effed12d186c",
+  "esco_title": "technical communicator",
+  "similarity": 1.0
+ },
+ {
+  "code": "51113",
+  "name": "Journalists",
+  "titles": [
+   "journalist",
+   "reporter",
+   "investigative reporter",
+   "broadcast journalist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a47f82d3-4cf7-4abf-bb36-2c8cbad28234",
+  "esco_title": "journalist",
+  "similarity": 1.0
+ },
+ {
+  "code": "51114",
+  "name": "Translators, terminologists and interpreters",
+  "titles": [
+   "interpreter",
+   "community interpreter",
+   "ASL (American Sign Language) interpreter",
+   "translator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/23e692a9-a242-4d4f-988f-ed562f757864",
+  "esco_title": "interpreter",
+  "similarity": 1.0
+ },
+ {
+  "code": "51120",
+  "name": "Producers, directors, choreographers and related occupations",
+  "titles": [
+   "VFX project manager",
+   "video maker",
+   "technical producer",
+   "artistic director - motion picture"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1a7fb683-6544-4442-b54c-ec72ef468ff0",
+  "esco_title": "video and motion picture director",
+  "similarity": 0.919
+ },
+ {
+  "code": "51121",
+  "name": "Conductors, composers and arrangers",
+  "titles": [
+   "lyricist",
+   "maestro",
+   "director, music",
+   "conductor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/13d8b1be-d711-4bbc-a45e-cad605162f41",
+  "esco_title": "music director",
+  "similarity": 1.0
+ },
+ {
+  "code": "51122",
+  "name": "Musicians and singers",
+  "titles": [
+   "voice teacher - music",
+   "music teacher - private, conservatory or studio lessons",
+   "piano teacher - private, conservatory or studio lessons",
+   "Instrumental music teacher - private, conservatory or studio lessons"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f6803a58-91d9-4251-9a07-09fc387cec16",
+  "esco_title": "musician",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "52100",
+  "name": "Library and public archive technicians",
+  "titles": [
+   "library technician",
+   "technician, library",
+   "archive assistant",
+   "school librarian - secondary school"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/37b15470-3b2d-4ae0-816c-c7c06ed15c99",
+  "esco_title": "library assistant",
+  "similarity": 1.0
+ },
+ {
+  "code": "52110",
+  "name": "Film and video camera operators",
+  "titles": [
+   "videographer",
+   "film camera operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6fed206a-ac4d-492b-a81a-5a3a0f2b67bc",
+  "esco_title": "camera operator",
+  "similarity": 1.0
+ },
+ {
+  "code": "52111",
+  "name": "Graphic arts technicians",
+  "titles": [
+   "VFX artist",
+   "computer graphics design technician",
+   "graphic arts technician",
+   "vinyl lettering artist"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/69bcbb0a-8d80-4ecd-b0a4-9adea2a40de2",
+  "esco_title": "graphic designer",
+  "similarity": 0.852
+ },
+ {
+  "code": "52112",
+  "name": "Broadcast technicians",
+  "titles": [
+   "broadcast technician",
+   "broadcasting transmitter operator",
+   "broadcast engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fe4a72af-6206-4d86-90c1-b5fb4b5ba2b2",
+  "esco_title": "broadcast technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "52113",
+  "name": "Audio and video recording technicians",
+  "titles": [
+   "AV (audiovisual) technician",
+   "video technician",
+   "audiovisual (AV) technician",
+   "videotape editor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7642cbcc-9839-47fb-b2cf-d4bb831d6c93",
+  "esco_title": "audio-visual technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "52114",
+  "name": "Announcers and other broadcasters",
+  "titles": [
+   "announcer",
+   "radio host/hostess",
+   "festival and special event host",
+   "Disc jockey - broadcast"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/09a9a956-db70-436f-8398-d85a17f6cdfe",
+  "esco_title": "presenter",
+  "similarity": 1.0
+ },
+ {
+  "code": "52119",
+  "name": "Other technical and coordinating occupations in motion pictures, broadcasting and the performing arts",
+  "titles": [
+   "studio manager",
+   "programming manager",
+   "machinist-electrician",
+   "stage technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/acb6b99a-6c13-482a-81b1-8b5614e0153e",
+  "esco_title": "stage technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "52120",
+  "name": "Graphic designers and illustrators",
+  "titles": [
+   "graphic designer",
+   "graphic artist",
+   "content strategist",
+   "3D modeler"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/69bcbb0a-8d80-4ecd-b0a4-9adea2a40de2",
+  "esco_title": "graphic designer",
+  "similarity": 1.0
+ },
+ {
+  "code": "52121",
+  "name": "Interior designers and interior decorators",
+  "titles": [
+   "interior designer",
+   "kitchen designer",
+   "designer - interior design",
+   "interior decorator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/73e776fb-4d99-4031-bad4-7716f121155d",
+  "esco_title": "interior designer",
+  "similarity": 1.0
+ },
+ {
+  "code": "53100",
+  "name": "Registrars, restorers, interpreters and other occupations related to museum and art galleries",
+  "titles": [
+   "restoration technician",
+   "museum interpreter",
+   "nature interpreter",
+   "interpretive guide - museum"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/09a40a9a-2b60-422c-abe4-96d829bc27df",
+  "esco_title": "art restorer",
+  "similarity": 1.0
+ },
+ {
+  "code": "53110",
+  "name": "Photographers",
+  "titles": [
+   "photographer",
+   "portrait photographer",
+   "evidence photographer - forensic",
+   "commercial photographer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/66542dd6-05a6-4d9e-97ff-3f4858c31ff9",
+  "esco_title": "photographer",
+  "similarity": 1.0
+ },
+ {
+  "code": "53111",
+  "name": "Motion pictures, broadcasting, photography and performing arts assistants and operators",
+  "titles": [
+   "production assistant",
+   "stage production worker",
+   "boom operator",
+   "audiovisual (AV) assistant"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "53120",
+  "name": "Dancers",
+  "titles": [
+   "dance instructor",
+   "dance teacher",
+   "ballet teacher",
+   "classical dance instructor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1eb56b85-af25-43d4-9e35-73d8ee78e228",
+  "esco_title": "dance teacher",
+  "similarity": 1.0
+ },
+ {
+  "code": "53121",
+  "name": "Actors, comedians and circus performers",
+  "titles": [
+   "actor/actress",
+   "circus artist",
+   "straight man",
+   "comedian"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/26171f39-e85a-448f-bd28-a73a5a99927f",
+  "esco_title": "actor/actress",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "53122",
+  "name": "Painters, sculptors and other visual artists",
+  "titles": [
+   "artist",
+   "art instructor",
+   "sculptor",
+   "painting teacher"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/374d925a-107b-4c99-bc8b-75483441f062",
+  "esco_title": "artistic painter",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "53123",
+  "name": "Theatre, fashion, exhibit and other creative designers",
+  "titles": [
+   "exhibit and display designer",
+   "sound designer",
+   "fashion stylist",
+   "technical designer - fashion"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/790c8dca-f624-4bdc-ac16-27bc13ead188",
+  "esco_title": "sound designer",
+  "similarity": 1.0
+ },
+ {
+  "code": "53124",
+  "name": "Artisans and craftspersons",
+  "titles": [
+   "floral designer",
+   "goldsmith",
+   "artistic floral arranger",
+   "stone carver, hand"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8a007cd3-ba40-4c55-b238-587bd59e74b2",
+  "esco_title": "goldsmith",
+  "similarity": 1.0
+ },
+ {
+  "code": "53125",
+  "name": "Patternmakers - textile, leather and fur products",
+  "titles": [
+   "dress patternmaker",
+   "garment patternmaker",
+   "sail maker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/18232485-5f8b-4c53-80f2-3d9f8f9d0e20",
+  "esco_title": "wearing apparel patternmaker",
+  "similarity": 0.958
+ },
+ {
+  "code": "53200",
+  "name": "Athletes",
+  "titles": [
+   "archer",
+   "boxer",
+   "Biologists and related scientists",
+   "racer, stock car"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/082c234c-0dda-490a-b5af-757c3e48da90",
+  "esco_title": "professional athlete",
+  "similarity": 1.0
+ },
+ {
+  "code": "53201",
+  "name": "Coaches",
+  "titles": [
+   "coach",
+   "soccer coach",
+   "Badminton coach",
+   "head coach"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3e9c1262-4fe2-4eb1-bf94-4fe64498393a",
+  "esco_title": "sports coach",
+  "similarity": 0.908
+ },
+ {
+  "code": "53202",
+  "name": "Sports officials and referees",
+  "titles": [
+   "referee"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/388155cc-7ab8-46c7-8051-aefc7b276c84",
+  "esco_title": "sport official",
+  "similarity": 1.0
+ },
+ {
+  "code": "54100",
+  "name": "Program leaders and instructors in recreation, sport and fitness",
+  "titles": [
+   "personal trainer",
+   "lifeguard",
+   "recreation leader",
+   "fitness instructor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c784c2db-e636-429f-8492-3191790a58d7",
+  "esco_title": "fitness instructor",
+  "similarity": 1.0
+ },
+ {
+  "code": "55109",
+  "name": "Other performers",
+  "titles": [
+   "model",
+   "face painter",
+   "mascot",
+   "costumed character"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a655aff1-e5e9-4c64-bc85-b902568a3dfb",
+  "esco_title": "performance artist",
+  "similarity": 0.827
+ },
+ {
+  "code": "60010",
+  "name": "Corporate sales managers",
+  "titles": [
+   "account manager - sales",
+   "regional sales manager",
+   "corporate sales manager",
+   "territory manager - sales"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a7594892-ff23-4e2a-aedf-2f967ebca15c",
+  "esco_title": "sales manager",
+  "similarity": 0.932
+ },
+ {
+  "code": "60020",
+  "name": "Retail and wholesale trade managers",
+  "titles": [
+   "assistant manager - retail",
+   "store manager - retail",
+   "assistant store manager",
+   "retail sales manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9e81adde-9983-44fa-b74b-c548d0dbfbdd",
+  "esco_title": "shop manager",
+  "similarity": 0.978
+ },
+ {
+  "code": "60030",
+  "name": "Restaurant and food service managers",
+  "titles": [
+   "restaurant manager",
+   "restaurant assistant manager",
+   "food services manager",
+   "assistant manager, restaurant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d5eb6150-bbff-4a9c-9d0c-21eab4dbe2b6",
+  "esco_title": "restaurant manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "60031",
+  "name": "Accommodation service managers",
+  "titles": [
+   "manager, hotel front office",
+   "hotel manager",
+   "front desk manager",
+   "guest services manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/53cdd34e-22f2-41bd-b3c7-de22bf9bbcae",
+  "esco_title": "accommodation manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "60040",
+  "name": "Managers in customer and personal services",
+  "titles": [
+   "nail salon manager",
+   "cleaning service manager",
+   "hairstyling salon manager",
+   "spa manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/33e3a746-f209-4a1a-96df-301505531cb2",
+  "esco_title": "beauty salon manager",
+  "similarity": 0.978
+ },
+ {
+  "code": "62010",
+  "name": "Retail sales supervisors",
+  "titles": [
+   "retail store supervisor",
+   "sales supervisor - retail",
+   "supervisor - retail",
+   "sales supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9e81adde-9983-44fa-b74b-c548d0dbfbdd",
+  "esco_title": "shop manager",
+  "similarity": 0.945
+ },
+ {
+  "code": "62020",
+  "name": "Food service supervisors",
+  "titles": [
+   "food service supervisor",
+   "shift manager - fast food restaurant",
+   "kitchen manager",
+   "restaurant supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d5eb6150-bbff-4a9c-9d0c-21eab4dbe2b6",
+  "esco_title": "restaurant manager",
+  "similarity": 0.943
+ },
+ {
+  "code": "62021",
+  "name": "Executive housekeepers",
+  "titles": [
+   "assistant executive housekeeper",
+   "housekeeping manager",
+   "executive housekeeper",
+   "assistant housekeeping manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fae51298-03a8-4df4-829a-685dddc1580e",
+  "esco_title": "housekeeping supervisor",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "62022",
+  "name": "Accommodation, travel, tourism and related services supervisors",
+  "titles": [
+   "front desk supervisor",
+   "hotel front desk supervisor",
+   "hotel managing supervisor",
+   "motel managing supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/53cdd34e-22f2-41bd-b3c7-de22bf9bbcae",
+  "esco_title": "accommodation manager",
+  "similarity": 0.925
+ },
+ {
+  "code": "62023",
+  "name": "Customer and information services supervisors",
+  "titles": [
+   "Client service supervisor",
+   "customer service representative supervisor",
+   "customer service clerks supervisor",
+   "accounts supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9d2aae3e-cbfe-409f-86cc-7cef9cd0435a",
+  "esco_title": "contact centre supervisor",
+  "similarity": 0.969
+ },
+ {
+  "code": "62024",
+  "name": "Cleaning supervisors",
+  "titles": [
+   "cleaning supervisor",
+   "housekeeping supervisor",
+   "cleaner supervisor",
+   "cleaning and maintenance supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fae51298-03a8-4df4-829a-685dddc1580e",
+  "esco_title": "housekeeping supervisor",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "62029",
+  "name": "Other services supervisors",
+  "titles": [
+   "security guard supervisor",
+   "nail salon supervisor",
+   "spa supervisor",
+   "supervisor, security guards"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/37442765-f7bb-4ccd-9de1-4790296f3d37",
+  "esco_title": "security guard supervisor",
+  "similarity": 1.0
+ },
+ {
+  "code": "62100",
+  "name": "Technical sales specialists - wholesale trade",
+  "titles": [
+   "customer support representative - wholesale",
+   "technical sales specialist",
+   "technical sales representative",
+   "technical sales supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c956be07-53a3-4b01-b8f8-f0c5a428eaa8",
+  "esco_title": "technical sales representative",
+  "similarity": 1.0
+ },
+ {
+  "code": "62101",
+  "name": "Retail and wholesale buyers",
+  "titles": [
+   "retail merchandiser",
+   "merchandiser",
+   "retail buyer",
+   "assistant buyer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/29fa406d-de89-4515-be8d-0fe7bda993f1",
+  "esco_title": "purchaser",
+  "similarity": 0.924
+ },
+ {
+  "code": "62200",
+  "name": "Chefs",
+  "titles": [
+   "chef",
+   "chef de partie",
+   "sous-chef",
+   "head chef"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/01484951-15e6-4b88-a20f-1201868d36a0",
+  "esco_title": "head chef",
+  "similarity": 1.0
+ },
+ {
+  "code": "62201",
+  "name": "Funeral directors and embalmers",
+  "titles": [
+   "funeral director",
+   "funeral services director",
+   "funeral director, assistant",
+   "embalmer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/857ed740-f4ae-43d0-8295-d6181f1d7eed",
+  "esco_title": "funeral services director",
+  "similarity": 1.0
+ },
+ {
+  "code": "62202",
+  "name": "Jewellers, jewellery and watch repairers and related occupations",
+  "titles": [
+   "jeweller",
+   "diamond setter",
+   "jewellery model maker",
+   "watchmaker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/11eb55d3-4dbe-45c5-a6ce-f04ae843c938",
+  "esco_title": "clock and watchmaker",
+  "similarity": 1.0
+ },
+ {
+  "code": "63100",
+  "name": "Insurance agents and brokers",
+  "titles": [
+   "broker, insurance",
+   "insurance broker",
+   "insurance agent",
+   "life insurance agent"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a198de8c-24b1-4002-982f-a57ae6d6c19c",
+  "esco_title": "insurance broker",
+  "similarity": 1.0
+ },
+ {
+  "code": "63101",
+  "name": "Real estate agents and salespersons",
+  "titles": [
+   "real estate agent",
+   "real estate sales representative",
+   "real estate salesperson",
+   "associate broker - real estate"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8ec8df02-e9dd-43b7-b416-5846ae0414ab",
+  "esco_title": "real estate agent",
+  "similarity": 1.0
+ },
+ {
+  "code": "63102",
+  "name": "Financial sales representatives",
+  "titles": [
+   "financial sales and service officer",
+   "financial services representative",
+   "loans agent",
+   "loans analyst"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8e185c49-704e-49c0-8584-a7e0b618f628",
+  "esco_title": "loan officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "63200",
+  "name": "Cooks",
+  "titles": [
+   "cook",
+   "line cook",
+   "licensed cook",
+   "pizza cook"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/90f75f67-495d-49fa-ab57-2f320e251d7e",
+  "esco_title": "cook",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "63201",
+  "name": "Butchers - retail and wholesale",
+  "titles": [
+   "butcher - retail or wholesale",
+   "butcher, retail",
+   "grocery store butcher",
+   "butcher - butcher shop"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/37c7880e-cfee-4c41-a41b-061682fefde3",
+  "esco_title": "butcher",
+  "similarity": 0.874
+ },
+ {
+  "code": "63202",
+  "name": "Bakers",
+  "titles": [
+   "baker",
+   "bread baker",
+   "cake decorator",
+   "pastry maker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1aadb308-432a-4d01-b54b-b4f7f76dd419",
+  "esco_title": "baker",
+  "similarity": 1.0
+ },
+ {
+  "code": "63210",
+  "name": "Hairstylists and barbers",
+  "titles": [
+   "hairstylist",
+   "barber",
+   "stylist, hair",
+   "hairdresser"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/099c6bb0-22d3-4c5d-8bf5-70910af381ef",
+  "esco_title": "hairdresser",
+  "similarity": 1.0
+ },
+ {
+  "code": "63211",
+  "name": "Estheticians, electrologists and related occupations",
+  "titles": [
+   "esthetician",
+   "nail care technician",
+   "tattoo artist",
+   "eyelash technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a1e1a788-2352-4172-8fcf-1f985a6968b0",
+  "esco_title": "aesthetician",
+  "similarity": 1.0
+ },
+ {
+  "code": "63220",
+  "name": "Shoe repairers and shoemakers",
+  "titles": [
+   "shoe repairer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f8e76759-811e-4b39-9adf-3e77429cff8f",
+  "esco_title": "shoemaker",
+  "similarity": 1.0
+ },
+ {
+  "code": "63221",
+  "name": "Upholsterers",
+  "titles": [
+   "upholsterer",
+   "re-upholsterer",
+   "custom upholsterer",
+   "production upholsterer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/95a89206-4dc8-4753-a5d9-bc14a0e5f7ca",
+  "esco_title": "upholsterer",
+  "similarity": 1.0
+ },
+ {
+  "code": "64100",
+  "name": "Retail salespersons and visual merchandisers",
+  "titles": [
+   "sales associate",
+   "retail sales associate",
+   "inside sales representative",
+   "retail sales representative"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9ba74e8a-c40c-4228-9998-eb3c7a5c11df",
+  "esco_title": "sales assistant",
+  "similarity": 0.89
+ },
+ {
+  "code": "64101",
+  "name": "Sales and account representatives - wholesale trade (non-technical)",
+  "titles": [
+   "sales representative, commercial and industrial equipment and supplies",
+   "fleet sales representative",
+   "sales agent - wholesale (non-technical)",
+   "business services sales representative"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/14031d4a-6e99-442f-b4fe-18262b6432b2",
+  "esco_title": "commercial sales representative",
+  "similarity": 0.855
+ },
+ {
+  "code": "64200",
+  "name": "Tailors, dressmakers, furriers and milliners",
+  "titles": [
+   "dressmaker",
+   "seamstress",
+   "tailor",
+   "garment repair seamstress"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5589e8e0-48d9-4193-8c85-86ba9f17e0e9",
+  "esco_title": "dressmaker",
+  "similarity": 1.0
+ },
+ {
+  "code": "64201",
+  "name": "Image, social and other personal consultants",
+  "titles": [
+   "fashion consultant",
+   "consultant, personal improvement",
+   "consultant, fashion"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d5ce0c23-6f8a-459f-9bf9-a7cb9768740a",
+  "esco_title": "personal stylist",
+  "similarity": 1.0
+ },
+ {
+  "code": "64300",
+  "name": "Maîtres d'hôtel and hosts/hostesses",
+  "titles": [
+   "host/hostess - food service",
+   "restaurant host/hostess",
+   "host/hostess, restaurant",
+   "host/hostess, dining room"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a1b86a8b-ad91-4192-b386-bbf89bb11699",
+  "esco_title": "restaurant host/restaurant hostess",
+  "similarity": 0.952
+ },
+ {
+  "code": "64301",
+  "name": "Bartenders",
+  "titles": [
+   "bartender",
+   "barkeeper",
+   "attendant, bar",
+   "bar attendant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2f5e38a0-6578-4665-bdbd-e2ab505be140",
+  "esco_title": "bartender",
+  "similarity": 1.0
+ },
+ {
+  "code": "64310",
+  "name": "Travel counsellors",
+  "titles": [
+   "travel consultant",
+   "agent, travel",
+   "travel agent",
+   "consultant, travel"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/291da1ab-1f90-426d-bbc5-60d0fa7d608b",
+  "esco_title": "travel consultant",
+  "similarity": 1.0
+ },
+ {
+  "code": "64311",
+  "name": "Pursers and flight attendants",
+  "titles": [
+   "customer service director - water transportation"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f20d3ae6-baeb-482c-b68d-c2fb115e5dde",
+  "esco_title": "flight attendant",
+  "similarity": 0.844
+ },
+ {
+  "code": "64312",
+  "name": "Airline ticket and service agents",
+  "titles": [
+   "customer service representative - airline",
+   "flight agent",
+   "airline reservation agent",
+   "airline ticket agent"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bdf2dd9d-6c92-46f4-a8e7-76c12302d3e7",
+  "esco_title": "ticket sales agent",
+  "similarity": 0.846
+ },
+ {
+  "code": "64313",
+  "name": "Ground and water transport ticket agents, cargo service representatives and related clerks",
+  "titles": [
+   "customer sales and service agent (except airline)",
+   "counter sales agent (except airline)",
+   "agent, tickets - cruise line",
+   "agent, tickets - bus line"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9a99a5fe-875d-49b2-9b53-cc1b73be1659",
+  "esco_title": "railway sales agent",
+  "similarity": 0.78
+ },
+ {
+  "code": "64314",
+  "name": "Hotel front desk clerks",
+  "titles": [
+   "front desk agent",
+   "guest service agent",
+   "hotel front desk clerk",
+   "hotel night auditor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f7b04542-d8c7-42db-8475-e63b507cce82",
+  "esco_title": "receptionist",
+  "similarity": 1.0
+ },
+ {
+  "code": "64320",
+  "name": "Tour and travel guides",
+  "titles": [
+   "tour guide",
+   "guide, sightseeing",
+   "walking tour guide",
+   "bicycle tour guide"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b476f45f-2c79-44d5-a4d7-fa357aa83074",
+  "esco_title": "guide",
+  "similarity": 1.0
+ },
+ {
+  "code": "64321",
+  "name": "Casino workers",
+  "titles": [
+   "casino dealer",
+   "casino slot machine attendant",
+   "guest service representative - casino",
+   "gaming table dealer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fb1a7aab-1e33-4712-b8e0-d335243aba58",
+  "esco_title": "gaming dealer",
+  "similarity": 1.0
+ },
+ {
+  "code": "64322",
+  "name": "Outdoor sport and recreational guides",
+  "titles": [
+   "whitewater rafting guide",
+   "fishing guide",
+   "hunting guide",
+   "guide, outdoor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b476f45f-2c79-44d5-a4d7-fa357aa83074",
+  "esco_title": "guide",
+  "similarity": 0.813
+ },
+ {
+  "code": "64400",
+  "name": "Customer services representatives - financial institutions",
+  "titles": [
+   "foreign exchange teller - financial services",
+   "customer service representative - financial services",
+   "bank customer service officer",
+   "bank teller"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2ff9e53c-6e7f-42af-8d71-b5dd7f283089",
+  "esco_title": "bank teller",
+  "similarity": 1.0
+ },
+ {
+  "code": "64401",
+  "name": "Postal services representatives",
+  "titles": [
+   "mail clerk",
+   "post office clerk",
+   "clerk, post office",
+   "mail room clerk"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/511f366c-ba41-4826-9622-8cda6d6e3b91",
+  "esco_title": "mail clerk",
+  "similarity": 1.0
+ },
+ {
+  "code": "64409",
+  "name": "Other customer and information services representatives",
+  "titles": [
+   "customer service representative - call centre",
+   "customer service clerk",
+   "customer service agent",
+   "customer service adviser"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/13d1b2b4-99dd-44da-9734-c9f74bae18f7",
+  "esco_title": "customer service representative",
+  "similarity": 0.905
+ },
+ {
+  "code": "64410",
+  "name": "Security guards and related security service occupations",
+  "titles": [
+   "guard, security",
+   "security officer",
+   "security guard",
+   "loss prevention officer - retail"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/31808988-fc0a-4bc3-9e47-27216d6759f5",
+  "esco_title": "security guard",
+  "similarity": 1.0
+ },
+ {
+  "code": "65100",
+  "name": "Cashiers",
+  "titles": [
+   "cashier",
+   "cashier, customer service",
+   "customer service cashier",
+   "grocery store cashier"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2b871272-bd61-4206-bd1a-0b96d7023098",
+  "esco_title": "cashier",
+  "similarity": 1.0
+ },
+ {
+  "code": "65101",
+  "name": "Service station attendants",
+  "titles": [
+   "service station attendant",
+   "gas station attendant (except self-serve)",
+   "service attendant - gas station",
+   "pump attendant - service station"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null
+ },
+ {
+  "code": "65102",
+  "name": "Store shelf stockers, clerks and order fillers",
+  "titles": [
+   "grocery clerk",
+   "produce clerk",
+   "order picker",
+   "fulfillment associate"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d35f9e79-5778-43b4-8667-0e3ba1fcb19a",
+  "esco_title": "shelf filler",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "65109",
+  "name": "Other sales related occupations",
+  "titles": [
+   "outside sales representative",
+   "vendor",
+   "telephone sales agent",
+   "telemarketer"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "65200",
+  "name": "Food and beverage servers",
+  "titles": [
+   "server - food and beverage services",
+   "food and beverage server",
+   "banquet server",
+   "waiter/waitress"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d5db9d5c-2ebf-4a54-a79a-1b7e7ff70471",
+  "esco_title": "waiter/waitress",
+  "similarity": 1.0
+ },
+ {
+  "code": "65201",
+  "name": "Food counter attendants, kitchen helpers and related support occupations",
+  "titles": [
+   "dishwasher",
+   "kitchen helper",
+   "food counter attendant",
+   "barista"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e1cf6897-158d-4b48-a39e-2a3a8cac216c",
+  "esco_title": "kitchen assistant",
+  "similarity": 0.857
+ },
+ {
+  "code": "65202",
+  "name": "Meat cutters and fishmongers – retail and wholesale",
+  "titles": [
+   "meat cutter - retail or wholesale",
+   "fishmonger - retail",
+   "retail meat cutter",
+   "fishmonger"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "65210",
+  "name": "Support occupations in accommodation, travel and facilities set-up services",
+  "titles": [
+   "skytrain attendant",
+   "porter, facilities",
+   "guest services attendant, hotel",
+   "banquet porter"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3cc51201-cd20-47f8-92ad-4d5861f963cf",
+  "esco_title": "hotel porter",
+  "similarity": 0.809
+ },
+ {
+  "code": "65211",
+  "name": "Operators and attendants in amusement, recreation and sport",
+  "titles": [
+   "arena ice patroller",
+   "bingo caller",
+   "ice maker, rink",
+   "recreation attendant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e31c83ac-cb74-4936-88f1-90ed0997b29b",
+  "esco_title": "amusement and recreation attendant",
+  "similarity": 1.0
+ },
+ {
+  "code": "65220",
+  "name": "Pet groomers and animal care workers",
+  "titles": [
+   "pet groomer",
+   "dog walker",
+   "dog groomer",
+   "kennel attendant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/15dfabf5-71e0-400e-af48-4c6f92ef4392",
+  "esco_title": "kennel worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "65229",
+  "name": "Other support occupations in personal services",
+  "titles": [
+   "massager",
+   "masseur/masseuse"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1978c6ff-37b4-48f1-9aa6-88b9c568f74f",
+  "esco_title": "masseur/masseuse",
+  "similarity": 1.0
+ },
+ {
+  "code": "65310",
+  "name": "Light duty cleaners",
+  "titles": [
+   "cleaner",
+   "housekeeping attendant",
+   "housekeeping room attendant",
+   "room attendant"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/731ecac4-06e8-4ec2-a559-101fecbd9183",
+  "esco_title": "room attendant",
+  "similarity": 1.0
+ },
+ {
+  "code": "65311",
+  "name": "Specialized cleaners",
+  "titles": [
+   "detailer, auto",
+   "car wash attendant",
+   "specialized cleaner",
+   "auto detailer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7cb71c5f-c310-481c-b46b-d0044328758c",
+  "esco_title": "vehicle cleaner",
+  "similarity": 0.817
+ },
+ {
+  "code": "65312",
+  "name": "Janitors, caretakers and heavy-duty cleaners",
+  "titles": [
+   "custodian",
+   "janitor",
+   "school custodian",
+   "heavy-duty cleaner"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/303a1e34-cb16-4054-b323-81e5eec17397",
+  "esco_title": "building cleaner",
+  "similarity": 1.0
+ },
+ {
+  "code": "65320",
+  "name": "Dry cleaning, laundry and related occupations",
+  "titles": [
+   "laundry attendant",
+   "laundry worker",
+   "labourer, laundry",
+   "attendant, laundry"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0da51178-e386-4534-ae71-15ba789ad756",
+  "esco_title": "laundry worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "65329",
+  "name": "Other service support occupations",
+  "titles": [
+   "mystery shopper",
+   "valet",
+   "motor vehicle attendant",
+   "hat check attendant"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "70010",
+  "name": "Construction managers",
+  "titles": [
+   "construction project manager",
+   "construction superintendent",
+   "construction project coordinator",
+   "construction manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/faed05c0-c1d1-4e34-b575-0dea96459e56",
+  "esco_title": "construction manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "70011",
+  "name": "Home building and renovation managers",
+  "titles": [
+   "builder",
+   "Renovation manager",
+   "home renovator",
+   "housing renovator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ba3bacd4-73e9-4861-a9c0-f89f1f28055a",
+  "esco_title": "construction general contractor",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "70012",
+  "name": "Facility operation and maintenance managers",
+  "titles": [
+   "property manager",
+   "manager, warehouse",
+   "warehouse manager",
+   "maintenance planner"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b42c5ed4-c6e4-4694-934f-96127719cc43",
+  "esco_title": "facilities manager",
+  "similarity": 0.89
+ },
+ {
+  "code": "70020",
+  "name": "Managers in transportation",
+  "titles": [
+   "transportation manager",
+   "logistics manager - transportation",
+   "global logistics manager",
+   "transportation fleet manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f56e33a3-01bb-46ba-98f4-d47aa242b983",
+  "esco_title": "road transport division manager",
+  "similarity": 0.886
+ },
+ {
+  "code": "70021",
+  "name": "Postal and courier services managers",
+  "titles": [
+   "courier service manager",
+   "collection and delivery operations manager",
+   "post office manager",
+   "manager, courier service"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "72010",
+  "name": "Contractors and supervisors, machining, metal forming, shaping and erecting trades and related occupations",
+  "titles": [
+   "production supervisor - machine shop",
+   "welder supervisor",
+   "welding supervisor",
+   "supervisor, welders"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/40517ed4-2769-4283-a15b-4b0d939bd2d3",
+  "esco_title": "production supervisor",
+  "similarity": 0.926
+ },
+ {
+  "code": "72011",
+  "name": "Contractors and supervisors, electrical trades and telecommunications occupations",
+  "titles": [
+   "electrician foreman/woman",
+   "supervisor, electricians",
+   "electrical foreman/woman",
+   "line foreman/woman - telecommunications"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8862c29b-3810-4fbc-85c7-c9ee87535f73",
+  "esco_title": "electrical supervisor",
+  "similarity": 0.949
+ },
+ {
+  "code": "72012",
+  "name": "Contractors and supervisors, pipefitting trades",
+  "titles": [
+   "plumbers supervisor",
+   "plumbing and heating contractor",
+   "plumber foreman/woman",
+   "supervisor, sprinkler system installers"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0763c810-8ac6-4e39-867d-780a11af26e0",
+  "esco_title": "plumbing supervisor",
+  "similarity": 0.957
+ },
+ {
+  "code": "72013",
+  "name": "Contractors and supervisors, carpentry trades",
+  "titles": [
+   "carpenter supervisor",
+   "cabinetmakers foreman/woman",
+   "carpentry supervisor",
+   "residential construction supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/87580fa5-39d2-4b7e-9274-b744e684f17c",
+  "esco_title": "carpenter supervisor",
+  "similarity": 1.0
+ },
+ {
+  "code": "72014",
+  "name": "Contractors and supervisors, other construction trades, installers, repairers and servicers",
+  "titles": [
+   "Construction site supervisor",
+   "building maintenance supervisor",
+   "drywall installer supervisor",
+   "construction painters supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0dd7e6cd-2e5a-4fae-9ce0-6a3622d4019f",
+  "esco_title": "construction general supervisor",
+  "similarity": 0.935
+ },
+ {
+  "code": "72020",
+  "name": "Contractors and supervisors, mechanic trades",
+  "titles": [
+   "mechanical maintenance supervisor",
+   "supervisor, mechanical maintenance",
+   "automotive repair and service shop supervisor",
+   "automotive body repair shop supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/264b00c9-84d0-4dc9-b590-aed2cea2b904",
+  "esco_title": "vehicle maintenance supervisor",
+  "similarity": 0.914
+ },
+ {
+  "code": "72021",
+  "name": "Contractors and supervisors, heavy equipment operator crews",
+  "titles": [
+   "general construction supervisor",
+   "construction site foreman/woman",
+   "supervisor, heavy equipment operators",
+   "demolition foreman/woman"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ba3bacd4-73e9-4861-a9c0-f89f1f28055a",
+  "esco_title": "construction general contractor",
+  "similarity": 0.892
+ },
+ {
+  "code": "72022",
+  "name": "Supervisors, printing and related occupations",
+  "titles": [
+   "printing supervisor",
+   "production supervisor - printing",
+   "finishing supervisor - printing",
+   "supervisor, printing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/40517ed4-2769-4283-a15b-4b0d939bd2d3",
+  "esco_title": "production supervisor",
+  "similarity": 0.817
+ },
+ {
+  "code": "72023",
+  "name": "Supervisors, railway transport operations",
+  "titles": [
+   "railway transport operations supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/98ad0008-13d9-4e9b-94bf-4f4a5faae764",
+  "esco_title": "rail operations manager",
+  "similarity": 0.92
+ },
+ {
+  "code": "72024",
+  "name": "Supervisors, motor transport and other ground transit operators",
+  "titles": [
+   "truck driver-supervisor",
+   "delivery drivers supervisor",
+   "truck drivers supervisor",
+   "supervisor, truck drivers"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "72025",
+  "name": "Supervisors, mail and message distribution occupations",
+  "titles": [
+   "courier service supervisor",
+   "messenger service supervisor"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "72100",
+  "name": "Machinists and machining and tooling inspectors",
+  "titles": [
+   "machinist",
+   "CNC (computer numerical control) machinist",
+   "manual machinist",
+   "machinist, CNC (computer numerical control)"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/02d4f153-8e43-444d-8bd4-8171d49eab12",
+  "esco_title": "gear machinist",
+  "similarity": 0.832
+ },
+ {
+  "code": "72101",
+  "name": "Tool and die makers",
+  "titles": [
+   "tool and die maker",
+   "toolmaker",
+   "mould maker - plastics processing",
+   "die maker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ecac98ea-9fc3-4475-9b23-8af94f41603d",
+  "esco_title": "tool and die maker",
+  "similarity": 1.0
+ },
+ {
+  "code": "72102",
+  "name": "Sheet metal workers",
+  "titles": [
+   "sheet metal worker",
+   "journeyman/woman sheet metal worker",
+   "apprentice sheet metal worker",
+   "tinsmith"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/572c9810-e1ee-4f7a-a71f-820f17c0c25b",
+  "esco_title": "sheet metal worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "72103",
+  "name": "Boilermakers",
+  "titles": [
+   "boilermaker-welder",
+   "journeyman/woman boilermaker",
+   "boilermaker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5ed024ab-3b6a-4e06-a7fe-8a29f8469a64",
+  "esco_title": "boilermaker",
+  "similarity": 1.0
+ },
+ {
+  "code": "72104",
+  "name": "Structural metal and platework fabricators and fitters",
+  "titles": [
+   "metal fabricator",
+   "fabricator, metal",
+   "structural metal and platework fitter",
+   "fabricator - structural metal"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/af2f3615-63ab-44dc-957d-c9660410d336",
+  "esco_title": "metal products assembler",
+  "similarity": 0.964
+ },
+ {
+  "code": "72105",
+  "name": "Ironworkers",
+  "titles": [
+   "ironworker",
+   "structural ironworker",
+   "structural steel erector",
+   "ironworker - reinforcing rebar"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/691ec040-f5ad-47ef-8698-03212d66dbbf",
+  "esco_title": "structural ironworker",
+  "similarity": 1.0
+ },
+ {
+  "code": "72106",
+  "name": "Welders and related machine operators",
+  "titles": [
+   "welder",
+   "welder-assembler",
+   "welder-fitter",
+   "fit-up welder"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7aedaa07-3884-4c5b-88f9-80997b2aa54b",
+  "esco_title": "welder",
+  "similarity": 1.0
+ },
+ {
+  "code": "72200",
+  "name": "Electricians (except industrial and power system)",
+  "titles": [
+   "electrician",
+   "apprentice electrician",
+   "electrical apprentice",
+   "construction electrician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4910419f-b4af-4f59-b544-9dbebc8a74f0",
+  "esco_title": "electrician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72201",
+  "name": "Industrial electricians",
+  "titles": [
+   "industrial electrician",
+   "electrician, industrial",
+   "maintenance electrician - industrial",
+   "marine equipment electrician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5df63943-f1bc-4438-90f1-92768a7a23c8",
+  "esco_title": "industrial electrician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72202",
+  "name": "Power system electricians",
+  "titles": [
+   "electrician - electricity production"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f33a70bd-c5b6-495d-8e0c-5e2c6e56d93e",
+  "esco_title": "power plant control room operator",
+  "similarity": 0.882
+ },
+ {
+  "code": "72203",
+  "name": "Electrical power line and cable workers",
+  "titles": [
+   "powerline technician",
+   "apprentice lineman/woman - electric power systems",
+   "cable installer - electrical power",
+   "line maintainer - electric power systems"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c89afd9a-7dad-4bae-9315-5fcadd9ad8b6",
+  "esco_title": "electricity distribution worker",
+  "similarity": 0.897
+ },
+ {
+  "code": "72204",
+  "name": "Telecommunications line and cable installers and repairers",
+  "titles": [
+   "cable installer - telecommunications",
+   "telecommunication line technician",
+   "structured cabling technician",
+   "telecommunications line installer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/056bef79-c125-47ab-b6b9-8eed05c9458c",
+  "esco_title": "telecommunications technician",
+  "similarity": 0.942
+ },
+ {
+  "code": "72205",
+  "name": "Telecommunications equipment installation and cable television service technicians",
+  "titles": [
+   "cellular telephone technician",
+   "telecommunications technician",
+   "cell phone repair technician",
+   "telecommunications equipment technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/056bef79-c125-47ab-b6b9-8eed05c9458c",
+  "esco_title": "telecommunications technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72300",
+  "name": "Plumbers",
+  "titles": [
+   "plumber",
+   "journeyman/woman plumber",
+   "apprentice plumber",
+   "plumber apprentice"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ed3cf43d-c2c1-4c46-82fc-1375e27e0290",
+  "esco_title": "plumber",
+  "similarity": 1.0
+ },
+ {
+  "code": "72301",
+  "name": "Steamfitters, pipefitters and sprinkler system installers",
+  "titles": [
+   "pipefitter",
+   "apprentice pipefitter",
+   "steamfitter-pipefitter",
+   "pipefitter, welding"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "72302",
+  "name": "Gas fitters",
+  "titles": [
+   "gas fitter",
+   "gas technician",
+   "gas fitter - class b",
+   "gas fitter-installer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/97b3cab1-f4f0-41ed-8c80-e65e6c067e95",
+  "esco_title": "gas service technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72310",
+  "name": "Carpenters",
+  "titles": [
+   "carpenter",
+   "framer-carpenter",
+   "carpenter-joiner",
+   "apprentice carpenter"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2a22ff9e-de3b-408d-b312-5034896cc4f4",
+  "esco_title": "carpenter",
+  "similarity": 1.0
+ },
+ {
+  "code": "72311",
+  "name": "Cabinetmakers",
+  "titles": [
+   "cabinetmaker",
+   "cabinetmaker apprentice",
+   "furniture cabinetmaker",
+   "journeyman/woman cabinetmaker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e1416610-ad08-4f37-8b46-9f99632a5c0f",
+  "esco_title": "cabinet maker",
+  "similarity": 1.0
+ },
+ {
+  "code": "72320",
+  "name": "Bricklayers",
+  "titles": [
+   "bricklayer",
+   "brick and stone mason",
+   "stonemason",
+   "mason, brick and stone"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/05f321f8-055b-407d-bf19-e0ddabda56b7",
+  "esco_title": "bricklayer",
+  "similarity": 1.0
+ },
+ {
+  "code": "72321",
+  "name": "Insulators",
+  "titles": [
+   "insulator",
+   "installer, insulation",
+   "insulation installer",
+   "insulation applicator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b2dab4fb-b7f7-4f57-94b2-9c0f0848564a",
+  "esco_title": "insulation worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "72400",
+  "name": "Construction millwrights and industrial mechanics",
+  "titles": [
+   "millwright",
+   "industrial mechanic",
+   "maintenance mechanic",
+   "industrial mechanic and millwright"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/269c47e7-9017-4aa6-bce8-49e89a696a64",
+  "esco_title": "industrial machinery mechanic",
+  "similarity": 0.948
+ },
+ {
+  "code": "72401",
+  "name": "Heavy-duty equipment mechanics",
+  "titles": [
+   "heavy equipment mechanic",
+   "heavy-duty equipment mechanic",
+   "diesel mechanic",
+   "agricultural equipment technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b0480558-269d-4903-9bc7-f390cd6a6964",
+  "esco_title": "construction equipment technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72402",
+  "name": "Heating, refrigeration and air conditioning mechanics",
+  "titles": [
+   "refrigeration technician",
+   "HVAC (heating, ventilation and air conditioning) mechanic",
+   "refrigeration mechanic",
+   "transport refrigeration technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/79f435d0-9bc6-4d25-a26a-acbe16569ebb",
+  "esco_title": "heating, ventilation, air conditioning (and refrigeration) service engineer",
+  "similarity": 0.921
+ },
+ {
+  "code": "72403",
+  "name": "Railway carmen/women",
+  "titles": [
+   "Other trades helpers and labourers",
+   "railway car inspector"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/42e9d1c5-76f1-41ef-996e-38d5ac711a31",
+  "esco_title": "rolling stock inspector",
+  "similarity": 0.965
+ },
+ {
+  "code": "72404",
+  "name": "Aircraft mechanics and aircraft inspectors",
+  "titles": [
+   "aircraft mechanic",
+   "aircraft maintenance technician",
+   "AME (aircraft maintenance engineer) (except avionics)",
+   "AME (aircraft maintenance engineer), mechanical systems"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/91373a70-79b6-47a2-aa50-07dfe20dd258",
+  "esco_title": "aircraft maintenance technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72405",
+  "name": "Machine fitters",
+  "titles": [
+   "Harvesting labourers",
+   "mechanical fitter",
+   "machine fitter",
+   "machine builder"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/898f99f7-8c0a-4212-9e58-9ab00379e5ae",
+  "esco_title": "fitter and turner",
+  "similarity": 0.886
+ },
+ {
+  "code": "72406",
+  "name": "Elevator constructors and mechanics",
+  "titles": [
+   "mechanic, elevator",
+   "elevator mechanic",
+   "Other trades helpers and labourers",
+   "elevator mechanic apprentice"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f8d1bcf9-9ca1-408f-a713-7bdf28c400fd",
+  "esco_title": "lift engineer",
+  "similarity": 0.96
+ },
+ {
+  "code": "72410",
+  "name": "Automotive service technicians, truck and bus mechanics and mechanical repairers",
+  "titles": [
+   "automotive service technician",
+   "automotive mechanic",
+   "truck mechanic",
+   "mechanic, truck"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4ad4024e-d1d3-4dea-b6d1-2c7948111dce",
+  "esco_title": "vehicle technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72411",
+  "name": "Auto body collision, refinishing and glass technicians and damage repair estimators",
+  "titles": [
+   "auto body technician",
+   "auto body repairer",
+   "automotive body painter",
+   "automotive glass technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a784b063-89cf-441b-9624-deed9dbdeae6",
+  "esco_title": "transport equipment painter",
+  "similarity": 0.962
+ },
+ {
+  "code": "72420",
+  "name": "Oil and solid fuel heating mechanics",
+  "titles": [
+   "oil burner technician",
+   "oil burner mechanic",
+   "heating technician",
+   "heating systems technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2cad9c6f-0289-4b26-b247-e65c0089f8f4",
+  "esco_title": "boiler operator",
+  "similarity": 0.921
+ },
+ {
+  "code": "72421",
+  "name": "Appliance servicers and repairers",
+  "titles": [
+   "appliance service technician",
+   "appliance servicer",
+   "service technician - electrical appliances",
+   "appliance service technician apprentice"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f4eaff3d-f8d0-4a6a-aa90-76827c0fbada",
+  "esco_title": "household appliances repair technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72422",
+  "name": "Electrical mechanics",
+  "titles": [
+   "electrical mechanic",
+   "electric motor systems technician",
+   "electric motor winder",
+   "electrical mechanic apprentice"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5d009d45-3bb9-4e33-8760-294f59adec8c",
+  "esco_title": "electrical mechanic",
+  "similarity": 1.0
+ },
+ {
+  "code": "72423",
+  "name": "Motorcycle, all-terrain vehicle and other related mechanics",
+  "titles": [
+   "forklift mechanic",
+   "recreation vehicle mechanic",
+   "motorcycle mechanic",
+   "mechanic, motor boats"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4ad4024e-d1d3-4dea-b6d1-2c7948111dce",
+  "esco_title": "vehicle technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "72429",
+  "name": "Other small engine and small equipment repairers",
+  "titles": [
+   "small engine mechanic",
+   "small engine technician",
+   "mechanic, small engines",
+   "small engine and equipment mechanic"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "72500",
+  "name": "Crane operators",
+  "titles": [
+   "crane operator",
+   "mobile crane operator",
+   "overhead crane operator",
+   "crane operator apprentice"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0ea5fdff-074c-4094-98b9-04432361e4d9",
+  "esco_title": "tower crane operator",
+  "similarity": 0.869
+ },
+ {
+  "code": "72501",
+  "name": "Water well drillers",
+  "titles": [
+   "water well driller",
+   "cable tool driller - water well drilling"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/46bbecf4-368a-44a8-9262-dcd775ae2c46",
+  "esco_title": "well-digger",
+  "similarity": 1.0
+ },
+ {
+  "code": "72600",
+  "name": "Air pilots, flight engineers and flying instructors",
+  "titles": [
+   "helicopter pilot",
+   "aerial crop duster",
+   "captain - air transport",
+   "flight instructor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9a4ba556-e72b-49c2-834c-d6a03a2fc906",
+  "esco_title": "aircraft pilot",
+  "similarity": 1.0
+ },
+ {
+  "code": "72601",
+  "name": "Air traffic controllers and related occupations",
+  "titles": [
+   "air traffic controller (ATC)",
+   "airline dispatcher"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3c2da05f-eb24-41f7-8307-46c96660fee0",
+  "esco_title": "air traffic controller",
+  "similarity": 0.895
+ },
+ {
+  "code": "72602",
+  "name": "Deck officers, water transport",
+  "titles": [
+   "captain, ship",
+   "master mariner",
+   "deck officer",
+   "ferryboat first mate"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e3df1f82-3df9-41e5-8487-635e184653d1",
+  "esco_title": "deck officer",
+  "similarity": 1.0
+ },
+ {
+  "code": "72603",
+  "name": "Engineer officers, water transport",
+  "titles": [
+   "chief engineer - water transport",
+   "second engineer",
+   "second engineer - water transport",
+   "fourth engineer - water transport"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/9dbbeb2c-0d51-4c03-8ef6-8dfa7360db22",
+  "esco_title": "ship assistant engineer",
+  "similarity": 0.864
+ },
+ {
+  "code": "72604",
+  "name": "Railway traffic controllers and marine traffic regulators",
+  "titles": [
+   "chief rail traffic controller",
+   "train operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f643bff3-74ef-48d1-b033-820e2d8659e9",
+  "esco_title": "rail traffic controller",
+  "similarity": 0.966
+ },
+ {
+  "code": "72999",
+  "name": "Other technical trades and related occupations",
+  "titles": [
+   "locksmith",
+   "rope access technician (RAT)",
+   "safe and vault technician",
+   "Other technical trades and related occupations"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/aaa485d0-6787-45c0-8596-b266c0b687fd",
+  "esco_title": "locksmith",
+  "similarity": 1.0
+ },
+ {
+  "code": "73100",
+  "name": "Concrete finishers",
+  "titles": [
+   "concrete finisher",
+   "finisher, concrete",
+   "cement finisher",
+   "concrete mason"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a9068f84-cecd-4cbb-9acb-e20c714435ec",
+  "esco_title": "concrete finisher",
+  "similarity": 1.0
+ },
+ {
+  "code": "73101",
+  "name": "Tilesetters",
+  "titles": [
+   "tilesetter",
+   "tile installer",
+   "tile fitter",
+   "granite setter"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/02447817-ea01-4d8b-b09c-8bc128e447e6",
+  "esco_title": "tile fitter",
+  "similarity": 1.0
+ },
+ {
+  "code": "73102",
+  "name": "Plasterers, drywall installers and finishers and lathers",
+  "titles": [
+   "drywall installer",
+   "drywall installer and finisher",
+   "drywall finisher",
+   "stucco plasterer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f4a22809-c00c-4dd0-8b09-c7251f8dcd1c",
+  "esco_title": "plasterer",
+  "similarity": 0.893
+ },
+ {
+  "code": "73110",
+  "name": "Roofers and shinglers",
+  "titles": [
+   "roofer",
+   "flat roofer",
+   "shingler",
+   "apprentice roofer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b4c6d1b0-929e-48be-9f67-47bd8c30658b",
+  "esco_title": "roofer",
+  "similarity": 1.0
+ },
+ {
+  "code": "73111",
+  "name": "Glaziers",
+  "titles": [
+   "glazier",
+   "glass installer-glazier",
+   "glazier apprentice",
+   "glazier and metal mechanic"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "73112",
+  "name": "Painters and decorators (except interior decorators)",
+  "titles": [
+   "painter",
+   "construction painter",
+   "painter and decorator",
+   "painter, construction"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/15620506-fb5d-49cd-87a2-1c9047fb406a",
+  "esco_title": "construction painter",
+  "similarity": 1.0
+ },
+ {
+  "code": "73113",
+  "name": "Floor covering installers",
+  "titles": [
+   "floor covering installer",
+   "floor layer",
+   "wood floor installer",
+   "vinyl floor installer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0663d464-f139-4554-ae87-97aa6c4dad77",
+  "esco_title": "resilient floor layer",
+  "similarity": 1.0
+ },
+ {
+  "code": "73200",
+  "name": "Residential and commercial installers and servicers",
+  "titles": [
+   "siding installer",
+   "countertop installer",
+   "installer, siding",
+   "kitchen cabinet installer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bc61af54-0c3b-411c-a434-4b0d23c6fcce",
+  "esco_title": "kitchen unit installer",
+  "similarity": 0.884
+ },
+ {
+  "code": "73201",
+  "name": "General building maintenance workers and building superintendents",
+  "titles": [
+   "building maintenance worker",
+   "building services worker",
+   "maintenance worker, building",
+   "caretaker, building"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1822bfc2-e735-449f-ba00-ca71eb5c062b",
+  "esco_title": "building caretaker",
+  "similarity": 0.957
+ },
+ {
+  "code": "73202",
+  "name": "Pest controllers and fumigators",
+  "titles": [
+   "pest control technician",
+   "fumigator",
+   "exterminator",
+   "pest services coordinator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/21cba86a-68c5-456c-aec2-cc04840b3c0e",
+  "esco_title": "pest management worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "73209",
+  "name": "Other repairers and servicers",
+  "titles": [
+   "automotive dismantler",
+   "dismantler, automotive",
+   "bicycle mechanic",
+   "hydraulic unit repairer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4ed9ce62-75d4-4b05-80d4-e86528fecdcd",
+  "esco_title": "recycling worker",
+  "similarity": 0.946
+ },
+ {
+  "code": "73300",
+  "name": "Transport truck drivers",
+  "titles": [
+   "driver, truck",
+   "truck driver",
+   "long haul truck driver",
+   "dump truck driver"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/45037d43-a8f5-4f46-b332-b2935bc305f4",
+  "esco_title": "cargo vehicle driver",
+  "similarity": 1.0
+ },
+ {
+  "code": "73301",
+  "name": "Bus drivers, subway operators and other transit operators",
+  "titles": [
+   "school bus driver",
+   "bus driver",
+   "driver, school bus",
+   "shuttle bus driver"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/00cee175-1376-43fb-9f02-ba3d7a910a58",
+  "esco_title": "bus driver",
+  "similarity": 1.0
+ },
+ {
+  "code": "73310",
+  "name": "Railway and yard locomotive engineers",
+  "titles": [
+   "train engineer",
+   "locomotive engineer - railway",
+   "railway engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/81f6a814-1f4e-47d4-9c75-47977c7267ee",
+  "esco_title": "train driver",
+  "similarity": 0.96
+ },
+ {
+  "code": "73400",
+  "name": "Heavy equipment operators",
+  "titles": [
+   "heavy equipment operator",
+   "excavator operator",
+   "equipment operator, heavy-duty",
+   "dozer operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/425f4904-3a7a-4ad0-ac5b-42b38392f768",
+  "esco_title": "underground heavy equipment operator",
+  "similarity": 0.998
+ },
+ {
+  "code": "73401",
+  "name": "Printing press operators",
+  "titles": [
+   "printing press operator",
+   "press operator - printing",
+   "offset press operator - printing",
+   "flexographic press operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ea4aff10-4d20-4a2b-886b-299c2bd349f1",
+  "esco_title": "offset printer",
+  "similarity": 0.872
+ },
+ {
+  "code": "73402",
+  "name": "Drillers and blasters - surface mining, quarrying and construction",
+  "titles": [
+   "driller, construction",
+   "diamond drill operator - surface mining and quarrying",
+   "construction driller",
+   "driller - surface mining"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/46bbecf4-368a-44a8-9262-dcd775ae2c46",
+  "esco_title": "well-digger",
+  "similarity": 0.873
+ },
+ {
+  "code": "74100",
+  "name": "Mail and parcel sorters and related occupations",
+  "titles": [
+   "package handler",
+   "parcel sorter",
+   "mail processing clerk",
+   "clerk, mail distribution"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/511f366c-ba41-4826-9622-8cda6d6e3b91",
+  "esco_title": "mail clerk",
+  "similarity": 0.937
+ },
+ {
+  "code": "74101",
+  "name": "Letter carriers",
+  "titles": [
+   "postal worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7ed2e153-8da8-4c0d-b4c5-3402c623f34b",
+  "esco_title": "postman/postwoman",
+  "similarity": 0.983
+ },
+ {
+  "code": "74102",
+  "name": "Couriers and messengers",
+  "titles": [
+   "courier service driver",
+   "courier driver",
+   "driver, courier service",
+   "courier"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0c408028-c48f-4df8-ba5d-c3d3be15f5a2",
+  "esco_title": "delivery driver",
+  "similarity": 0.837
+ },
+ {
+  "code": "74200",
+  "name": "Railway yard and track maintenance workers",
+  "titles": [
+   "equipment operator, railway"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/92371348-ef8f-41ce-9666-c903b57cc8b4",
+  "esco_title": "rail intermodal equipment operator",
+  "similarity": 0.987
+ },
+ {
+  "code": "74201",
+  "name": "Water transport deck and engine room crew",
+  "titles": [
+   "able-bodied seaman/woman",
+   "seaman/woman",
+   "deckhand",
+   "engine room crew member, ship"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bd22a34c-1dc2-48df-a254-66e5d03dec12",
+  "esco_title": "matrose",
+  "similarity": 0.83
+ },
+ {
+  "code": "74202",
+  "name": "Air transport ramp attendants",
+  "titles": [
+   "ramp agent - air transport",
+   "aircraft groomer",
+   "aircraft refueler",
+   "cargo handler - air transport"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "74203",
+  "name": "Automotive and heavy truck and equipment parts installers and servicers",
+  "titles": [
+   "tire technician",
+   "tire changer - automotive service",
+   "lubrication technician - automotive service and repair",
+   "tire repairer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/98c429ad-128e-467e-803a-9a6dc1ceed72",
+  "esco_title": "tyre fitter",
+  "similarity": 0.715
+ },
+ {
+  "code": "74204",
+  "name": "Utility maintenance workers",
+  "titles": [
+   "utility maintenance worker",
+   "line locator - utilities",
+   "utility locator",
+   "maintenance utility worker"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "74205",
+  "name": "Public works maintenance equipment operators and related workers",
+  "titles": [
+   "equipment operator - municipal public work",
+   "snow removal equipment operator - public works",
+   "garbage truck driver",
+   "highway snowplow operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1bcc6461-4cc2-4732-a6d0-901687046443",
+  "esco_title": "snow-clearing worker",
+  "similarity": 0.847
+ },
+ {
+  "code": "75100",
+  "name": "Longshore workers",
+  "titles": [
+   "stevedore",
+   "dock hand"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b567a979-c556-49fa-8b36-8af6cfe97624",
+  "esco_title": "stevedore",
+  "similarity": 1.0
+ },
+ {
+  "code": "75101",
+  "name": "Material handlers",
+  "titles": [
+   "handler, materials",
+   "lift truck operator",
+   "warehouseperson",
+   "forklift operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/808becc8-5a4e-4e71-a043-c2ea32b56ae3",
+  "esco_title": "materials handler",
+  "similarity": 0.918
+ },
+ {
+  "code": "75110",
+  "name": "Construction trades helpers and labourers",
+  "titles": [
+   "construction labourer",
+   "construction helper",
+   "general construction labourer",
+   "construction worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/fb7e2f4f-1545-42f1-972e-94082e49c6dc",
+  "esco_title": "building construction worker",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "75119",
+  "name": "Other trades helpers and labourers",
+  "titles": [
+   "mechanic helper",
+   "helper, mechanic",
+   "automotive mechanic helper",
+   "maintenance helper"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "75200",
+  "name": "Taxi and limousine drivers and chauffeurs",
+  "titles": [
+   "driver, taxi",
+   "private chauffeur",
+   "taxi driver",
+   "driver, hearse"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6f7c1e84-8162-4c20-a575-b57ff624eef5",
+  "esco_title": "taxi driver",
+  "similarity": 1.0
+ },
+ {
+  "code": "75201",
+  "name": "Delivery service drivers and door-to-door distributors",
+  "titles": [
+   "delivery driver",
+   "pizza delivery driver",
+   "delivery truck driver",
+   "food delivery driver"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0c408028-c48f-4df8-ba5d-c3d3be15f5a2",
+  "esco_title": "delivery driver",
+  "similarity": 1.0
+ },
+ {
+  "code": "75210",
+  "name": "Boat and cable ferry operators and related occupations",
+  "titles": [
+   "ferry operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0cd0082a-ca15-4dcd-b352-b7600c916d8e",
+  "esco_title": "vessel operations coordinator",
+  "similarity": 0.715
+ },
+ {
+  "code": "75211",
+  "name": "Railway and motor transport labourers",
+  "titles": [
+   "mover helper",
+   "deliverer helper",
+   "truck driver helper",
+   "engineer's assistant"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "75212",
+  "name": "Public works and maintenance labourers",
+  "titles": [
+   "public works labourer",
+   "maintenance labourer - public works",
+   "sanitation worker",
+   "road maintenance worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/f272a521-1a38-4d34-a78e-3adeca95b977",
+  "esco_title": "road maintenance worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "80010",
+  "name": "Managers in natural resources production and fishing",
+  "titles": [
+   "biofuels production manager",
+   "manager, raw materials production",
+   "manager, forestry operations",
+   "mining operations manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/df66a6e6-2130-4932-8aaf-263dafa569fa",
+  "esco_title": "mine production manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "80020",
+  "name": "Managers in agriculture",
+  "titles": [
+   "farm manager",
+   "Managers in agriculture",
+   "dairy farm manager",
+   "market gardener"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4552095e-3396-4831-86ad-4fc34ec39a19",
+  "esco_title": "farm manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "80021",
+  "name": "Managers in horticulture",
+  "titles": [
+   "Christmas tree farm operator",
+   "greenhouse manager",
+   "grower, plants - nursery",
+   "nursery manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d36b66f8-c08a-4416-953b-62c271ca7509",
+  "esco_title": "horticulture production manager",
+  "similarity": 0.941
+ },
+ {
+  "code": "80022",
+  "name": "Managers in aquaculture",
+  "titles": [
+   "fish farmer",
+   "oyster farmer",
+   "aquaculture manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5945cba8-19a4-4632-8a8f-4186e2bad1a3",
+  "esco_title": "aquaculture production manager",
+  "similarity": 0.963
+ },
+ {
+  "code": "82010",
+  "name": "Supervisors, logging and forestry",
+  "titles": [
+   "foreman/woman, logging",
+   "contractor, silviculture",
+   "forest operations supervisor",
+   "foreman/woman, forestry"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "82020",
+  "name": "Supervisors, mining and quarrying",
+  "titles": [
+   "foreman/woman, underground mine",
+   "mine supervisor",
+   "boss, shift - mining and quarrying",
+   "supervisor, mine"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/5c14982e-375d-47c5-9ea1-e9bcf3884643",
+  "esco_title": "mine supervisor",
+  "similarity": 1.0
+ },
+ {
+  "code": "82021",
+  "name": "Contractors and supervisors, oil and gas drilling and services",
+  "titles": [
+   "well site consultant - oil and gas",
+   "wireline field supervisor - oil field services",
+   "multi-service operator - oil field services",
+   "rig manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/0633ec3f-91f1-4038-bc29-e0ec4cd7f1e9",
+  "esco_title": "oil and gas production manager",
+  "similarity": 0.746
+ },
+ {
+  "code": "82030",
+  "name": "Agricultural service contractors and farm supervisors",
+  "titles": [
+   "farm supervisor",
+   "farm operation supervisor",
+   "farm foreman/woman",
+   "farm workers supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4552095e-3396-4831-86ad-4fc34ec39a19",
+  "esco_title": "farm manager",
+  "similarity": 0.944
+ },
+ {
+  "code": "82031",
+  "name": "Contractors and supervisors, landscaping, grounds maintenance and horticulture services",
+  "titles": [
+   "landscaping supervisor",
+   "landscaping foreman/woman",
+   "greenhouse supervisor",
+   "supervisor, landscaping"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "83100",
+  "name": "Underground production and development miners",
+  "titles": [
+   "miner",
+   "jumbo drill operator - underground mining",
+   "development miner",
+   "bolter operator - underground mining"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4cdfac8c-b000-4279-985e-31bc1fbe2447",
+  "esco_title": "underground miner",
+  "similarity": 0.848
+ },
+ {
+  "code": "83101",
+  "name": "Oil and gas well drillers, servicers, testers and related workers",
+  "titles": [
+   "wireline operator",
+   "wireline operator trainee",
+   "slickline operator",
+   "workover rig operator - oil field services"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/622b1d5e-bf14-4ec0-b83e-3bfcf8dff624",
+  "esco_title": "drill operator",
+  "similarity": 0.736
+ },
+ {
+  "code": "83110",
+  "name": "Logging machinery operators",
+  "titles": [
+   "log loader operator",
+   "feller buncher operator",
+   "log processor operator",
+   "operator, feller buncher"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/699057b7-7aeb-4b5c-bb90-01d935ff32c1",
+  "esco_title": "forestry equipment operator",
+  "similarity": 0.915
+ },
+ {
+  "code": "83121",
+  "name": "Fishermen/women",
+  "titles": [
+   "fishing vessel skipper",
+   "fisherman/woman"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bcead4e9-3697-4831-b62e-ddb83d7d469d",
+  "esco_title": "fisheries master",
+  "similarity": 0.971
+ },
+ {
+  "code": "84100",
+  "name": "Underground mine service and support workers",
+  "titles": [
+   "crusher operator",
+   "rotary raise driller helper",
+   "cage tender",
+   "support miner"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4cdfac8c-b000-4279-985e-31bc1fbe2447",
+  "esco_title": "underground miner",
+  "similarity": 0.814
+ },
+ {
+  "code": "84101",
+  "name": "Oil and gas well drilling and related workers and services operators",
+  "titles": [
+   "motorhand - oil and gas drilling",
+   "derrickhand - oil and gas drilling",
+   "ballast control operator - offshore drilling rig",
+   "dynamic positioning operator - offshore drilling"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d3c1c718-a093-4e2e-80a0-2bd331266a8b",
+  "esco_title": "oil rig motorhand",
+  "similarity": 0.85
+ },
+ {
+  "code": "84110",
+  "name": "Chain saw and skidder operators",
+  "titles": [
+   "skidder operator",
+   "faller",
+   "grapple skidder operator",
+   "operator, cable skidder"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/699057b7-7aeb-4b5c-bb90-01d935ff32c1",
+  "esco_title": "forestry equipment operator",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "84111",
+  "name": "Silviculture and forestry workers",
+  "titles": [
+   "silviculture worker",
+   "forestry worker",
+   "tree pruner - forestry",
+   "operator, scarification equipment - forestry"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/773cf1de-50a4-42e7-bab1-e68dcbae3f54",
+  "esco_title": "forest worker",
+  "similarity": 1.0
+ },
+ {
+  "code": "84120",
+  "name": "Specialized livestock workers and farm machinery operators",
+  "titles": [
+   "farm equipment operator",
+   "apiary technician",
+   "farm machinery operator",
+   "dairy herdsperson"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/1b8c75a9-407b-4554-a7d6-df391672c6b1",
+  "esco_title": "land-based machinery operator",
+  "similarity": 1.0
+ },
+ {
+  "code": "84121",
+  "name": "Fishing vessel deckhands",
+  "titles": [
+   "deckhand, fishing vessel",
+   "fishing vessel deckhand",
+   "fishing vessel crewman/woman"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/18dafd4f-8c37-4276-b4b3-cfa31059b2b6",
+  "esco_title": "fisheries deckhand",
+  "similarity": 1.0
+ },
+ {
+  "code": "85100",
+  "name": "Livestock labourers",
+  "titles": [
+   "labourer, livestock",
+   "farm labourer - livestock",
+   "farm worker, general",
+   "milk production labourer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/65bd2342-f7de-4932-9164-eb480e35a791",
+  "esco_title": "livestock worker",
+  "similarity": 0.959
+ },
+ {
+  "code": "85101",
+  "name": "Harvesting labourers",
+  "titles": [
+   "Harvesting labourers",
+   "farm labourer - harvesting",
+   "general labourer - farm",
+   "crop farm labourer - harvesting"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/373db468-bd25-4b67-a6e0-4ac79d9a9e85",
+  "esco_title": "fruit and vegetable picker",
+  "similarity": 0.779
+ },
+ {
+  "code": "85102",
+  "name": "Aquaculture and marine harvest labourers",
+  "titles": [
+   "aquaculture worker",
+   "aquaculture support worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/aa0fd823-2f45-41c8-a3c6-97d97885e455",
+  "esco_title": "water-based aquaculture worker",
+  "similarity": 0.941
+ },
+ {
+  "code": "85103",
+  "name": "Nursery and greenhouse labourers",
+  "titles": [
+   "greenhouse labourer",
+   "nursery labourer",
+   "greenhouse worker",
+   "nursery worker"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null
+ },
+ {
+  "code": "85110",
+  "name": "Mine labourers",
+  "titles": [
+   "labourer, mine",
+   "mine labourer",
+   "core cutter"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "85111",
+  "name": "Oil and gas drilling, servicing and related labourers",
+  "titles": [
+   "labourer, oil field",
+   "floorhand - offshore drilling rig",
+   "roughneck",
+   "service rig helper"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8d765d88-c8d6-406e-8dfe-e37c5aa89be6",
+  "esco_title": "roughneck",
+  "similarity": 1.0
+ },
+ {
+  "code": "85120",
+  "name": "Logging and forestry labourers",
+  "titles": [
+   "swamper - logging and forestry",
+   "forestry labourer",
+   "seasonal swamper - logging",
+   "logging and forestry labourer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/773cf1de-50a4-42e7-bab1-e68dcbae3f54",
+  "esco_title": "forest worker",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "85121",
+  "name": "Landscaping and grounds maintenance labourers",
+  "titles": [
+   "landscape labourer",
+   "landscape worker",
+   "general labourer - landscaping",
+   "grounds maintenance labourer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a48b9a5a-5ded-482d-8cda-7fd097a32c16",
+  "esco_title": "groundsman/groundswoman",
+  "similarity": 1.0
+ },
+ {
+  "code": "90010",
+  "name": "Manufacturing managers",
+  "titles": [
+   "production chief",
+   "production manager - manufacturing",
+   "production planner",
+   "manufacturing manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/6426ada1-4d8c-4612-99e3-91bc569805ee",
+  "esco_title": "manufacturing manager",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "90011",
+  "name": "Utilities managers",
+  "titles": [
+   "solid waste processing manager",
+   "solid waste processing operations planning manager",
+   "manager, public utilities",
+   "solid waste processing district manager"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/8ae1e637-840b-4be0-a5df-8653375d8949",
+  "esco_title": "landfill supervisor",
+  "similarity": 0.946
+ },
+ {
+  "code": "92010",
+  "name": "Supervisors, mineral and metal processing",
+  "titles": [
+   "primary metal and mineral products processing supervisor",
+   "stone products manufacturing foreman/woman",
+   "foreman/woman, rock crusher - primary metal and mineral products processing",
+   "die casting supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7db415ec-0437-4a5e-95ea-622ea9f13dd0",
+  "esco_title": "metal production supervisor",
+  "similarity": 0.844
+ },
+ {
+  "code": "92011",
+  "name": "Supervisors, petroleum, gas and chemical processing and utilities",
+  "titles": [
+   "water and sewer foreman",
+   "plant superintendent, water treatment",
+   "chief power engineer",
+   "water treatment plant supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/546ec458-e2a4-4cb1-ac17-553d314ac2e2",
+  "esco_title": "water treatment plant manager",
+  "similarity": 1.0
+ },
+ {
+  "code": "92012",
+  "name": "Supervisors, food and beverage processing",
+  "titles": [
+   "production supervisor - food and beverage processing",
+   "food and beverage processing supervisor",
+   "meat packing supervisor",
+   "supervisor, food and beverage processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/40517ed4-2769-4283-a15b-4b0d939bd2d3",
+  "esco_title": "production supervisor",
+  "similarity": 0.808
+ },
+ {
+  "code": "92013",
+  "name": "Supervisors, plastic and rubber products manufacturing",
+  "titles": [
+   "plastic products manufacturing supervisor",
+   "extrusion supervisor - rubber and plastic products manufacturing",
+   "production supervisor –  manufacturing",
+   "foreman/woman, blow moulding - rubber and plastic manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4568a282-3904-4dfc-a6ec-e847b3ca90e8",
+  "esco_title": "plastic and rubber products manufacturing supervisor",
+  "similarity": 1.0
+ },
+ {
+  "code": "92014",
+  "name": "Supervisors, forest products processing",
+  "titles": [
+   "foreman/woman, lumber grading",
+   "sawmill foreman/woman",
+   "Labourers in wood, pulp and paper processing",
+   "foreman/woman, sawmill"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/bdfd018a-aae1-407e-a88c-471e50b0695d",
+  "esco_title": "wood production supervisor",
+  "similarity": 0.87
+ },
+ {
+  "code": "92015",
+  "name": "Supervisors, textile, fabric, fur and leather products processing and manufacturing",
+  "titles": [
+   "Managers in agriculture",
+   "supervisor, textile processing",
+   "Managers in horticulture",
+   "dressmakers supervisor"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/518348e6-0095-4f37-ad46-5ef1b8b5ee2f",
+  "esco_title": "textile operations manager",
+  "similarity": 0.931
+ },
+ {
+  "code": "92020",
+  "name": "Supervisors, motor vehicle assembling",
+  "titles": [
+   "supervisor, motor vehicle assembly"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e2c38c87-2bcf-492a-a78e-3be9480481cc",
+  "esco_title": "motor vehicle assembly supervisor",
+  "similarity": 0.971
+ },
+ {
+  "code": "92021",
+  "name": "Supervisors, electronics and electrical products manufacturing",
+  "titles": [
+   "supervisor, electronic assembly",
+   "supervisor, electronics manufacturing",
+   "assembly and test foreman/woman - electronics manufacturing",
+   "production supervisor - electronics manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/83191970-020d-4350-b2e0-be971533d286",
+  "esco_title": "electronics production supervisor",
+  "similarity": 0.986
+ },
+ {
+  "code": "92022",
+  "name": "Supervisors, furniture and fixtures manufacturing",
+  "titles": [
+   "cabinet assembler and wood furniture maker foreman/woman",
+   "supervisor, furniture and fixture manufacturing",
+   "furniture and fixtures manufacturing supervisor",
+   "foreman/woman, furniture assembly"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "92023",
+  "name": "Supervisors, other mechanical and metal products manufacturing",
+  "titles": [
+   "production supervisor – metal products manufacturing",
+   "paint department foreman/woman - metal products manufacturing",
+   "foreman/woman, galvanizing",
+   "farm machinery inspection foreman/woman"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7db415ec-0437-4a5e-95ea-622ea9f13dd0",
+  "esco_title": "metal production supervisor",
+  "similarity": 0.934
+ },
+ {
+  "code": "92024",
+  "name": "Supervisors, other products manufacturing and assembly",
+  "titles": [
+   "production supervisor – assembly",
+   "supervisor, millwork assembly",
+   "production supervisor – machining",
+   "manufacturing co-ordinator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/40517ed4-2769-4283-a15b-4b0d939bd2d3",
+  "esco_title": "production supervisor",
+  "similarity": 0.929
+ },
+ {
+  "code": "92100",
+  "name": "Power engineers and power systems operators",
+  "titles": [
+   "stationary engineer",
+   "power engineer",
+   "third-class power engineer",
+   "fourth-class power engineer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/72381086-cb6e-455e-a40b-ccb26550aab6",
+  "esco_title": "power production plant operator",
+  "similarity": 0.859
+ },
+ {
+  "code": "92101",
+  "name": "Water and waste treatment plant operators",
+  "titles": [
+   "water utility operator",
+   "water treatment operator",
+   "wastewater treatment plant operator",
+   "water and wastewater technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d43e9693-7087-412c-b54c-e9068012630a",
+  "esco_title": "wastewater treatment operator",
+  "similarity": 0.946
+ },
+ {
+  "code": "93100",
+  "name": "Central control and process operators, mineral and metal processing",
+  "titles": [
+   "chief flotation operator",
+   "central control room operator - primary metal and mineral products processing",
+   "ion exchange operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/62d3f108-ade2-44b5-beeb-d63d0b21268f",
+  "esco_title": "mineral processing engineer",
+  "similarity": 0.725
+ },
+ {
+  "code": "93101",
+  "name": "Central control and process operators, petroleum, gas and chemical processing",
+  "titles": [
+   "process technician",
+   "processing laboratory operator",
+   "gas plant operator",
+   "process control system operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/47ae3ed9-e03c-450e-9ea8-aab317545adc",
+  "esco_title": "gas processing plant control room operator",
+  "similarity": 0.96
+ },
+ {
+  "code": "93102",
+  "name": "Pulping, papermaking and coating control operators",
+  "titles": [
+   "paper maker",
+   "control room operator - pulp and paper"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4b6a55a8-8ec9-4ae2-9f62-ebcea1fa93d0",
+  "esco_title": "paper machine operator",
+  "similarity": 1.0
+ },
+ {
+  "code": "93200",
+  "name": "Aircraft assemblers and aircraft assembly inspectors",
+  "titles": [
+   "aircraft structure assembler",
+   "aircraft assembly rigger",
+   "detail assembler - aircraft assembly",
+   "composite technician - aircraft assembly"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ad7c76e8-af96-42af-99a5-d579f707758c",
+  "esco_title": "aircraft assembler",
+  "similarity": 1.0
+ },
+ {
+  "code": "94100",
+  "name": "Machine operators, mineral and metal processing",
+  "titles": [
+   "uranium classifier operator",
+   "auxiliary equipment operator - primary metal processing",
+   "dewatering equipment operator",
+   "slurry equipment operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/66d22b81-1b5e-42a1-b904-ac67b4a896c6",
+  "esco_title": "mineral processing operator",
+  "similarity": 0.834
+ },
+ {
+  "code": "94101",
+  "name": "Foundry workers",
+  "titles": [
+   "foundry worker",
+   "Labourers in mineral and metal processing",
+   "foundry pourer",
+   "manual moulder"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/dc14bed4-87ca-4e6c-9f69-458e2689d2d6",
+  "esco_title": "foundry operative",
+  "similarity": 1.0
+ },
+ {
+  "code": "94102",
+  "name": "Glass forming and finishing machine operators and glass cutters",
+  "titles": [
+   "glass cutter",
+   "glass-tempering furnace operator",
+   "glass worker - glass products manufacturing",
+   "glass-finishing machine operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e19a0f13-da49-42cb-8b3a-27da8ce44c8c",
+  "esco_title": "glass forming machine operator",
+  "similarity": 0.957
+ },
+ {
+  "code": "94103",
+  "name": "Concrete, clay and stone forming operators",
+  "titles": [
+   "concrete plant operator",
+   "forming machine operator - concrete, clay and stone products",
+   "stone saw operator",
+   "crusher operator - stone products"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/86da9311-1f7a-40bb-af65-ed2a7178fcae",
+  "esco_title": "concrete products machine operator",
+  "similarity": 0.811
+ },
+ {
+  "code": "94104",
+  "name": "Inspectors and testers, mineral and metal processing",
+  "titles": [
+   "quality assurance inspector - steel mill",
+   "stonework grader",
+   "concrete products tester",
+   "tester and inspector - primary metal and mineral products processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c0a35355-be44-44c0-82d2-acf8363ed45e",
+  "esco_title": "metal product quality control inspector",
+  "similarity": 0.782
+ },
+ {
+  "code": "94105",
+  "name": "Metalworking and forging machine operators",
+  "titles": [
+   "press brake operator",
+   "press brake operator - metal products manufacturing",
+   "laser cutter - metal fabrication",
+   "machine operator, metalworking"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/000e93a3-d956-4e45-aacb-f12c83fedf84",
+  "esco_title": "metal drawing machine operator",
+  "similarity": 0.817
+ },
+ {
+  "code": "94106",
+  "name": "Machining tool operators",
+  "titles": [
+   "CNC machining tool operator",
+   "computer numerical control (CNC) profile mill operator",
+   "threading machine operator",
+   "machining tool operator"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a1c9f8b7-c4ce-4b15-ac3c-3378c300d8f2",
+  "esco_title": "milling machine operator",
+  "similarity": 0.854
+ },
+ {
+  "code": "94107",
+  "name": "Machine operators of other metal products",
+  "titles": [
+   "metal products manufacturing machine operator",
+   "cable maker, metal",
+   "wire rope maker",
+   "buckshot swage operator"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "94110",
+  "name": "Chemical plant machine operators",
+  "titles": [
+   "chemical operator, chemical-processing",
+   "operator, chemical plant",
+   "paint maker",
+   "compounder - chemical processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a241eff8-309b-43ae-8890-ac4cfbd3067c",
+  "esco_title": "chemical processing plant controller",
+  "similarity": 0.964
+ },
+ {
+  "code": "94111",
+  "name": "Plastics processing machine operators",
+  "titles": [
+   "plastics machine operator",
+   "machine operator - plastics processing",
+   "extruder operator - plastic manufacturing",
+   "machine operator - plastic manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a0f9903e-2ba5-4b9d-bb0a-a8646db15221",
+  "esco_title": "extrusion machine operator",
+  "similarity": 0.874
+ },
+ {
+  "code": "94112",
+  "name": "Rubber processing machine operators and related workers",
+  "titles": [
+   "conveyor belt splicer - rubber products manufacturing",
+   "tire assembler",
+   "truck tire builder",
+   "production operator - rubber products manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2430774f-d92a-40e4-817d-d03dd5a33207",
+  "esco_title": "tyre builder",
+  "similarity": 0.908
+ },
+ {
+  "code": "94120",
+  "name": "Sawmill machine operators",
+  "titles": [
+   "sawing machine operator - sawmill",
+   "saw operator - sawmill",
+   "log cut-off operator - sawmill",
+   "operator, trimmer - sawmill"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/865adac9-9bb7-4680-a13d-62b2942974ac",
+  "esco_title": "sawmill operator",
+  "similarity": 0.943
+ },
+ {
+  "code": "94121",
+  "name": "Pulp mill, papermaking and finishing machine operators",
+  "titles": [
+   "rewinder, processed paper",
+   "field operator - pulp and paper",
+   "pulp maker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/4b6a55a8-8ec9-4ae2-9f62-ebcea1fa93d0",
+  "esco_title": "paper machine operator",
+  "similarity": 0.747
+ },
+ {
+  "code": "94122",
+  "name": "Paper converting machine operators",
+  "titles": [
+   "machine operator, paper converting",
+   "carbon coater operator",
+   "corrugating machine operator - paper converting",
+   "envelope machine tender - paper converting"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/71a98a24-e02b-4ba6-b4df-6556d7ae98cc",
+  "esco_title": "paper stationery machine operator",
+  "similarity": 0.819
+ },
+ {
+  "code": "94123",
+  "name": "Lumber graders and other wood processing inspectors and graders",
+  "titles": [
+   "wood measurer",
+   "grader, wood processing",
+   "inspector - wood processing",
+   "planer mill grader - wood processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3027abf6-bc54-4709-8dc1-4f20b772ac70",
+  "esco_title": "engineered wood board grader",
+  "similarity": 0.811
+ },
+ {
+  "code": "94124",
+  "name": "Woodworking machine operators",
+  "titles": [
+   "machine operator, woodworking",
+   "woodworking machine operator",
+   "CNC band saw operator - woodworking",
+   "sawyer - woodworking"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/a945757e-e171-46a9-847a-13cf04f7cd27",
+  "esco_title": "band saw operator",
+  "similarity": 0.859
+ },
+ {
+  "code": "94129",
+  "name": "Other wood processing machine operators",
+  "titles": [
+   "lumber sorting machine operator - wood processing",
+   "lumber kiln operator",
+   "veneer jointer operator - wood processing",
+   "layup machine operator - wood processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c0eb9240-4f70-4393-bdf0-723ce7fdbd36",
+  "esco_title": "engineered wood board machine operator",
+  "similarity": 0.899
+ },
+ {
+  "code": "94130",
+  "name": "Textile fibre and yarn, hide and pelt processing machine operators and workers",
+  "titles": [
+   "machine operator - textile fibre and yarn preparation",
+   "machine operator - textile fibre, yarn, hide and pelt processing",
+   "carder - textile manufacturing",
+   "card operator - textile manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/2b136e51-154b-4cb2-8130-f73228f14b11",
+  "esco_title": "textile machine operator",
+  "similarity": 0.85
+ },
+ {
+  "code": "94131",
+  "name": "Weavers, knitters and other fabric making occupations",
+  "titles": [
+   "embroidery machine operator",
+   "textile weaver",
+   "drawer-in",
+   "automatic embroidery machine tender"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/939e05ea-2589-4e3c-a501-eea2bdd6864a",
+  "esco_title": "weaving machine operator",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "94132",
+  "name": "Industrial sewing machine operators",
+  "titles": [
+   "industrial sewing machine operator",
+   "sewing machine operator",
+   "operator, sewing machine",
+   "sewer - garment manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/517c01aa-e875-4690-bf38-17307a57eafe",
+  "esco_title": "sewing machinist",
+  "similarity": 0.928
+ },
+ {
+  "code": "94133",
+  "name": "Inspectors and graders, textile, fabric, fur and leather products manufacturing",
+  "titles": [
+   "cloth sorter",
+   "quality control inspector - textiles",
+   "sampler - textiles",
+   "inspector - textiles"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/85fdd1cb-98d3-4c40-a868-1078ce770440",
+  "esco_title": "textile quality inspector",
+  "similarity": 0.958
+ },
+ {
+  "code": "94140",
+  "name": "Process control and machine operators, food and beverage processing",
+  "titles": [
+   "machine operator - food and beverage processing",
+   "packaging machine operator - food processing",
+   "process operator - food and beverage processing",
+   "process control operator - food and beverage processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e3dc66de-99c7-4607-a82b-7244036d316d",
+  "esco_title": "food production operator",
+  "similarity": 0.769
+ },
+ {
+  "code": "94141",
+  "name": "Industrial butchers and meat cutters, poultry preparers and related workers",
+  "titles": [
+   "industrial butcher",
+   "butcher, industrial",
+   "meat cutter - meat packing plant",
+   "poultry preparer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/05f6eaeb-b285-46bd-a44a-225bd429e329",
+  "esco_title": "meat cutter",
+  "similarity": 0.855
+ },
+ {
+  "code": "94142",
+  "name": "Fish and seafood plant workers",
+  "titles": [
+   "fish plant worker",
+   "fish-processing plant worker",
+   "lobster processor - fish processing",
+   "fish and seafood plant worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c0386702-0699-4550-920b-1f7027c9a3d9",
+  "esco_title": "fish preparation operator",
+  "similarity": 0.897
+ },
+ {
+  "code": "94143",
+  "name": "Testers and graders, food and beverage processing",
+  "titles": [
+   "quality control checker - food and beverage processing",
+   "fruit and vegetable grader - food and beverage processing",
+   "canned and bottled foods inspector",
+   "grader, meat"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b4306d87-7992-47fc-914a-4485a4e7003c",
+  "esco_title": "food grader",
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "94150",
+  "name": "Plateless printing equipment operators",
+  "titles": [
+   "printing machine operator",
+   "screen print operator",
+   "pochoir silk-screen printing machine operator",
+   "screen printing machine operator - printing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ea4aff10-4d20-4a2b-886b-299c2bd349f1",
+  "esco_title": "offset printer",
+  "similarity": 0.831
+ },
+ {
+  "code": "94151",
+  "name": "Camera, platemaking and other prepress occupations",
+  "titles": [
+   "digital printing technician",
+   "flexible printing plate mounter",
+   "step and repeat camera operator",
+   "prepress technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/54ffd31f-ed90-4af4-b877-cd246351ad39",
+  "esco_title": "prepress technician",
+  "similarity": 1.0
+ },
+ {
+  "code": "94152",
+  "name": "Binding and finishing machine operators",
+  "titles": [
+   "bindery operator",
+   "bindery machine operator - printing",
+   "folder, machine - printing",
+   "bindery worker - printing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/49b21ca8-04be-4912-a2f7-0170550e18fa",
+  "esco_title": "bindery operator",
+  "similarity": 1.0
+ },
+ {
+  "code": "94153",
+  "name": "Photographic and film processors",
+  "titles": [
+   "photo lab technician"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b4f08f2e-3c97-4484-9094-446a17dad802",
+  "esco_title": "motion picture film developer",
+  "similarity": 0.758
+ },
+ {
+  "code": "94200",
+  "name": "Motor vehicle assemblers, inspectors and testers",
+  "titles": [
+   "installer, wheels and tires - automobile assembly",
+   "utility repairer - motor vehicle manufacturing",
+   "wheel and tire installer - automobile assembly",
+   "auto parts assembler"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ffc292f1-89e2-4406-8eff-39096c94e731",
+  "esco_title": "motor vehicle assembler",
+  "similarity": 0.904
+ },
+ {
+  "code": "94201",
+  "name": "Electronics assemblers, fabricators, inspectors and testers",
+  "titles": [
+   "electronics assembler",
+   "capacitor assembler",
+   "assembler - electronic equipment manufacturing",
+   "assembler, electronic equipment - electronic equipment manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d44c5eb0-fc6c-4f4a-9850-f2f29aaac505",
+  "esco_title": "electromechanical equipment assembler",
+  "similarity": 0.853
+ },
+ {
+  "code": "94202",
+  "name": "Assemblers and inspectors, electrical appliance, apparatus and equipment manufacturing",
+  "titles": [
+   "electrical equipment assembler",
+   "assembler, electrical wire groups",
+   "assembler, electrical appliances",
+   "production assembler - electrical equipment manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d44c5eb0-fc6c-4f4a-9850-f2f29aaac505",
+  "esco_title": "electromechanical equipment assembler",
+  "similarity": 0.933
+ },
+ {
+  "code": "94203",
+  "name": "Assemblers, fabricators and inspectors, industrial electrical motors and transformers",
+  "titles": [
+   "current-transformer coil winder",
+   "control panel assembler - industrial electrical equipment",
+   "control panel assembler",
+   "commutator assembler"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3e524c3e-3ee8-47dd-8463-2c2a41b548bf",
+  "esco_title": "electrical equipment assembler",
+  "similarity": 0.869
+ },
+ {
+  "code": "94204",
+  "name": "Mechanical assemblers and inspectors",
+  "titles": [
+   "mechanical assembler",
+   "gun assembler",
+   "agricultural equipment assembler",
+   "mechanical assemblers lead hand"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/af2f3615-63ab-44dc-957d-c9660410d336",
+  "esco_title": "metal products assembler",
+  "similarity": 0.856
+ },
+ {
+  "code": "94205",
+  "name": "Machine operators and inspectors, electrical apparatus manufacturing",
+  "titles": [
+   "machine wire-cutter and wire-stripper - electrical equipment manufacturing",
+   "production machine operator - electrical equipment manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/3e524c3e-3ee8-47dd-8463-2c2a41b548bf",
+  "esco_title": "electrical equipment assembler",
+  "similarity": 0.864
+ },
+ {
+  "code": "94210",
+  "name": "Furniture and fixture assemblers, finishers, refinishers and inspectors",
+  "titles": [
+   "production worker - furniture manufacturing",
+   "assembler, cabinet - furniture manufacturing",
+   "cabinet finisher",
+   "assembler, furniture"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/d7f3d76b-23e8-447e-93d5-da13ff9bc102",
+  "esco_title": "furniture assembler",
+  "similarity": 0.952
+ },
+ {
+  "code": "94211",
+  "name": "Assemblers and inspectors of other wood products",
+  "titles": [
+   "assembler, wood products",
+   "factory assembler, wood products",
+   "wood products assembler",
+   "assembler, millwork - wood products manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7eadbe33-d62e-4a82-8e3a-e89df5aefb2c",
+  "esco_title": "wood products assembler",
+  "similarity": 1.0
+ },
+ {
+  "code": "94212",
+  "name": "Plastic products assemblers, finishers and inspectors",
+  "titles": [
+   "fibreglass laminator",
+   "assembler, plastic products",
+   "assembler, plastics",
+   "finisher, plastic products"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/599f34f0-bdf7-49e3-b5a9-f5d55f9e6873",
+  "esco_title": "plastic products assembler",
+  "similarity": 0.979
+ },
+ {
+  "code": "94213",
+  "name": "Industrial painters, coaters and metal finishing process operators",
+  "titles": [
+   "industrial painter",
+   "spray painter",
+   "industrial spray painter",
+   "powder coater"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/7443811e-6760-44a2-af95-1b9c791733a8",
+  "esco_title": "lacquer spray gun operator",
+  "similarity": 0.852
+ },
+ {
+  "code": "94219",
+  "name": "Other products assemblers, finishers and inspectors",
+  "titles": [
+   "aluminum doors and windows assembler",
+   "barbecue assembler",
+   "sign maker",
+   "window and door assembler - PVC window and door manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/af2f3615-63ab-44dc-957d-c9660410d336",
+  "esco_title": "metal products assembler",
+  "similarity": 0.78
+ },
+ {
+  "code": "95100",
+  "name": "Labourers in mineral and metal processing",
+  "titles": [
+   "labourer - metallurgy",
+   "foundry labourer",
+   "labourer, steel plant",
+   "labourer - mineral and metal processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/dc14bed4-87ca-4e6c-9f69-458e2689d2d6",
+  "esco_title": "foundry operative",
+  "similarity": 0.847
+ },
+ {
+  "code": "95101",
+  "name": "Labourers in metal fabrication",
+  "titles": [
+   "labourer - metal fabrication",
+   "helper, welder",
+   "Labourers in metal fabrication",
+   "helper, metal-fabricating shop"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/af2f3615-63ab-44dc-957d-c9660410d336",
+  "esco_title": "metal products assembler",
+  "similarity": 0.827
+ },
+ {
+  "code": "95102",
+  "name": "Labourers in chemical products processing and utilities",
+  "titles": [
+   "waterworks labourer",
+   "chemical plant labourer",
+   "labourer - chemical processing",
+   "landfill worker"
+  ],
+  "esco_uri": null,
+  "esco_title": null,
+  "similarity": null,
+  "reviewed": true
+ },
+ {
+  "code": "95103",
+  "name": "Labourers in wood, pulp and paper processing",
+  "titles": [
+   "labourer - wood processing",
+   "labourer, sawmill",
+   "sawmill labourer",
+   "sawmill worker"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/865adac9-9bb7-4680-a13d-62b2942974ac",
+  "esco_title": "sawmill operator",
+  "similarity": 1.0
+ },
+ {
+  "code": "95104",
+  "name": "Labourers in rubber and plastic products manufacturing",
+  "titles": [
+   "production day labourer - tire industry",
+   "labourer - plastic products manufacturing",
+   "labourer, plastic products manufacturing",
+   "machine operator helper, plastic products manufacturing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/b0c6f284-f3ed-4820-a62e-4e87869f5a3e",
+  "esco_title": "rubber products machine operator",
+  "similarity": 0.824
+ },
+ {
+  "code": "95105",
+  "name": "Labourers in textile processing and cutting",
+  "titles": [
+   "textile product labourer",
+   "helper - textiles",
+   "fabric cutter",
+   "marker and cutter, upholstery"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/928dd410-c74b-4dab-94b8-fcbdcf541bd1",
+  "esco_title": "clothing cutter",
+  "similarity": 1.0
+ },
+ {
+  "code": "95106",
+  "name": "Labourers in food and beverage processing",
+  "titles": [
+   "food processing labourer",
+   "labourer - food and beverage processing",
+   "production helper",
+   "production labourer - food processing"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/e3dc66de-99c7-4607-a82b-7244036d316d",
+  "esco_title": "food production operator",
+  "similarity": 0.871
+ },
+ {
+  "code": "95107",
+  "name": "Labourers in fish and seafood processing",
+  "titles": [
+   "fish processing plant labourer",
+   "fish processing labourer",
+   "shellfish processing labourer",
+   "shellfish labourer"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/c0386702-0699-4550-920b-1f7027c9a3d9",
+  "esco_title": "fish preparation operator",
+  "similarity": 0.849
+ },
+ {
+  "code": "95109",
+  "name": "Other labourers in processing, manufacturing and utilities",
+  "titles": [
+   "general labourer - manufacturing",
+   "factory labourer - manufacturing",
+   "labourer, packaging",
+   "sorter - recyclable materials"
+  ],
+  "esco_uri": "http://data.europa.eu/esco/occupation/ff8d4065-db44-47c7-a4bd-51b3c306ef70",
+  "esco_title": "sorter labourer",
+  "similarity": 0.791
+ }
+]

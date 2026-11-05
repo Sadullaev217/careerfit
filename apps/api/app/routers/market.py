@@ -32,6 +32,7 @@ MIN_ROLE_SIMILARITY = 0.75
 MIN_REGIONAL_SALARY_SAMPLE = 10
 MEDIUM_CONFIDENCE_SAMPLE = 30
 HIGH_CONFIDENCE_SAMPLE = 100
+CONCENTRATED_PAY_SHARE = 0.5
 TOP_REQUIRED_SKILLS = 15
 TOP_PREFERRED_SKILLS = 10
 
@@ -40,9 +41,9 @@ SOURCES = [
     "Skills from ESCO, the European Commission's classification of skills and occupations.",
 ]
 LIMITATIONS = (
-    "Salaries come from jobs on Canada's Job Bank, which has more entry-level and hourly roles than "
-    "the whole market. Skills are the official list for this occupation, not a count of what "
-    "employers are asking for right now."
+    "Pay comes from ads on Canada's Job Bank, which doesn't include every job, so actual pay may "
+    "differ. Skills are the official list for this occupation, not a count of what employers are "
+    "asking for right now."
 )
 
 
@@ -59,6 +60,7 @@ class SalaryRange(CamelModel):
     sample_size: int
     region: str
     confidence: str
+    concentrated: bool
 
 
 class MarketRequirements(CamelModel):
@@ -122,6 +124,8 @@ def _salary(stats: dict[str, Any], region: str) -> SalaryRange | None:
     size = stats["salary_sample_size"]
     if not size:
         return None
+    # The data names no employers, so one pay scale can fill a whole sample.
+    concentrated = (stats.get("salary_top_share") or 0) > CONCENTRATED_PAY_SHARE
     return SalaryRange(
         p25=round(stats["salary_p25"]),
         median=round(stats["salary_median"]),
@@ -130,7 +134,8 @@ def _salary(stats: dict[str, Any], region: str) -> SalaryRange | None:
         period="yearly",
         sample_size=size,
         region=region,
-        confidence=_confidence(size),
+        confidence="low" if concentrated else _confidence(size),
+        concentrated=concentrated,
     )
 
 

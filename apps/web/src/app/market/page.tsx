@@ -150,6 +150,12 @@ export default function MarketPage() {
                 {money(result.salary.p25)} to {money(result.salary.p75)}
               </p>
               <p className="text-sm">Middle of the range: {money(result.salary.median)}</p>
+              {result.salary.concentrated && (
+                <p className="text-sm">
+                  Most of these ads list the same pay, often from one employer or pay scale, so this
+                  may not reflect the wider market.
+                </p>
+              )}
               <p className="text-xs text-zinc-500">
                 {CONFIDENCE_LABELS[result.salary.confidence]} ({result.salary.sampleSize} with pay
                 stated)
