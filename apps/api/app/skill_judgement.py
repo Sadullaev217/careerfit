@@ -20,7 +20,11 @@ from app.llm import LLMClient
 from app.profile_schema import ExtractedProfile
 from app.scoring import (
     CERTIFICATION_PREFIX,
+    DEGREE_EVIDENCE_PREFIX,
+    JOB_EVIDENCE_PREFIX,
     PROJECT_EVIDENCE_PREFIX,
+    RELATED_EVIDENCE_SUFFIX,
+    SKILL_EVIDENCE_PREFIX,
     JudgedSkill,
     credentials,
     skill_coverage,
@@ -36,7 +40,6 @@ MAX_ATTEMPTS = 2
 MIN_RELATED_SIMILARITY = 0.6
 # The AI called about a third of degrees "in this field" for unrelated occupations, so a yes needs backing.
 MIN_COVERAGE_TO_BACK_A_DEGREE = 0.2
-JOB_EVIDENCE_PREFIX = "Job title: "
 
 SKILLS_PROMPT = """You compare a person's background with the skills an occupation requires.
 
@@ -114,14 +117,16 @@ class SkillJudgements:
 
 
 def evidence_items(profile: ExtractedProfile) -> list[str]:
-    items = [f"Skill: {skill.name_en}" for skill in profile.skills]
+    items = [f"{SKILL_EVIDENCE_PREFIX}{skill.name_en}" for skill in profile.skills]
     items += [f"{JOB_EVIDENCE_PREFIX}{job.title_en}" for job in profile.work_history]
     for project in profile.projects:
         shows = f" ({', '.join(project.demonstrates_en)})" if project.demonstrates_en else ""
         items.append(f"{PROJECT_EVIDENCE_PREFIX}{project.name}{shows}")
     # Degrees come first in this list. A new graduate's studies are often their main evidence.
     for label, _ in credentials(profile):
-        items.append(label if label.startswith(CERTIFICATION_PREFIX) else f"Degree: {label}")
+        items.append(
+            label if label.startswith(CERTIFICATION_PREFIX) else f"{DEGREE_EVIDENCE_PREFIX}{label}"
+        )
     return items
 
 
@@ -214,7 +219,9 @@ def _credit_related_skills(
         name, similarity = _closest(_unit(vector), own)
         if similarity >= MIN_RELATED_SIMILARITY:
             updated[index] = JudgedSkill(
-                name=judged[index].name, level="partly", evidence=[f"Skill: {name} (a related skill)"]
+                name=judged[index].name,
+                level="partly",
+                evidence=[f"{SKILL_EVIDENCE_PREFIX}{name}{RELATED_EVIDENCE_SUFFIX}"],
             )
     return updated
 

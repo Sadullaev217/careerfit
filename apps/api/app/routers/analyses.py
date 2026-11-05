@@ -2,13 +2,14 @@ import logging
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from app import market_lookup, store
 from app.auth import CurrentUser, get_current_user
+from app.queueing import enqueue
 from app.recommendations import FullResult
 from app.tasks import run_analysis
 
@@ -26,7 +27,10 @@ class CamelModel(BaseModel):
 class StartAnalysisRequest(CamelModel):
     document_id: UUID
     role: str = Field(min_length=2, max_length=200)
+    # Set when the person picked a suggestion, so a title in any language still finds its occupation.
+    occupation_code: str | None = Field(default=None, max_length=10)
     region: str | None = Field(default=None, max_length=60)
+    language: Literal["en", "ru"] = "en"
 
 
 class AnalysisStarted(CamelModel):
@@ -36,6 +40,7 @@ class AnalysisStarted(CamelModel):
 class AnalysisResponse(CamelModel):
     id: str
     status: Literal["pending", "processing", "completed", "failed"]
+    stage: str | None
     document_id: str | None
     role: str | None
     region: str | None
@@ -55,6 +60,7 @@ def _to_response(row: dict[str, Any]) -> AnalysisResponse:
     return AnalysisResponse(
         id=row["id"],
         status=row["status"],
+        stage=row.get("stage"),
         document_id=row["document_id"],
         role=target.get("title"),
         region=target.get("region"),
@@ -67,7 +73,9 @@ def _to_response(row: dict[str, Any]) -> AnalysisResponse:
 
 
 @router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=AnalysisStarted)
-def start_analysis(user: User, body: StartAnalysisRequest) -> AnalysisStarted:
+def start_analysis(
+    user: User, body: StartAnalysisRequest, background: BackgroundTasks
+) -> AnalysisStarted:
     document_id = str(body.document_id)
     document = store.get_document(document_id, user.id)
     if document is None or document["type"] != "resume":
@@ -82,7 +90,13 @@ def start_analysis(user: User, body: StartAnalysisRequest) -> AnalysisStarted:
     role = body.role.strip()
     try:
         province = market_lookup.resolve_region(body.region)
-        match = market_lookup.resolve_occupation(role, store)
+        match = (
+            store.get_occupation(body.occupation_code)
+            if body.occupation_code
+            else market_lookup.resolve_occupation(role, store)
+        )
+        if match is None:
+            raise market_lookup.RoleNotFound
     except market_lookup.UnknownRegion:
         raise _error(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -101,9 +115,10 @@ def start_analysis(user: User, body: StartAnalysisRequest) -> AnalysisStarted:
         {"user_id": user.id, "target_role_id": target_role_id, "document_id": document_id}
     )
     try:
-        run_analysis.apply_async(
-            args=[row["id"], match["occupation_code"], match["occupation_name"], province],
-            retry=False,
+        enqueue(
+            run_analysis,
+            [row["id"], match["occupation_code"], match["occupation_name"], province, body.language],
+            background,
         )
     except OperationalError as exc:
         logger.error("analysis %s could not be queued", row["id"])

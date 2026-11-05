@@ -277,6 +277,7 @@ def test_the_formula_takes_no_protected_input() -> None:
         "as_of",
         "suspicious_content",
         "truncated",
+        "language",
     }
 
 

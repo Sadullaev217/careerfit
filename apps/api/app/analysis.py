@@ -5,6 +5,7 @@ from typing import Any, Protocol
 
 from app.llm import LLMClient
 from app.market_lookup import NATIONAL, requirements, salary_range, top_skills
+from app.messages import Language
 from app.profile_schema import ExtractedProfile
 from app.scoring import JudgedSkill, MarketSnapshot, ScoreInput, ScoreResult, score_profile
 from app.skill_judgement import Embed, judge_skills, judgement_key
@@ -55,6 +56,7 @@ def analyze(
     store: AnalysisStore,
     llm: LLMClient,
     embed: Embed,
+    language: Language = "en",
 ) -> ScoreResult:
     return score_profile(
         prepare_score_input(
@@ -68,6 +70,7 @@ def analyze(
             store=store,
             llm=llm,
             embed=embed,
+            language=language,
         )
     )
 
@@ -84,6 +87,7 @@ def prepare_score_input(
     store: AnalysisStore,
     llm: LLMClient,
     embed: Embed,
+    language: Language = "en",
 ) -> ScoreInput:
     profile = ExtractedProfile.model_validate(extraction["data"])
     stats = store.market_stats(occupation_code, region)
@@ -116,4 +120,5 @@ def prepare_score_input(
         as_of=as_of,
         suspicious_content=bool(extraction.get("suspicious_content")),
         truncated=bool(extraction.get("truncated")),
+        language=language,
     )

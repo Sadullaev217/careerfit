@@ -1,42 +1,52 @@
 {
   "default": {
     "name": "General",
+    "name_ru": "Общие профессии",
     "weights": { "required_skills": 40, "preferred_skills": 10, "experience": 20, "education": 15, "portfolio": 5, "seniority": 10 }
   },
   "0": {
     "name": "Senior management",
+    "name_ru": "Высшее руководство",
     "weights": { "required_skills": 30, "preferred_skills": 10, "experience": 30, "education": 10, "portfolio": 0, "seniority": 20 }
   },
   "2": {
     "name": "Natural and applied sciences",
+    "name_ru": "Естественные и прикладные науки",
     "weights": { "required_skills": 40, "preferred_skills": 10, "experience": 20, "education": 10, "portfolio": 15, "seniority": 5 }
   },
   "3": {
     "name": "Health",
+    "name_ru": "Здравоохранение",
     "weights": { "required_skills": 40, "preferred_skills": 5, "experience": 20, "education": 25, "portfolio": 0, "seniority": 10 }
   },
   "4": {
     "name": "Education, law, social and government services",
+    "name_ru": "Образование, право, социальные и государственные услуги",
     "weights": { "required_skills": 35, "preferred_skills": 5, "experience": 20, "education": 30, "portfolio": 0, "seniority": 10 }
   },
   "5": {
     "name": "Art, culture, recreation and sport",
+    "name_ru": "Искусство, культура, отдых и спорт",
     "weights": { "required_skills": 30, "preferred_skills": 10, "experience": 15, "education": 5, "portfolio": 30, "seniority": 10 }
   },
   "6": {
     "name": "Sales and service",
+    "name_ru": "Продажи и услуги",
     "weights": { "required_skills": 40, "preferred_skills": 10, "experience": 30, "education": 5, "portfolio": 5, "seniority": 10 }
   },
   "7": {
     "name": "Trades and transport",
+    "name_ru": "Рабочие профессии и транспорт",
     "weights": { "required_skills": 40, "preferred_skills": 10, "experience": 35, "education": 10, "portfolio": 0, "seniority": 5 }
   },
   "8": {
     "name": "Natural resources and agriculture",
+    "name_ru": "Природные ресурсы и сельское хозяйство",
     "weights": { "required_skills": 40, "preferred_skills": 10, "experience": 35, "education": 10, "portfolio": 0, "seniority": 5 }
   },
   "9": {
     "name": "Manufacturing and utilities",
+    "name_ru": "Производство и коммунальные услуги",
     "weights": { "required_skills": 40, "preferred_skills": 10, "experience": 35, "education": 10, "portfolio": 0, "seniority": 5 }
   }
 }

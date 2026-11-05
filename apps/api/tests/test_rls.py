@@ -139,6 +139,8 @@ def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> N
         "update public.analyses set score = 100",
         "insert into public.analyses (user_id, score) values (auth.uid(), 100)",
         "select * from public.skill_judgements",
+        "select * from public.term_translations",
+        "insert into public.term_translations (term, language, translation) values ('a', 'ru', 'b')",
         "update public.skill_judgements set result = '{}'",
         "update public.subscriptions set plan = 'pro'",
         "update public.documents set parsed_text = 'x'",

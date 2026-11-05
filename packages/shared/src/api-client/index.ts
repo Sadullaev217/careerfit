@@ -6,6 +6,8 @@ import type {
   TargetRole,
   Analysis,
   Me,
+  PlanInfo,
+  RoleSuggestion,
 } from '../types/index.js';
 import type { TargetRoleInput, PortfolioLinkInput } from '../schemas/index.js';
 
@@ -28,6 +30,14 @@ export function apiErrorMessage(error: unknown, fallback: string): string {
     if (typeof detail?.message === 'string') return detail.message;
   }
   return fallback;
+}
+
+export function apiErrorCode(error: unknown): string | null {
+  if (error instanceof ApiError) {
+    const detail = (error.body as { detail?: { code?: unknown } } | undefined)?.detail;
+    if (typeof detail?.code === 'string') return detail.code;
+  }
+  return null;
 }
 
 type GetToken = () => string | null | undefined | Promise<string | null | undefined>;
@@ -89,6 +99,7 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
     },
     account: {
       me: () => request<Me>('/me'),
+      plan: () => request<PlanInfo>('/account/plan'),
       delete: () => request<void>('/account', { method: 'DELETE' }),
     },
     documents: {
@@ -101,8 +112,12 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       analysis: (id: string) => request<DocumentAnalysis>(`/documents/${id}/profile`),
     },
     market: {
-      requirements: (role: string, region?: string) => {
-        const query = new URLSearchParams({ role, ...(region ? { region } : {}) });
+      roles: (query: string, language: 'en' | 'ru' = 'en') =>
+        request<RoleSuggestion[]>(
+          `/market/roles?${new URLSearchParams({ q: query, language }).toString()}`,
+        ),
+      requirements: (role: string, region?: string, language: 'en' | 'ru' = 'en') => {
+        const query = new URLSearchParams({ role, language, ...(region ? { region } : {}) });
         return request<MarketRequirements>(`/market/requirements?${query.toString()}`);
       },
     },
@@ -111,7 +126,13 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       list: () => request<TargetRole[]>('/target-roles'),
     },
     analyses: {
-      start: (data: { documentId: string; role: string; region?: string }) =>
+      start: (data: {
+        documentId: string;
+        role: string;
+        occupationCode?: string;
+        region?: string;
+        language?: 'en' | 'ru';
+      }) =>
         post<{ analysisId: string }>('/analyses', data),
       get: (id: string) => request<Analysis>(`/analyses/${id}`),
       list: () => request<Analysis[]>('/analyses'),

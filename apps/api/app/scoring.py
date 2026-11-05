@@ -15,21 +15,13 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
+from app.messages import Language, region_name, say, years
 from app.profile_schema import ExtractedProfile
 
 Level = Literal["yes", "partly", "no"]
 LEVEL_CREDIT: dict[str, float] = {"yes": 1.0, "partly": 0.5, "no": 0.0}
 
 WEIGHTS_PATH = Path(__file__).resolve().parents[1] / "data" / "score_weights.json"
-CATEGORY_LABELS = {
-    "required_skills": "Required skills",
-    "preferred_skills": "Other useful skills",
-    "experience": "Relevant experience",
-    "education": "Education",
-    "portfolio": "Portfolio",
-    "seniority": "Seniority",
-}
-
 # Few people show every skill in an official list. In testing, the right role averaged 52% coverage
 # and the best reached 90%, so this much coverage earns full marks.
 REQUIRED_COVERAGE_FOR_FULL_MARKS = 0.75
@@ -53,14 +45,14 @@ SALARY_BAND_WIDTH = 0.2
 MEDIUM_MARKET_SAMPLE = 100
 LOW_MARKET_SAMPLE = 30
 MIN_SKILLS_FOR_CONFIDENCE = 5
+SKILL_EVIDENCE_PREFIX = "Skill: "
+JOB_EVIDENCE_PREFIX = "Job title: "
 PROJECT_EVIDENCE_PREFIX = "Project: "
+DEGREE_EVIDENCE_PREFIX = "Degree: "
 CERTIFICATION_PREFIX = "Certification: "
+RELATED_EVIDENCE_SUFFIX = " (a related skill)"
 MIN_EVIDENCE_FOR_CONFIDENCE = 3
 LOW_FIT_SCORE = 25
-DISCLAIMER = (
-    "This is an estimate to help you plan, not a guarantee of being hired or of any salary. It was "
-    "made with AI, which can make mistakes."
-)
 
 # Checked in order, because labels overlap: "No degree, certificate or diploma" names a diploma.
 _EDUCATION_LEVELS = (
@@ -78,16 +70,6 @@ _EDUCATION_LEVELS = (
     (r"secondary|high school|среднее|школ", 1),
     (r"certificate|училище", 2),
 )
-_EDUCATION_NAMES = {
-    0: "no formal credential",
-    1: "secondary school",
-    2: "a certificate or trade qualification",
-    3: "a college diploma",
-    4: "a bachelor's degree",
-    5: "a master's degree",
-    6: "a doctorate or medical degree",
-}
-
 
 class NothingToScore(Exception):
     pass
@@ -169,6 +151,7 @@ class ScoreInput:
     as_of: date
     suspicious_content: bool = False
     truncated: bool = False
+    language: Language = "en"
 
 
 @lru_cache(maxsize=1)
@@ -260,43 +243,44 @@ def skill_coverage(skills: list[JudgedSkill]) -> float:
 
 
 def _skill_category(
-    skills: list[JudgedSkill], full_marks_at: float, what: str
+    skills: list[JudgedSkill], full_marks_at: float, what_key: str, language: str
 ) -> tuple[float | None, str]:
+    what = say(language, what_key)
     if not skills:
-        return None, f"We don't have a reliable list of {what} for this occupation."
-    shown = sum(skill.level == "yes" for skill in skills)
-    partly = sum(skill.level == "partly" for skill in skills)
-    return min(skill_coverage(skills) / full_marks_at, 1.0), (
-        f"Your resume shows {shown} and partly shows {partly} of the {len(skills)} {what} we checked. "
-        f"Covering {full_marks_at:.0%} earns full marks."
+        return None, say(language, "skills.no_list", what=what)
+    return min(skill_coverage(skills) / full_marks_at, 1.0), say(
+        language,
+        "skills.checked",
+        shown=sum(skill.level == "yes" for skill in skills),
+        partly=sum(skill.level == "partly" for skill in skills),
+        total=len(skills),
+        what=what,
+        percent=round(full_marks_at * 100),
     )
 
 
-def _years(value: float) -> str:
-    return f"{value:g} year" if value == 1 else f"{value:g} years"
-
-
 def _experience_category(data: ScoreInput) -> tuple[float | None, str, float | None]:
+    language = data.language
     target = target_years(data.market.experience)
     if target is None:
-        return None, "Job ads for this role rarely state the experience wanted.", None
-    years, unusable = relevant_years(data.profile, data.relevant_job_indexes, data.as_of)
+        return None, say(language, "experience.not_stated"), None
+    held, unusable = relevant_years(data.profile, data.relevant_job_indexes, data.as_of)
     titles = [
         data.profile.work_history[index].title_en
         for index in sorted(set(data.relevant_job_indexes))
         if 0 <= index < len(data.profile.work_history)
     ]
     found = (
-        f"You have {_years(years)} of relevant experience, counting: {', '.join(titles)}."
+        say(language, "experience.found", years=years(language, held), titles=", ".join(titles))
         if titles
-        else "We didn't find jobs in this occupation on your resume."
+        else say(language, "experience.none")
     )
-    note = f" {unusable} of these had no usable dates, so they aren't counted." if unusable else ""
+    note = say(language, "experience.undated", count=unusable) if unusable else ""
     if target == 0:
-        return 1.0, f"Most ads for this role don't require experience. {found}{note}", target
+        return 1.0, say(language, "experience.not_required", found=found, note=note), target
     return (
-        min(years / target, 1.0),
-        f"{found}{note} Typical ads ask for about {_years(target)}.",
+        min(held / target, 1.0),
+        say(language, "experience.target", found=found, note=note, target=years(language, target)),
         target,
     )
 
@@ -328,9 +312,10 @@ def _education_category(data: ScoreInput) -> tuple[float | None, str]:
             if (rank := education_rank(level)) is not None
         ]
     )
+    language = data.language
     if wanted is None:
-        return None, "Job ads for this role rarely state the education wanted."
-    wanted_name = _EDUCATION_NAMES[int(wanted)]
+        return None, say(language, "education.not_stated")
+    wanted_name = say(language, f"education.level.{int(wanted)}")
     relevant = set(data.relevant_credential_indexes)
     found = [
         (_credential_credit(rank, index in relevant, wanted), rank, index in relevant)
@@ -339,15 +324,15 @@ def _education_category(data: ScoreInput) -> tuple[float | None, str]:
     if not found:
         return (
             1.0 if wanted == 0 else 0.0,
-            f"Typical ads ask for {wanted_name}. We couldn't find a credential on your resume.",
+            say(language, "education.none", wanted=wanted_name),
         )
     credit, rank, in_field = max(found)
-    name = _EDUCATION_NAMES[rank]
+    name = say(language, f"education.level.{rank}")
     if wanted > BASIC_SCHOOLING_RANK and rank >= wanted and not in_field:
-        return credit, f"Typical ads ask for {wanted_name}. You have {name}, but not clearly in this field."
+        return credit, say(language, "education.other_field", wanted=wanted_name, name=name)
     if rank >= wanted:
-        return credit, f"Typical ads ask for {wanted_name}, and you have {name}."
-    return credit, f"Typical ads ask for {wanted_name}, and we found {name}."
+        return credit, say(language, "education.met", wanted=wanted_name, name=name)
+    return credit, say(language, "education.below", wanted=wanted_name, name=name)
 
 
 def _portfolio_category(data: ScoreInput) -> tuple[float, str]:
@@ -359,22 +344,31 @@ def _portfolio_category(data: ScoreInput) -> tuple[float, str]:
         if item.startswith(PROJECT_EVIDENCE_PREFIX)
     }
     items = len(projects) + data.portfolio_links
-    return min(items / PORTFOLIO_ITEMS_FOR_FULL_MARKS, 1.0), (
-        f"{len(projects)} project(s) on your resume support skills for this role, and you added "
-        f"{data.portfolio_links} portfolio link(s). {PORTFOLIO_ITEMS_FOR_FULL_MARKS} items earn full marks."
+    return min(items / PORTFOLIO_ITEMS_FOR_FULL_MARKS, 1.0), say(
+        data.language,
+        "portfolio.reason",
+        projects=len(projects),
+        links=data.portfolio_links,
+        full=PORTFOLIO_ITEMS_FOR_FULL_MARKS,
     )
 
 
 def _seniority_category(data: ScoreInput, target: float | None) -> tuple[float | None, str]:
+    language = data.language
     level = data.profile.seniority
     if level == "unknown" or target is None:
-        return None, "We couldn't compare your level with this role."
+        return None, say(language, "seniority.unknown")
     if not data.relevant_job_indexes:
-        return 0.0, "We didn't find work in this occupation to compare your level with."
+        return 0.0, say(language, "seniority.no_work")
     expected = "senior" if target >= 5 else "mid" if target >= 1 else "junior"
     gap = SENIORITY_ORDER.index(expected) - SENIORITY_ORDER.index(level)
     credit = 1.0 if gap <= 0 else 0.6 if gap == 1 else 0.25 if gap == 2 else 0.0
-    return credit, f"Your resume reads as {level}, and typical ads suit {expected} level."
+    return credit, say(
+        language,
+        "seniority.compared",
+        level=say(language, f"seniority.level.{level}"),
+        expected=say(language, f"seniority.level.{expected}"),
+    )
 
 
 def _whole_numbers(values: dict[str, float]) -> dict[str, int]:
@@ -396,7 +390,7 @@ def _salary(
     position = sum(known) / len(known) if known else 0.5
     spread = market["p75"] - market["p25"]
     centre = market["p25"] + spread * position
-    caveat = " Your match is low, so this is what you could reach once you qualify." if score < LOW_FIT_SCORE else ""
+    caveat = say(data.language, "salary.caveat") if score < LOW_FIT_SCORE else ""
     return ProfileSalary(
         low=round(max(centre - spread * SALARY_BAND_WIDTH, market["p25"])),
         high=round(min(centre + spread * SALARY_BAND_WIDTH, market["p75"])),
@@ -405,9 +399,12 @@ def _salary(
         sample_size=market["sample_size"],
         region=market["region"],
         concentrated=market["concentrated"],
-        basis=(
-            f"Placed within the middle half of {market['sample_size']} job ads in {market['region']}, "
-            f"based on your experience and skills.{caveat}"
+        basis=say(
+            data.language,
+            "salary.basis",
+            count=market["sample_size"],
+            region=region_name(data.language, market["region"]),
+            caveat=caveat,
         ),
     )
 
@@ -416,43 +413,45 @@ def _confidence(data: ScoreInput) -> Confidence:
     reasons: list[str] = []
     level: Literal["low", "medium", "high"] = "high"
 
-    def lower_to(new: Literal["low", "medium"], reason: str) -> None:
+    def lower_to(new: Literal["low", "medium"], key: str, **values: object) -> None:
         nonlocal level
-        reasons.append(reason)
+        reasons.append(say(data.language, f"confidence.{key}", **values))
         if new == "low" or level == "high":
             level = new
 
     size = data.market.sample_size
-    if size < LOW_MARKET_SAMPLE:
-        count = f"Only {size}" if size else "No"
-        lower_to("low", f"{count} job ads for this role and region.")
+    if size == 0:
+        lower_to("low", "no_ads")
+    elif size < LOW_MARKET_SAMPLE:
+        lower_to("low", "few_ads", count=size)
     elif size < MEDIUM_MARKET_SAMPLE:
-        lower_to("medium", f"A moderate number of job ads for this role and region ({size}).")
+        lower_to("medium", "moderate_ads", count=size)
     if data.market.used_national_requirements:
-        lower_to("medium", "Few local ads state the education or experience wanted, so we used all of Canada.")
+        lower_to("medium", "used_national")
     if len(data.required) < MIN_SKILLS_FOR_CONFIDENCE:
-        lower_to("low", "There is little official skill information for this occupation.")
+        lower_to("low", "little_skill_info")
     profile = data.profile
     evidence = len(profile.skills) + len(profile.work_history) + len(profile.projects) + len(credentials(profile))
     if evidence < MIN_EVIDENCE_FOR_CONFIDENCE:
-        lower_to("low", "Your resume gave us little to go on, so treat this as a rough guide.")
+        lower_to("low", "little_evidence")
     if data.market.salary and data.market.salary["concentrated"]:
-        lower_to("medium", "Most ads list the same pay, often from one employer or pay scale.")
+        lower_to("medium", "concentrated")
     if data.suspicious_content:
-        lower_to("low", "Your resume contained text aimed at AI tools, which we removed.")
+        lower_to("low", "suspicious")
     if data.truncated:
-        lower_to("medium", "Your resume was very long, so only the first part was read.")
+        lower_to("medium", "truncated")
     if not reasons:
-        reasons.append("Plenty of job ads and a full skill list for this occupation.")
+        reasons.append(say(data.language, "confidence.plenty"))
     return Confidence(level=level, reasons=reasons)
 
 
 def score_profile(data: ScoreInput) -> ScoreResult:
+    language = data.language
     required_credit, required_reason = _skill_category(
-        data.required, REQUIRED_COVERAGE_FOR_FULL_MARKS, "required skills"
+        data.required, REQUIRED_COVERAGE_FOR_FULL_MARKS, "what.required", language
     )
     preferred_credit, preferred_reason = _skill_category(
-        data.preferred, PREFERRED_COVERAGE_FOR_FULL_MARKS, "other useful skills"
+        data.preferred, PREFERRED_COVERAGE_FOR_FULL_MARKS, "what.preferred", language
     )
     experience_credit, experience_reason, target = _experience_category(data)
     education_credit, education_reason = _education_category(data)
@@ -479,10 +478,11 @@ def score_profile(data: ScoreInput) -> ScoreResult:
 
     not_scored: list[str] = []
     for key, (credit, reason) in results.items():
+        label = say(language, f"category.{key}")
         if not base[key]:
-            not_scored.append(f"{CATEGORY_LABELS[key]}: not usually weighed in this field.")
+            not_scored.append(say(language, "not_weighed", label=label))
         elif credit is None:
-            not_scored.append(f"{CATEGORY_LABELS[key]}: {reason}")
+            not_scored.append(f"{label}: {reason}")
 
     score = sum(points.values())
     return ScoreResult(
@@ -490,7 +490,7 @@ def score_profile(data: ScoreInput) -> ScoreResult:
         categories=[
             Category(
                 key=key,
-                label=CATEGORY_LABELS[key],
+                label=say(language, f"category.{key}"),
                 max_points=max_points[key],
                 points=points[key],
                 reason=results[key][1],
@@ -505,8 +505,8 @@ def score_profile(data: ScoreInput) -> ScoreResult:
         occupation_code=data.market.occupation_code,
         occupation_name=data.market.occupation_name,
         region=data.market.region,
-        weights_used=config["name"],
+        weights_used=config["name_ru"] if language == "ru" else config["name"],
         as_of=data.as_of.isoformat(),
         market_latest_posting=data.market.latest_posting,
-        disclaimer=DISCLAIMER,
+        disclaimer=say(language, "disclaimer"),
     )

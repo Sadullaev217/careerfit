@@ -13,7 +13,9 @@ from app.embeddings import embed_texts
 from app.extraction import ExtractionFailed, extract_profile
 from app.job_sources import JobBankProvider
 from app.llm import LLMUnavailable, get_llm
+from app.localization import localized_score
 from app.market_data import refresh_market_data
+from app.messages import Language
 from app.parsing import ParseFailure, extract_text
 from app.recommendations import FullResult, Report, build_report
 from app.scoring import NothingToScore, ScoreResult, score_profile
@@ -153,7 +155,7 @@ def extract_resume(self: Any, document_id: str) -> None:
 
 
 def _fail_analysis(analysis_id: str, code: str) -> None:
-    store.update_analysis(analysis_id, {"status": "failed", "error_code": code})
+    store.update_analysis(analysis_id, {"status": "failed", "stage": None, "error_code": code})
 
 
 def _finish_analysis(
@@ -168,6 +170,7 @@ def _finish_analysis(
         analysis_id,
         {
             "status": "completed",
+            "stage": None,
             "score": scored.score,
             "result": result.model_dump(),
             "error_code": None,
@@ -194,7 +197,12 @@ def _end_analysis_early(
     time_limit=630,
 )
 def run_analysis(
-    self: Any, analysis_id: str, occupation_code: str, occupation_name: str, region: str | None
+    self: Any,
+    analysis_id: str,
+    occupation_code: str,
+    occupation_name: str,
+    region: str | None,
+    language: Language = "en",
 ) -> None:
     row = store.get_analysis(analysis_id)
     if row is None:
@@ -207,7 +215,9 @@ def run_analysis(
     if extraction is None:
         _fail_analysis(analysis_id, "resume_not_found")
         return
-    store.update_analysis(analysis_id, {"status": "processing", "error_code": None})
+    store.update_analysis(
+        analysis_id, {"status": "processing", "stage": "matching", "error_code": None}
+    )
 
     now = datetime.now(UTC)
     scored: ScoreResult | None = None
@@ -223,17 +233,23 @@ def run_analysis(
     }
     try:
         data = prepare_score_input(
-            occupation_code=occupation_code, occupation_name=occupation_name, **context
+            occupation_code=occupation_code,
+            occupation_name=occupation_name,
+            language=language,
+            **context,
         )
-        scored = score_profile(data)
+        original = score_profile(data)
+        scored = localized_score(original, language, context["llm"], store)
         # Recommendations take another minute or so, and the score shouldn't have to wait for them.
         store.update_analysis(
-            analysis_id, {"score": scored.score, "result": scored.model_dump()}
+            analysis_id,
+            {"stage": "planning", "score": scored.score, "result": scored.model_dump()},
         )
         report = build_report(
             data=data,
-            result=scored,
+            result=original,
             resume_text=store.get_parsed_text(row["document_id"]),
+            on_stage=lambda stage: store.update_analysis(analysis_id, {"stage": stage}),
             **context,
         )
     except SkillJudgementFailed:

@@ -13,10 +13,11 @@ DOCUMENT_COLUMNS = (
     "extraction_status,extraction_error,created_at"
 )
 ANALYSIS_COLUMNS = (
-    "id,user_id,document_id,status,score,result,error_code,created_at,completed_at,"
+    "id,user_id,document_id,status,stage,score,result,error_code,created_at,completed_at,"
     "target_roles(title,region)"
 )
 _LIST_PAGE_SIZE = 1000
+_TRANSLATIONS_PER_REQUEST = 50
 _MAX_LIST_PAGES = 100
 
 
@@ -200,6 +201,83 @@ def skill_names_by_esco_uri() -> dict[str, str]:
 def match_occupation(embedding: list[float]) -> dict[str, Any] | None:
     rows = _rows(
         _client().post("/rest/v1/rpc/match_occupation", json={"query_embedding": embedding})
+    )
+    return rows[0] if rows else None
+
+
+def get_occupation(code: str) -> dict[str, Any] | None:
+    rows = _rows(
+        _client().get("/rest/v1/occupations", params={"code": f"eq.{code}", "select": "code,name"})
+    )
+    if not rows:
+        return None
+    return {"occupation_code": rows[0]["code"], "occupation_name": rows[0]["name"]}
+
+
+def search_occupation_titles(query: str, count: int) -> list[dict[str, Any]]:
+    """The query must already be limited to plain words, since * is a wildcard here."""
+    rows = _rows(
+        _client().get(
+            "/rest/v1/occupation_titles",
+            params={
+                "title": f"ilike.*{query}*",
+                "select": "title,occupation_code,occupations(name)",
+                "order": "posting_count.desc,title",
+                "limit": str(count),
+            },
+        )
+    )
+    return [
+        {
+            "title": row["title"],
+            "occupation_code": row["occupation_code"],
+            "occupation_name": row["occupations"]["name"],
+        }
+        for row in rows
+    ]
+
+
+def list_occupations() -> list[dict[str, Any]]:
+    return _rows(_client().get("/rest/v1/occupations", params={"select": "code,name", "order": "code"}))
+
+
+def get_translations(terms: list[str], language: str) -> dict[str, str]:
+    found: dict[str, str] = {}
+    for start in range(0, len(terms), _TRANSLATIONS_PER_REQUEST):
+        batch = terms[start : start + _TRANSLATIONS_PER_REQUEST]
+        # Names contain commas and brackets, which would otherwise end the list early.
+        quoted = ",".join('"' + term.replace("\\", "\\\\").replace('"', '\\"') + '"' for term in batch)
+        rows = _rows(
+            _client().get(
+                "/rest/v1/term_translations",
+                params={
+                    "language": f"eq.{language}",
+                    "term": f"in.({quoted})",
+                    "select": "term,translation",
+                },
+            )
+        )
+        found.update({row["term"]: row["translation"] for row in rows})
+    return found
+
+
+def save_translations(translations: dict[str, str], language: str) -> None:
+    _upsert(
+        "term_translations",
+        "term,language",
+        [
+            {"term": term, "language": language, "translation": translation}
+            for term, translation in translations.items()
+        ],
+    )
+
+
+def get_subscription(user_id: str) -> dict[str, Any] | None:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/subscriptions",
+            params={"user_id": f"eq.{user_id}", "select": "plan,status"},
+        )
     )
     return rows[0] if rows else None
 

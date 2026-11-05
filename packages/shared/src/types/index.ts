@@ -13,6 +13,17 @@ export interface Me {
   email: string | null;
 }
 
+export interface PlanInfo {
+  plan: SubscriptionPlan;
+  status: string;
+}
+
+export interface RoleSuggestion {
+  title: string;
+  occupationCode: string;
+  occupationName: string;
+}
+
 export interface Profile {
   id: string;
   displayName: string | null;
@@ -29,6 +40,7 @@ export interface Document {
   errorCode: string | null;
   errorMessage: string | null;
   extractionStatus: 'pending' | 'running' | 'ready' | 'failed' | null;
+  extractionErrorCode: string | null;
   extractionErrorMessage: string | null;
   createdAt: string;
 }
@@ -221,6 +233,7 @@ export interface Report {
 export interface Analysis {
   id: string;
   status: AnalysisStatus;
+  stage: 'matching' | 'planning' | 'alternatives' | null;
   documentId: string | null;
   role: string | null;
   region: string | null;

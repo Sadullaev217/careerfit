@@ -5,6 +5,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from app import market_lookup
 from app.routers import market
 from scripts import build_occupation_map as mapper
 from scripts.seed_market import (
@@ -285,6 +286,83 @@ def test_summary_handles_missing_fields() -> None:
 
 def esco_client(handler: Any) -> httpx.Client:
     return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+class RoleSource:
+    def __init__(self, titles: list[dict[str, Any]], nearest: list[dict[str, Any]] | None = None) -> None:
+        self.titles = titles
+        self.nearest = nearest or []
+        self.queries: list[str] = []
+
+    def search_occupation_titles(self, query: str, count: int) -> list[dict[str, Any]]:
+        self.queries.append(query)
+        return self.titles
+
+    def match_occupations(self, _embedding: list[float], _count: int) -> list[dict[str, Any]]:
+        return self.nearest
+
+
+TITLE = {"title": "accountant", "occupation_code": "11100", "occupation_name": "Accountants"}
+NEAR = {"occupation_code": "11100", "occupation_name": "Accountants", "similarity": 0.8}
+FAR = {"occupation_code": "63200", "occupation_name": "Cooks", "similarity": 0.3}
+
+
+def test_role_suggestions_prefer_matching_titles() -> None:
+    assert market_lookup.suggest_roles("account", RoleSource([TITLE])) == [TITLE]
+
+
+def test_role_suggestions_fall_back_to_meaning_for_other_languages(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("app.embeddings.embed_texts", lambda texts: [[0.1] for _ in texts])
+    assert market_lookup.suggest_roles("бухгалтер", RoleSource([], [NEAR, FAR])) == [
+        {"title": "Accountants", "occupation_code": "11100", "occupation_name": "Accountants"}
+    ]
+
+
+def test_role_suggestions_strip_characters_that_mean_something_to_the_database() -> None:
+    source = RoleSource([TITLE])
+    market_lookup.suggest_roles("acc*ount),(x", source)
+    assert source.queries == ["acc ount x"]
+
+
+def test_requirements_use_saved_russian_names_without_asking_the_ai(
+    client: TestClient, fake_market: FakeMarket
+) -> None:
+    saved = {"Financial auditors and accountants": "Аудиторы и бухгалтеры"}
+    fake_market.get_translations = lambda terms, _language: {  # type: ignore[attr-defined]
+        term: saved[term] for term in terms if term in saved
+    }
+    response = client.get(
+        "/market/requirements",
+        params={"role": "accountant", "language": "ru"},
+        headers=auth_headers(),
+    )
+    assert response.status_code == 200
+    assert response.json()["occupationName"] == "Аудиторы и бухгалтеры"
+
+
+def test_english_lookups_never_read_translations(client: TestClient, fake_market: FakeMarket) -> None:
+    response = client.get(
+        "/market/requirements", params={"role": "accountant"}, headers=auth_headers()
+    )
+    assert response.status_code == 200
+    assert response.json()["occupationName"] == "Financial auditors and accountants"
+
+
+def test_an_unsupported_language_is_refused(client: TestClient, fake_market: FakeMarket) -> None:
+    response = client.get(
+        "/market/requirements",
+        params={"role": "accountant", "language": "de"},
+        headers=auth_headers(),
+    )
+    assert response.status_code == 422
+
+
+def test_too_short_a_search_returns_nothing() -> None:
+    source = RoleSource([TITLE])
+    assert market_lookup.suggest_roles(" *a ", source) == []
+    assert source.queries == []
 
 
 def test_esco_server_errors_are_retried(monkeypatch: pytest.MonkeyPatch) -> None:

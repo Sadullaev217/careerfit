@@ -1,4 +1,5 @@
 import json
+import re
 from copy import deepcopy
 from datetime import date
 from typing import Any
@@ -84,6 +85,11 @@ class FakeLLM:
             return json.dumps({"actions": [ACTION_ANSWER]})
         if "rewrites" in properties:
             return json.dumps({"rewrites": [REWRITE_ANSWER]})
+        if "translations" in properties:
+            terms = re.findall(r"^(\d+)\. (.+)$", user, re.MULTILINE)
+            return json.dumps(
+                {"translations": [{"number": int(n), "text": f"перевод {term}"} for n, term in terms]}
+            )
         return json.dumps(RELEVANCE_ANSWER)
 
 
@@ -94,9 +100,16 @@ class AnalysisFakeStore(FakeStore):
         self.judgements: dict[tuple[str, str], dict[str, Any]] = {}
         self.target_roles: list[dict[str, str]] = []
         self.market_error: Exception | None = None
+        self.translations: dict[str, str] = {}
 
     def match_occupation(self, _embedding: list[float]) -> dict[str, Any] | None:
         return MATCH
+
+    def get_occupation(self, code: str) -> dict[str, Any] | None:
+        names = {"31301": "Registered nurses"}
+        if code not in names:
+            return None
+        return {"occupation_code": code, "occupation_name": names[code]}
 
     def match_occupations(self, _embedding: list[float], _count: int) -> list[dict[str, Any]]:
         return [{"occupation_code": "21231", "occupation_name": "Software engineers", "similarity": 0.9}]
@@ -154,6 +167,12 @@ class AnalysisFakeStore(FakeStore):
     def save_skill_judgement(self, document_id: str, key: str, result: dict[str, Any]) -> None:
         self.judgements[(document_id, key)] = json.loads(json.dumps(result))
 
+    def get_translations(self, terms: list[str], _language: str) -> dict[str, str]:
+        return {term: self.translations[term] for term in terms if term in self.translations}
+
+    def save_translations(self, translations: dict[str, str], _language: str) -> None:
+        self.translations.update(translations)
+
 
 class FakeQueue:
     def __init__(self) -> None:
@@ -163,6 +182,9 @@ class FakeQueue:
     def apply_async(self, args: list[Any], retry: bool = True) -> None:
         if self.error:
             raise self.error
+        self.calls.append(args)
+
+    def apply(self, args: list[Any]) -> None:
         self.calls.append(args)
 
 
@@ -226,7 +248,7 @@ def test_starting_queues_the_job_and_saves_the_role(
     response = start(client, add_resume(store))
     assert response.status_code == 202
     analysis_id = response.json()["analysisId"]
-    assert queue.calls == [[analysis_id, "21232", MATCH["occupation_name"], "Ontario"]]
+    assert queue.calls == [[analysis_id, "21232", MATCH["occupation_name"], "Ontario", "en"]]
     assert store.target_roles == [
         {"user_id": USER_ID, "title": "software developer", "region": "Ontario"}
     ]
@@ -454,7 +476,7 @@ def test_ready_portfolio_links_count_and_failed_ones_dont(
     start(client, add_resume(store))
     result = store.analyses[run(store, queue)]["result"]
     portfolio = next(c for c in result["categories"] if c["key"] == "portfolio")
-    assert "1 portfolio link(s)" in portfolio["reason"]
+    assert "Portfolio links you added: 1." in portfolio["reason"]
 
 
 def test_the_full_report_is_saved_with_the_score(
@@ -553,6 +575,103 @@ def test_an_ai_outage_during_recommendations_keeps_the_score(
     assert row["status"] == "completed"
     assert row["score"] is not None
     assert row["result"]["report_error"] == "ai_unavailable"
+
+
+def test_picking_a_suggestion_skips_guessing_the_occupation(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def no_guessing(_embedding: list[float]) -> None:
+        raise AssertionError("should not search")
+
+    monkeypatch.setattr(store, "match_occupation", no_guessing)
+    response = start(client, add_resume(store), role="медсестра", occupationCode="31301", language="ru")
+    assert response.status_code == 202
+    assert queue.calls[0][1:] == ["31301", "Registered nurses", "Ontario", "ru"]
+
+
+def test_an_unknown_occupation_code_is_refused(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    response = start(client, add_resume(store), occupationCode="99999")
+    assert response.status_code == 404
+    assert response.json()["detail"]["code"] == "role_not_found"
+    assert queue.calls == []
+
+
+def test_an_unsupported_language_is_refused(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    assert start(client, add_resume(store), language="de").status_code == 422
+
+
+def test_without_a_queue_the_job_runs_after_the_response(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    from app.celery_app import celery_app
+
+    # Restored by the conftest fixture. Monkeypatching this setting breaks at teardown.
+    celery_app.conf.task_always_eager = True
+    queue.error = OperationalError("the queue must not be used")
+    response = start(client, add_resume(store))
+    assert response.status_code == 202
+    assert len(queue.calls) == 1
+
+
+def test_progress_stages_are_recorded(
+    client: TestClient,
+    store: AnalysisFakeStore,
+    queue: FakeQueue,
+    llm: FakeLLM,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    stages: list[str | None] = []
+    original = store.update_analysis
+
+    def spy(analysis_id: str, fields: dict[str, Any]) -> None:
+        if "stage" in fields:
+            stages.append(fields["stage"])
+        original(analysis_id, fields)
+
+    monkeypatch.setattr(store, "update_analysis", spy)
+    start(client, add_resume(store))
+    run(store, queue)
+    assert stages == ["matching", "planning", "alternatives", None]
+
+
+def test_a_russian_analysis_is_saved_in_russian_with_the_same_score(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    document_id = add_resume(store)
+    start(client, document_id)
+    english = store.analyses[run(store, queue)]
+    start(client, document_id, language="ru")
+    russian = store.analyses[run(store, queue)]
+    assert russian["score"] == english["score"]
+    result = russian["result"]
+    assert result["required_skills"][0]["name"] == "перевод computer programming"
+    assert result["required_skills"][0]["evidence"] == ["Навык: Python"]
+    assert result["occupation_name"].startswith("перевод")
+    assert re.search("[А-Яа-я]", result["categories"][0]["reason"])
+    assert result["report"]["alternative_roles"][0]["occupation_name"] == "перевод Software engineers"
+    assert re.search("[А-Яа-я]", result["report"]["alternative_roles"][0]["reason"])
+    assert re.search("[А-Яа-я]", result["disclaimer"])
+
+
+def test_translations_are_saved_for_next_time(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    document_id = add_resume(store)
+    start(client, document_id, language="ru")
+    run(store, queue)
+    assert store.translations["computer programming"] == "перевод computer programming"
+    calls = llm.calls
+    start(client, document_id, language="ru")
+    run(store, queue)
+    # Only the suggested actions are asked for again.
+    assert llm.calls == calls + 1
 
 
 def test_a_deleted_resume_fails_cleanly(

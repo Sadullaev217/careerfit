@@ -9,7 +9,6 @@ import pytest
 
 from app.profile_schema import ExtractedProfile
 from app.scoring import (
-    DISCLAIMER,
     EXPERIENCE_BAND_YEARS,
     WEIGHTS_PATH,
     JudgedSkill,
@@ -534,7 +533,7 @@ def test_only_projects_backing_a_skill_count() -> None:
 
 def test_the_same_project_counted_once_however_often_cited() -> None:
     result = score_profile(make_input(required=judged("yyy", "Project: Ledger"), portfolio_links=0))
-    assert "1 project(s)" in next(c.reason for c in result.categories if c.key == "portfolio")
+    assert "for this role: 1." in next(c.reason for c in result.categories if c.key == "portfolio")
 
 
 def test_portfolio_links_count() -> None:
@@ -650,7 +649,7 @@ def test_lower_reason_cant_raise_confidence_back_up() -> None:
 
 def test_result_carries_the_disclaimer_and_its_inputs() -> None:
     result = score_profile(make_input())
-    assert result.disclaimer == DISCLAIMER
+    assert "not a guarantee" in result.disclaimer
     assert result.as_of == "2026-11-04"
     assert result.market_latest_posting == "2026-10-30"
     assert result.weights_used == "Natural and applied sciences"

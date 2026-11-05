@@ -14,7 +14,9 @@ from pydantic import BaseModel, ValidationError
 
 from app.analysis import AnalysisStore, analyze
 from app.llm import LLMClient
+from app.localization import TermStore, translate_terms
 from app.market_lookup import top_skills
+from app.messages import say, weeks
 from app.resume_sanitizer import sanitize_resume
 from app.scoring import (
     MIN_SKILLS_FOR_CONFIDENCE,
@@ -86,9 +88,11 @@ _INVENTED_DETAIL = re.compile(
     https?:// | www\. | \b[\w-]+\.(com|org|net|io|ca|ru)\b
     | \d\s*% | \bpercent | \$\s?\d | \bstatistic | \bstud(y|ies)\s+(show|found)
     | \bguarantee | \bon\s+average\b | ["“”«»]
+    | \bпроцент | \bстатистик | \bгарантир | \bв\s+среднем\b | \bисследовани[яй]\s+показ
     """,
     re.IGNORECASE | re.VERBOSE,
 )
+_CYRILLIC = re.compile(r"[А-Яа-яЁё]")
 _NUMBER = re.compile(r"\d+")
 _WORD = re.compile(r"[^\W\d_][\w+#-]*")
 _ENDS_WITH_DATE = re.compile(r"(\b(19|20)\d{2}|\bpresent|\bнастоящее время)\W*$", re.IGNORECASE)
@@ -163,6 +167,9 @@ Rules:
 Return only JSON: {"rewrites": [{"line": <number>, "after": "..."}]}"""
 
 
+WRITE_IN_RUSSIAN = 'Write "title", "details" and "expected_result" in Russian.'
+
+
 class Gap(CamelModel):
     kind: Literal["required_skill", "preferred_skill", "experience", "education", "portfolio"]
     title: str
@@ -219,7 +226,7 @@ class FullResult(ScoreResult):
     report_error: str | None = None
 
 
-class RecommendationStore(AnalysisStore, Protocol):
+class RecommendationStore(AnalysisStore, TermStore, Protocol):
     def match_occupations(self, embedding: list[float], count: int) -> list[dict[str, Any]]: ...
 
 
@@ -265,16 +272,8 @@ def _skill_gaps(
             else replace(data, preferred=closed)
         )
         gain = score_profile(improved).score - result.score
-        found = (
-            "Only partly shown on your resume."
-            if skill.level == "partly"
-            else "Not found on your resume."
-        )
-        listed = (
-            "Essential in the official list for this occupation."
-            if kind == "required_skill"
-            else "Useful in the official list for this occupation."
-        )
+        found = say(data.language, "gap.partly" if skill.level == "partly" else "gap.missing")
+        listed = say(data.language, "gap.essential" if kind == "required_skill" else "gap.useful")
         gaps.append(
             Gap(kind=kind, title=skill.name, points_available=gain, detail=f"{found} {listed}")
         )
@@ -287,18 +286,17 @@ def find_gaps(data: ScoreInput, result: ScoreResult) -> list[Gap]:
         *_skill_gaps(data, result, data.required, "required_skill"),
         *_skill_gaps(data, result, data.preferred, "preferred_skill"),
     ]
-    titles: dict[str, tuple[Literal["experience", "education", "portfolio"], str]] = {
-        "experience": ("experience", "Experience in this occupation"),
-        "education": ("education", "The education employers usually ask for"),
-        "portfolio": ("portfolio", "Portfolio work that shows these skills"),
+    kinds: dict[str, Literal["experience", "education", "portfolio"]] = {
+        "experience": "experience",
+        "education": "education",
+        "portfolio": "portfolio",
     }
     for category in result.categories:
-        if category.key in titles and category.points < category.max_points:
-            kind, title = titles[category.key]
+        if category.key in kinds and category.points < category.max_points:
             gaps.append(
                 Gap(
-                    kind=kind,
-                    title=title,
+                    kind=kinds[category.key],
+                    title=say(data.language, f"gap.{category.key}"),
                     points_available=category.max_points - category.points,
                     detail=category.reason,
                 )
@@ -318,16 +316,16 @@ def _invents_detail(*texts: str) -> bool:
     return any(_INVENTED_DETAIL.search(text) for text in texts)
 
 
-def _template_action(gap: Gap) -> Action:
+def _template_action(gap: Gap, language: str, name: str) -> Action:
     """Used when the AI's suggestion fails a check, so every top gap still gets a safe next step."""
     priority = _priority(gap.points_available)
     if gap.kind == "experience":
         return Action(
-            gap=gap.title,
+            gap=name,
             kind="experience",
-            title="Get practice in this line of work",
-            details="Look for volunteering, a placement or an entry-level role in this occupation.",
-            expected_result="Real experience you can add to your resume.",
+            title=say(language, "action.experience.title"),
+            details=say(language, "action.experience.details"),
+            expected_result=say(language, "action.experience.expected"),
             providers=["a government employment service"],
             effort_weeks=12,
             priority=priority,
@@ -335,11 +333,11 @@ def _template_action(gap: Gap) -> Action:
         )
     if gap.kind == "education":
         return Action(
-            gap=gap.title,
+            gap=name,
             kind="course",
-            title="Check which credential employers expect",
-            details="Compare a few job ads you want, then see which programs lead to that credential.",
-            expected_result="A clear idea of the credential you need and where to get it.",
+            title=say(language, "action.education.title"),
+            details=say(language, "action.education.details"),
+            expected_result=say(language, "action.education.expected"),
             providers=["a local college", "a professional association"],
             effort_weeks=2,
             priority=priority,
@@ -347,22 +345,22 @@ def _template_action(gap: Gap) -> Action:
         )
     if gap.kind == "portfolio":
         return Action(
-            gap=gap.title,
+            gap=name,
             kind="project",
-            title="Add a project that shows your skills",
-            details="Complete a small piece of work for this occupation and describe it on your resume.",
-            expected_result="A finished example you can show employers.",
+            title=say(language, "action.portfolio.title"),
+            details=say(language, "action.portfolio.details"),
+            expected_result=say(language, "action.portfolio.expected"),
             providers=[],
             effort_weeks=4,
             priority=priority,
             uncertain=False,
         )
     return Action(
-        gap=gap.title,
+        gap=name,
         kind="course",
-        title=f"Build this skill: {gap.title}",
-        details="Take a short course on this topic, then use it in real work or a small project.",
-        expected_result="This skill, with an example you can add to your resume.",
+        title=say(language, "action.skill.title", skill=name),
+        details=say(language, "action.skill.details"),
+        expected_result=say(language, "action.skill.expected"),
         providers=["Coursera", "a local college"],
         effort_weeks=4,
         priority=priority,
@@ -370,7 +368,7 @@ def _template_action(gap: Gap) -> Action:
     )
 
 
-def _checked_action(answer: _ActionAnswer, gap: Gap) -> Action | None:
+def _checked_action(answer: _ActionAnswer, gap: Gap, language: str, name: str) -> Action | None:
     title, details, expected = (
         answer.title.strip(),
         answer.details.strip(),
@@ -380,9 +378,12 @@ def _checked_action(answer: _ActionAnswer, gap: Gap) -> Action | None:
         return None
     if max(len(title), len(details), len(expected)) > MAX_TEXT_CHARS:
         return None
+    # A step left in English would be unreadable to someone who asked for Russian.
+    if language == "ru" and not _CYRILLIC.search(details):
+        return None
     named = {provider.lower() for provider in answer.providers}
     return Action(
-        gap=gap.title,
+        gap=name,
         kind=answer.type,
         title=title,
         details=details,
@@ -396,8 +397,11 @@ def _checked_action(answer: _ActionAnswer, gap: Gap) -> Action | None:
     )
 
 
-def suggest_actions(data: ScoreInput, gaps: list[Gap], llm: LLMClient) -> list[Action]:
+def suggest_actions(
+    data: ScoreInput, gaps: list[Gap], llm: LLMClient, names: dict[str, str] | None = None
+) -> list[Action]:
     chosen = gaps[:MAX_ACTIONS]
+    shown_names = names or {}
     # The model offered six-week certificates in place of a degree, so this one is always a fixed suggestion.
     for_ai = [gap for gap in chosen if gap.kind != "education"]
     answers: dict[str, _ActionAnswer] = {}
@@ -405,6 +409,8 @@ def suggest_actions(data: ScoreInput, gaps: list[Gap], llm: LLMClient) -> list[A
         background = "\n".join(f"- {item}" for item in evidence_items(data.profile)) or "none"
         numbered = "\n".join(f"{number}. {gap.title}" for number, gap in enumerate(for_ai, start=1))
         message = f"OCCUPATION: {data.market.occupation_name}\n\nBACKGROUND:\n{background}\n\nGAPS:\n{numbered}"
+        if data.language == "ru":
+            message += f"\n\n{WRITE_IN_RUSSIAN}"
         try:
             raw = llm.complete_json(ACTIONS_PROMPT, message, _ActionsAnswer.model_json_schema(), 0)
             for answer in _ActionsAnswer.model_validate_json(raw).actions:
@@ -415,9 +421,10 @@ def suggest_actions(data: ScoreInput, gaps: list[Gap], llm: LLMClient) -> list[A
 
     actions: list[Action] = []
     for gap in chosen:
+        name = shown_names.get(gap.title, gap.title)
         given = answers.get(gap.title)
-        checked = _checked_action(given, gap) if given else None
-        actions.append(checked or _template_action(gap))
+        checked = _checked_action(given, gap, data.language, name) if given else None
+        actions.append(checked or _template_action(gap, data.language, name))
     return actions
 
 
@@ -547,19 +554,28 @@ def _fit(result: ScoreResult) -> Literal["strong", "one_step", "bigger_step"]:
     return "bigger_step"
 
 
-def _alternative_reason(result: ScoreResult) -> str:
-    shown = [skill.name for skill in result.required_skills if skill.level == "yes"]
-    partly = sum(skill.level == "partly" for skill in result.required_skills)
-    missing = [skill.name for skill in result.required_skills if skill.level == "no"]
+def _first_skill(result: ScoreResult, level: str) -> str | None:
+    return next((skill.name for skill in result.required_skills if skill.level == level), None)
+
+
+def _alternative_reason(result: ScoreResult, language: str, names: dict[str, str]) -> str:
+    counts = {
+        "shown": sum(skill.level == "yes" for skill in result.required_skills),
+        "partly": sum(skill.level == "partly" for skill in result.required_skills),
+        "total": len(result.required_skills),
+    }
+    example = _first_skill(result, "yes")
     parts = [
-        f"You show {len(shown)} and partly show {partly} of the {len(result.required_skills)} required skills"
-        + (f", including {shown[0]}." if shown else ".")
+        say(language, "alternative.shown_including", **counts, name=names.get(example, example))
+        if example
+        else say(language, "alternative.shown", **counts)
     ]
     experience = next((c for c in result.categories if c.key == "experience"), None)
     if experience and experience.points == experience.max_points and experience.max_points:
-        parts.append("Your experience meets what typical ads ask for.")
+        parts.append(say(language, "alternative.experience"))
+    missing = _first_skill(result, "no")
     if missing:
-        parts.append(f"The main thing to add: {missing[0]}.")
+        parts.append(say(language, "alternative.add", name=names.get(missing, missing)))
     return " ".join(parts)
 
 
@@ -568,7 +584,8 @@ def _pay_compared(
 ) -> Literal["higher", "similar", "lower"] | None:
     if not result.salary or not target.salary:
         return None
-    ratio = result.salary.market_median / target.salary.market_median
+    # Compares what this person would likely earn, since those are the figures they see side by side.
+    ratio = (result.salary.low + result.salary.high) / (target.salary.low + target.salary.high)
     if ratio >= HIGHER_PAY_RATIO:
         return "higher"
     return "lower" if ratio <= LOWER_PAY_RATIO else "similar"
@@ -590,7 +607,7 @@ def find_alternatives(
     llm: LLMClient,
     embed: Embed,
 ) -> list[AlternativeRole]:
-    roles: list[AlternativeRole] = []
+    scored: list[tuple[dict[str, Any], ScoreResult]] = []
     for candidate in _candidates(data, store, embed):
         code = candidate["occupation_code"]
         try:
@@ -605,22 +622,42 @@ def find_alternatives(
                 store=store,
                 llm=llm,
                 embed=embed,
+                language=data.language,
             )
         except (SkillJudgementFailed, NothingToScore):
             # One unusable occupation shouldn't cost the person the other suggestions.
             continue
-        roles.append(
-            AlternativeRole(
-                occupation_code=code,
-                occupation_name=candidate["occupation_name"],
-                score=result.score,
-                fit=_fit(result),
-                reason=_alternative_reason(result),
-                salary=result.salary,
-                pay_compared_to_target=_pay_compared(result, target),
-                may_need_licence=_is_regulated(code),
+        scored.append((candidate, result))
+
+    language = data.language
+    names = translate_terms(
+        [
+            term
+            for candidate, result in scored
+            for term in (
+                candidate["occupation_name"],
+                _first_skill(result, "yes"),
+                _first_skill(result, "no"),
             )
+            if term
+        ],
+        language,
+        llm,
+        store,
+    )
+    roles = [
+        AlternativeRole(
+            occupation_code=candidate["occupation_code"],
+            occupation_name=names.get(candidate["occupation_name"], candidate["occupation_name"]),
+            score=result.score,
+            fit=_fit(result),
+            reason=_alternative_reason(result, language, names),
+            salary=result.salary,
+            pay_compared_to_target=_pay_compared(result, target),
+            may_need_licence=_is_regulated(candidate["occupation_code"]),
         )
+        for candidate, result in scored
+    ]
     fit_order = {"strong": 0, "one_step": 1, "bigger_step": 2}
     # A close match paying much less, like a head chef as a cook, is a real option but a poor first suggestion.
     roles.sort(
@@ -638,57 +675,46 @@ def find_alternatives(
     return [role for role in roles if role.score >= LOW_FIT_SCORE][:MIN_ALTERNATIVES]
 
 
-def _with_effort(action: Action) -> str:
-    weeks = "week" if action.effort_weeks == 1 else "weeks"
-    return f"{action.title} (about {action.effort_weeks} {weeks})"
+def _with_effort(action: Action, language: str) -> str:
+    return say(
+        language,
+        "plan.with_effort",
+        title=action.title,
+        duration=weeks(language, action.effort_weeks),
+    )
 
 
-def build_plan(actions: list[Action], has_rewrites: bool) -> Plan:
+def build_plan(actions: list[Action], has_rewrites: bool, language: str = "en") -> Plan:
     """Lays the actions out one after another, most valuable and quickest first."""
     rank = {"high": 0, "medium": 1, "low": 2}
     ordered = sorted(actions, key=lambda action: (rank[action.priority], action.effort_weeks))
     plan = Plan(thirty_days=[], sixty_days=[], ninety_days=[], later=[])
     if has_rewrites:
-        plan.thirty_days.append(
-            "Update your resume using the suggested rewrites, where they're true for you"
-        )
+        plan.thirty_days.append(say(language, "plan.rewrites"))
     started_at = 0
     for action in ordered:
         if started_at < PLAN_DAYS_30_WEEKS:
-            plan.thirty_days.append(_with_effort(action))
+            plan.thirty_days.append(_with_effort(action, language))
         elif started_at < PLAN_DAYS_60_WEEKS:
-            plan.sixty_days.append(_with_effort(action))
+            plan.sixty_days.append(_with_effort(action, language))
         elif started_at < PLAN_DAYS_90_WEEKS:
-            plan.ninety_days.append(_with_effort(action))
+            plan.ninety_days.append(_with_effort(action, language))
         else:
-            plan.later.append(_with_effort(action))
+            plan.later.append(_with_effort(action, language))
         started_at += action.effort_weeks
-    plan.ninety_days.append("Run a new analysis with your updated resume to see your progress")
+    plan.ninety_days.append(say(language, "plan.measure"))
     return plan
 
 
-def _notes(result: ScoreResult, gaps: list[Gap]) -> list[str]:
-    notes = [
-        "Gaps are ranked by their effect on your score, using the official skill list for this occupation. "
-        "The job ads we use don't list skills, so we can't say how often employers ask for each one.",
-        "A skill marked as not found may just be missing from your resume. If you have it, add it with "
-        "a real example.",
-        "Effort is a rough estimate, and suggestions were written by AI. Check that a course or "
-        "certification is current and suits you before paying for it.",
-    ]
+def _notes(result: ScoreResult, gaps: list[Gap], language: str) -> list[str]:
+    keys = ["note.ranking", "note.missing", "note.effort"]
     if result.score >= ALREADY_STRONG_SCORE:
-        notes.append("Your match is already strong, so treat these as optional extras.")
+        keys.append("note.strong")
     if _is_regulated(result.occupation_code):
-        notes.append(
-            "This work may need a licence or registration where you live. Check with the "
-            "provincial regulator or a professional association."
-        )
+        keys.append("note.licence")
     if result.score < LOW_FIT_SCORE and gaps:
-        notes.append(
-            "This job is a long way from your current background, so the other roles below may be "
-            "a quicker route."
-        )
-    return notes
+        keys.append("note.low")
+    return [say(language, key) for key in keys]
 
 
 def build_report(
@@ -705,18 +731,34 @@ def build_report(
     llm: LLMClient,
     embed: Embed,
     alternatives_finder: Callable[..., list[AlternativeRole]] = find_alternatives,
+    on_stage: Callable[[str], None] = lambda _stage: None,
 ) -> Report:
+    language = data.language
     gaps = find_gaps(data, result)
-    actions = suggest_actions(data, gaps, llm)
+    names = translate_terms(
+        [
+            gap.title
+            for gap in gaps[:MAX_GAPS_SHOWN]
+            if gap.kind in ("required_skill", "preferred_skill")
+        ],
+        language,
+        llm,
+        store,
+    )
+    actions = suggest_actions(data, gaps, llm, names)
     rewrites = suggest_rewrites(resume_text, llm) if resume_text else []
+    on_stage("alternatives")
     alternatives = alternatives_finder(
         data, result, extraction, document_id, user_id, region, as_of, store, llm, embed
     )
     return Report(
-        gaps=gaps[:MAX_GAPS_SHOWN],
+        gaps=[
+            gap.model_copy(update={"title": names.get(gap.title, gap.title)})
+            for gap in gaps[:MAX_GAPS_SHOWN]
+        ],
         actions=actions,
         rewrites=rewrites,
         alternative_roles=alternatives,
-        plan=build_plan(actions, bool(rewrites)),
-        notes=_notes(result, gaps),
+        plan=build_plan(actions, bool(rewrites), language),
+        notes=_notes(result, gaps, language),
     )

@@ -1,5 +1,6 @@
 """Turns a typed role and region into an occupation and pay figures, for lookups and scoring."""
 
+import re
 from typing import Any, Protocol
 
 from app import embeddings
@@ -22,6 +23,9 @@ REGIONS = {
     "yt": "Yukon", "yukon": "Yukon",
 }  # fmt: skip
 MIN_ROLE_SIMILARITY = 0.75
+MIN_ROLE_SUGGESTION_SIMILARITY = 0.6
+MIN_ROLE_QUERY_LENGTH = 2
+MAX_ROLE_SUGGESTIONS = 8
 MIN_REGIONAL_SALARY_SAMPLE = 10
 MIN_ADS_STATING_REQUIREMENTS = 5
 MEDIUM_CONFIDENCE_SAMPLE = 30
@@ -43,6 +47,11 @@ class RoleNotFound(Exception):
 
 class OccupationIndex(Protocol):
     def match_occupation(self, embedding: list[float]) -> dict[str, Any] | None: ...
+
+
+class RoleSearch(Protocol):
+    def search_occupation_titles(self, query: str, count: int) -> list[dict[str, Any]]: ...
+    def match_occupations(self, embedding: list[float], count: int) -> list[dict[str, Any]]: ...
 
 
 class StatsSource(Protocol):
@@ -69,6 +78,26 @@ def resolve_occupation(role: str, index: OccupationIndex) -> dict[str, Any]:
     ):
         raise RoleNotFound
     return match
+
+
+def suggest_roles(query: str, source: RoleSearch) -> list[dict[str, Any]]:
+    cleaned = " ".join(re.sub(r"[^\w\s-]", " ", query).split())
+    if len(cleaned) < MIN_ROLE_QUERY_LENGTH:
+        return []
+    found = source.search_occupation_titles(cleaned, MAX_ROLE_SUGGESTIONS)
+    if found:
+        return found
+    # Titles are in English, so a Russian search has to go by meaning instead of by spelling.
+    nearest = source.match_occupations(embeddings.embed_texts([cleaned])[0], MAX_ROLE_SUGGESTIONS)
+    return [
+        {
+            "title": row["occupation_name"],
+            "occupation_code": row["occupation_code"],
+            "occupation_name": row["occupation_name"],
+        }
+        for row in nearest
+        if row["similarity"] >= MIN_ROLE_SUGGESTION_SIMILARITY
+    ]
 
 
 def top_skills(rows: list[dict[str, Any]]) -> tuple[list[str], list[str]]:

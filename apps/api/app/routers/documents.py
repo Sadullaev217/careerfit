@@ -2,7 +2,7 @@ import logging
 from typing import Annotated, Any, Literal
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, UploadFile, status
 from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -10,6 +10,7 @@ from pydantic.alias_generators import to_camel
 from app import portfolio, store
 from app.auth import CurrentUser, get_current_user
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
+from app.queueing import enqueue
 from app.tasks import parse_document
 
 logger = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ class DocumentResponse(BaseModel):
     error_code: str | None
     error_message: str | None
     extraction_status: str | None
+    extraction_error_code: str | None
     extraction_error_message: str | None
     created_at: str
 
@@ -95,6 +97,7 @@ def _to_response(row: dict[str, Any]) -> DocumentResponse:
         error_code=code,
         error_message=ERROR_MESSAGES.get(code) if code else None,
         extraction_status=row.get("extraction_status"),
+        extraction_error_code=extraction_code,
         extraction_error_message=(
             EXTRACTION_ERROR_MESSAGES.get(extraction_code) if extraction_code else None
         ),
@@ -120,13 +123,14 @@ def _display_name(name: str | None) -> str:
     return cleaned[:MAX_FILE_NAME_LENGTH] or "document"
 
 
-def _enqueue(document_id: str) -> None:
-    parse_document.apply_async(args=[document_id], retry=False)
+def _enqueue(document_id: str, background: BackgroundTasks) -> None:
+    enqueue(parse_document, [document_id], background)
 
 
 @router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse)
 def upload_document(
     user: User,
+    background: BackgroundTasks,
     type: Annotated[Literal["resume", "cover_letter"], Form()],
     file: UploadFile,
 ) -> DocumentResponse:
@@ -155,7 +159,7 @@ def upload_document(
         raise
 
     try:
-        _enqueue(document_id)
+        _enqueue(document_id, background)
     except OperationalError as exc:
         logger.error("document %s could not be queued", document_id)
         store.delete_document(document_id)
@@ -165,7 +169,9 @@ def upload_document(
 
 
 @router.post("/portfolio", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse)
-def add_portfolio_link(user: User, body: PortfolioLinkRequest) -> DocumentResponse:
+def add_portfolio_link(
+    user: User, body: PortfolioLinkRequest, background: BackgroundTasks
+) -> DocumentResponse:
     try:
         url = portfolio.normalize_link(body.url)
     except portfolio.RejectedLink as exc:
@@ -180,7 +186,7 @@ def add_portfolio_link(user: User, body: PortfolioLinkRequest) -> DocumentRespon
 
     row = store.insert_document({"user_id": user.id, "type": "portfolio_link", "url": url})
     try:
-        _enqueue(row["id"])
+        _enqueue(row["id"], background)
     except OperationalError as exc:
         logger.error("document %s could not be queued", row["id"])
         store.delete_document(row["id"])
