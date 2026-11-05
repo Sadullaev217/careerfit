@@ -137,6 +137,9 @@ def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> N
     "statement",
     [
         "update public.analyses set score = 100",
+        "insert into public.analyses (user_id, score) values (auth.uid(), 100)",
+        "select * from public.skill_judgements",
+        "update public.skill_judgements set result = '{}'",
         "update public.subscriptions set plan = 'pro'",
         "update public.documents set parsed_text = 'x'",
         "insert into public.skills (name) values ('Fake')",
@@ -210,12 +213,26 @@ def test_deleting_a_resume_removes_its_skills_and_analysis(conn: psycopg.Connect
         "values (%s, %s, %s)",
         (ALICE, skill[0], document_id),
     )
+    conn.execute(
+        "insert into public.analyses (user_id, document_id, score) values (%s, %s, 50)",
+        (ALICE, document_id),
+    )
+    conn.execute(
+        "insert into public.skill_judgements (document_id, input_key, result) values (%s, 'k', '{}')",
+        (document_id,),
+    )
     conn.execute("delete from public.documents where id = %s", (document_id,))
     assert conn.execute(
         "select count(*) from public.profile_skills where user_id = %s", (ALICE,)
     ).fetchone() == (0,)
     assert conn.execute(
         "select count(*) from public.extracted_profiles where document_id = %s", (document_id,)
+    ).fetchone() == (0,)
+    assert conn.execute(
+        "select count(*) from public.analyses where document_id = %s", (document_id,)
+    ).fetchone() == (0,)
+    assert conn.execute(
+        "select count(*) from public.skill_judgements where document_id = %s", (document_id,)
     ).fetchone() == (0,)
 
 

@@ -45,6 +45,9 @@ export default function AccountPage() {
       <Link className={`${buttonClass} text-center`} href="/documents">
         Your documents
       </Link>
+      <Link className={`${buttonClass} text-center`} href="/analysis">
+        Score my resume
+      </Link>
       <Link className={`${buttonClass} text-center`} href="/market">
         Job market lookup
       </Link>

@@ -12,6 +12,10 @@ DOCUMENT_COLUMNS = (
     "id,user_id,type,file_name,file_path,url,status,error_code,"
     "extraction_status,extraction_error,created_at"
 )
+ANALYSIS_COLUMNS = (
+    "id,user_id,document_id,status,score,result,error_code,created_at,completed_at,"
+    "target_roles(title,region)"
+)
 _LIST_PAGE_SIZE = 1000
 _MAX_LIST_PAGES = 100
 
@@ -129,7 +133,9 @@ def get_extracted_profile(document_id: str, user_id: str) -> dict[str, Any] | No
             params={
                 "document_id": f"eq.{document_id}",
                 "user_id": f"eq.{user_id}",
-                "select": "data,matched_skills,prompt_version,model,truncated,created_at",
+                "select": (
+                    "data,matched_skills,prompt_version,model,truncated,suspicious_content,created_at"
+                ),
             },
         )
     )
@@ -214,9 +220,96 @@ def occupation_skills(occupation_code: str) -> list[dict[str, Any]]:
             params={
                 "occupation_code": f"eq.{occupation_code}",
                 "select": "required,rank,skills(name,esco_id)",
-                "order": "rank",
+                # Ties need a fixed order: a reshuffled list would be a different question for the AI.
+                "order": "rank,skill_id",
             },
         )
+    )
+
+
+def get_or_create_target_role(user_id: str, title: str, region: str) -> str:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/target_roles",
+            params={
+                "user_id": f"eq.{user_id}",
+                "title": f"eq.{title}",
+                "region": f"eq.{region}",
+                "select": "id",
+                "limit": "1",
+            },
+        )
+    )
+    if rows:
+        return str(rows[0]["id"])
+    response = _client().post(
+        "/rest/v1/target_roles",
+        params={"select": "id"},
+        headers={"Prefer": "return=representation"},
+        json={"user_id": user_id, "title": title, "region": region},
+    )
+    return str(_rows(response)[0]["id"])
+
+
+def insert_analysis(row: dict[str, Any]) -> dict[str, Any]:
+    response = _client().post(
+        "/rest/v1/analyses",
+        params={"select": ANALYSIS_COLUMNS},
+        headers={"Prefer": "return=representation"},
+        json=row,
+    )
+    return _rows(response)[0]
+
+
+def get_analysis(analysis_id: str, user_id: str | None = None) -> dict[str, Any] | None:
+    params = {"id": f"eq.{analysis_id}", "select": ANALYSIS_COLUMNS}
+    if user_id is not None:
+        params["user_id"] = f"eq.{user_id}"
+    rows = _rows(_client().get("/rest/v1/analyses", params=params))
+    return rows[0] if rows else None
+
+
+def list_analyses(user_id: str) -> list[dict[str, Any]]:
+    return _rows(
+        _client().get(
+            "/rest/v1/analyses",
+            params={
+                "user_id": f"eq.{user_id}",
+                "select": ANALYSIS_COLUMNS,
+                "order": "created_at.desc",
+            },
+        )
+    )
+
+
+def update_analysis(analysis_id: str, fields: dict[str, Any]) -> None:
+    _client().patch(
+        "/rest/v1/analyses", params={"id": f"eq.{analysis_id}"}, json=fields
+    ).raise_for_status()
+
+
+def get_skill_judgement(document_id: str, key: str) -> dict[str, Any] | None:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/skill_judgements",
+            params={
+                "document_id": f"eq.{document_id}",
+                "input_key": f"eq.{key}",
+                "select": "result",
+            },
+        )
+    )
+    if not rows:
+        return None
+    result: dict[str, Any] = rows[0]["result"]
+    return result
+
+
+def save_skill_judgement(document_id: str, key: str, result: dict[str, Any]) -> None:
+    _upsert(
+        "skill_judgements",
+        "document_id,input_key",
+        [{"document_id": document_id, "input_key": key, "result": result}],
     )
 
 

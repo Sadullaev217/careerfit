@@ -1,4 +1,5 @@
 import logging
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -6,6 +7,7 @@ from celery.exceptions import SoftTimeLimitExceeded
 from kombu.exceptions import OperationalError
 
 from app import portfolio, store
+from app.analysis import analyze
 from app.celery_app import celery_app
 from app.embeddings import embed_texts
 from app.extraction import ExtractionFailed, extract_profile
@@ -13,6 +15,8 @@ from app.job_sources import JobBankProvider
 from app.llm import LLMUnavailable, get_llm
 from app.market_data import refresh_market_data
 from app.parsing import ParseFailure, extract_text
+from app.scoring import NothingToScore
+from app.skill_judgement import SkillJudgementFailed
 from app.skill_matching import profile_skills
 
 logger = logging.getLogger(__name__)
@@ -145,3 +149,75 @@ def extract_resume(self: Any, document_id: str) -> None:
         return
 
     store.update_document(document_id, {"extraction_status": "ready", "extraction_error": None})
+
+
+def _fail_analysis(analysis_id: str, code: str) -> None:
+    store.update_analysis(analysis_id, {"status": "failed", "error_code": code})
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
+    name="run_analysis",
+    bind=True,
+    max_retries=MAX_RETRIES,
+    soft_time_limit=600,
+    time_limit=630,
+)
+def run_analysis(
+    self: Any, analysis_id: str, occupation_code: str, occupation_name: str, region: str | None
+) -> None:
+    row = store.get_analysis(analysis_id)
+    if row is None:
+        return
+    extraction = (
+        store.get_extracted_profile(row["document_id"], row["user_id"])
+        if row["document_id"]
+        else None
+    )
+    if extraction is None:
+        _fail_analysis(analysis_id, "resume_not_found")
+        return
+    store.update_analysis(analysis_id, {"status": "processing", "error_code": None})
+
+    now = datetime.now(UTC)
+    try:
+        result = analyze(
+            extraction=extraction,
+            document_id=row["document_id"],
+            user_id=row["user_id"],
+            occupation_code=occupation_code,
+            occupation_name=occupation_name,
+            region=region,
+            as_of=now.date(),
+            store=store,
+            llm=get_llm(),
+            embed=embed_texts,
+        )
+    except SkillJudgementFailed:
+        _fail_analysis(analysis_id, "invalid_model_output")
+        return
+    except NothingToScore:
+        _fail_analysis(analysis_id, "not_enough_market_data")
+        return
+    except SoftTimeLimitExceeded:
+        _fail_analysis(analysis_id, "timeout")
+        return
+    except (LLMUnavailable, httpx.HTTPError) as exc:
+        if self.request.retries < MAX_RETRIES:
+            raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
+        _fail_analysis(analysis_id, "ai_unavailable")
+        return
+    except Exception as exc:
+        logger.error("analysis %s failed: %s", analysis_id, type(exc).__name__)
+        _fail_analysis(analysis_id, "analysis_error")
+        return
+
+    store.update_analysis(
+        analysis_id,
+        {
+            "status": "completed",
+            "score": result.score,
+            "result": result.model_dump(),
+            "error_code": None,
+            "completed_at": now.isoformat(),
+        },
+    )

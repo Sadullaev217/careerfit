@@ -125,13 +125,44 @@ export interface TargetRole {
   industry: string | null;
 }
 
-export interface ScoreBreakdown {
-  requiredSkills: { score: number; reason: string };
-  preferredSkills: { score: number; reason: string };
-  experience: { score: number; reason: string };
-  education: { score: number; reason: string };
-  portfolio: { score: number; reason: string };
-  seniority: { score: number; reason: string };
+export interface JudgedSkill {
+  name: string;
+  level: 'yes' | 'partly' | 'no';
+  evidence: string[];
+}
+
+export interface ScoreCategory {
+  key: string;
+  label: string;
+  maxPoints: number;
+  points: number;
+  reason: string;
+}
+
+export interface ScoreResult {
+  score: number;
+  categories: ScoreCategory[];
+  notScored: string[];
+  requiredSkills: JudgedSkill[];
+  preferredSkills: JudgedSkill[];
+  salary: {
+    low: number;
+    high: number;
+    marketMedian: number;
+    currency: string;
+    sampleSize: number;
+    region: string;
+    concentrated: boolean;
+    basis: string;
+  } | null;
+  confidence: { level: 'low' | 'medium' | 'high'; reasons: string[] };
+  occupationCode: string;
+  occupationName: string;
+  region: string;
+  weightsUsed: string;
+  asOf: string;
+  marketLatestPosting: string | null;
+  disclaimer: string;
 }
 
 export interface SalaryRange {
@@ -165,24 +196,15 @@ export interface ImprovementPlan {
   ninetyDays: string[];
 }
 
-export interface AnalysisResult {
-  overallScore: number;
-  confidence: number;
-  scoreBreakdown: ScoreBreakdown;
-  salaryRange: SalaryRange;
-  missingSkills: Array<{ skill: string; impact: number; requiredByPercent: number }>;
-  recommendedActions: RecommendedAction[];
-  alternativeRoles: AlternativeRole[];
-  improvementPlan: ImprovementPlan;
-  disclaimer: string;
-}
-
 export interface Analysis {
   id: string;
-  userId: string;
-  targetRoleId: string;
   status: AnalysisStatus;
-  result: AnalysisResult | null;
+  documentId: string | null;
+  role: string | null;
+  region: string | null;
+  score: number | null;
+  result: ScoreResult | null;
+  errorCode: string | null;
   createdAt: string;
   completedAt: string | null;
 }

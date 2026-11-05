@@ -91,6 +91,19 @@ A scheduled job refreshes postings weekly, which needs `pnpm --filter api worker
 
 `apps/api/data/noc_esco_map.json` links Canadian occupations to ESCO ones. It was built by `scripts.build_occupation_map`, using similarity to shortlist and the local AI to decide, and should be reviewed before changing. New countries or sources are one more provider in `apps/api/app/job_sources.py`. Adzuna's API allows commercial use only during a 14-day trial, and its descriptions are shortened.
 
+## Scoring
+
+`apps/api/app/scoring.py` is plain arithmetic, so the same input gives the same score and every point has a written reason. Weights per field are in `apps/api/data/score_weights.json`, keyed by the first digit of the Canadian occupation code. Each set must total 100. A category with no market data is left out and its share goes to the others.
+
+The only AI step decides what a resume shows for an occupation (`apps/api/app/skill_judgement.py`). It must cite evidence from the resume, code rejects claims without any, and similarity then gives partial credit for close skills it missed. A separate question decides which jobs and degrees are in this field, and code checks those too. Answers are saved per resume and question, so repeats reuse them. Bump `JUDGEMENT_VERSION` when changing the prompts or those rules.
+
+The resume's name, contact details and protected details are removed before any AI sees it (`apps/api/app/resume_sanitizer.py`). The rules catch common layouts, not every wording, so model output is still untrusted. Check the effect of personal details with the real AI:
+
+```bash
+cd apps/api
+uv run --extra dev python -m eval.run_fairness_eval
+```
+
 ## Checks
 
 ```bash

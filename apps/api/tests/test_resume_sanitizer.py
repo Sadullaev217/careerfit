@@ -179,6 +179,112 @@ def test_eval_resumes_keep_all_their_work_history() -> None:
                 assert any(alias in cleaned for alias in aliases), resume["id"]
 
 
+BODY = "Work experience\nSoftware Developer at Acme, 2019-01 - 2021-03\nSkills: Python"
+
+
+@pytest.mark.parametrize(
+    "first_line",
+    [
+        "Jordan Lee",
+        "JORDAN LEE",
+        "Maria Santos, RN",
+        "Hannah Weiss, Esq.",
+        "Mohammed Al-Farsi",
+        "Siobhan O'Brien",
+        "Maria de la Cruz",
+        "Nguyen Thi Lan",
+        "J. Smith",
+        "Jordan Lee | Senior Software Engineer | Toronto",
+        "Jordan Lee - Toronto, Canada",
+        "Иванова Анна Сергеевна",
+        "Петров Дмитрий",
+        "Name: Jordan Lee",
+        "Full name: Jordan Lee",
+        "ФИО: Иванова Анна Сергеевна",
+    ],
+)
+def test_the_name_is_removed(first_line: str) -> None:
+    result = sanitize_resume(f"{first_line}\n{BODY}")
+    assert result.text.strip() == BODY
+    assert result.personal_lines_removed == 1
+
+
+@pytest.mark.parametrize(
+    "first_line",
+    [
+        "Software Engineer",
+        "Registered Nurse",
+        "Curriculum Vitae",
+        "Work Experience",
+        "Резюме",
+        "EXPERIENCE",
+        "Accountant at Acme",
+        "Senior Backend Engineer, Northwind Systems, March 2019 - Present",
+        "Summary: experienced nurse",
+        "Built payment systems in Python for ten years",
+        "Northwind Systems 2019 - 2021",
+    ],
+)
+def test_other_first_lines_are_kept(first_line: str) -> None:
+    result = sanitize_resume(f"{first_line}\n{BODY}")
+    assert result.text == f"{first_line}\n{BODY}"
+    assert result.personal_lines_removed == 0
+
+
+def test_only_the_first_line_can_be_taken_for_a_name() -> None:
+    resume = f"{BODY}\nNorthwind Systems\nJordan Lee"
+    assert sanitize_resume(resume).text == resume
+
+
+def test_the_name_is_removed_wherever_it_comes_back() -> None:
+    result = sanitize_resume(f"Jordan Lee\n{BODY}\nJordan Lee - page 2\nSigned, jordan lee")
+    assert "jordan" not in result.text.lower()
+    assert "page 2" in result.text
+
+
+def test_a_name_after_a_protected_line_is_still_found() -> None:
+    assert sanitize_resume(f"Gender: Female\n\nJordan Lee\n{BODY}").text.strip() == BODY
+
+
+@pytest.mark.parametrize(
+    "contact",
+    [
+        "jordan.lee@example.com",
+        "+1 416 555 0100",
+        "+7 (999) 123-45-67",
+        "8 (999) 123-45-67",
+        "(416) 555-0100",
+        "416-555-0100",
+        "https://jordanlee.dev",
+        "www.jordanlee.dev",
+        "linkedin.com/in/jordanlee",
+        "github.com/jordanlee",
+    ],
+)
+def test_contact_details_are_removed(contact: str) -> None:
+    alone = sanitize_resume(f"Software Developer\n{contact}\n{BODY}")
+    assert contact not in alone.text
+    assert alone.text == f"Software Developer\n{BODY}"
+    inline = sanitize_resume(f"Software Developer\nToronto | {contact} | Open to work\n{BODY}")
+    assert contact not in inline.text
+    assert "Open to work" in inline.text
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "Software Developer, 2019-01 - 2021-03",
+        "Software Developer, 01.2019 - 03.2021",
+        "Worked 2019 - 2021 and 2022 - 2024",
+        "Grew revenue from 1000000 to 2500000 in 2020",
+        "ISO 9001 2015 audit lead",
+        "Handled 1,200,000 records a day",
+    ],
+)
+def test_dates_and_numbers_arent_taken_for_phone_numbers(line: str) -> None:
+    assert sanitize_resume(f"Software Developer\n{line}").text == f"Software Developer\n{line}"
+
+
 class CapturingLLM:
     model = "fake"
 

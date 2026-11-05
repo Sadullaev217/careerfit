@@ -111,7 +111,8 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       list: () => request<TargetRole[]>('/target-roles'),
     },
     analyses: {
-      start: (targetRoleId: string) => post<{ analysisId: string }>('/analyses', { targetRoleId }),
+      start: (data: { documentId: string; role: string; region?: string }) =>
+        post<{ analysisId: string }>('/analyses', data),
       get: (id: string) => request<Analysis>(`/analyses/${id}`),
       list: () => request<Analysis[]>('/analyses'),
     },

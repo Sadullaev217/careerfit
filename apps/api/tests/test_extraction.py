@@ -154,11 +154,18 @@ def test_resume_cannot_forge_the_end_of_the_data_block() -> None:
     assert "untrusted data" in llm.calls[0]["system"]
 
 
-def test_markers_differ_between_calls() -> None:
+def test_the_same_resume_always_gets_the_same_prompt() -> None:
     llm = ScriptedLLM(VALID, VALID)
     extract_profile("text", llm)
     extract_profile("text", llm)
-    assert llm.calls[0]["user"] != llm.calls[1]["user"]
+    assert llm.calls[0]["user"] == llm.calls[1]["user"]
+
+
+def test_a_different_resume_gets_a_different_marker() -> None:
+    llm = ScriptedLLM(VALID, VALID)
+    extract_profile("one", llm)
+    extract_profile("two", llm)
+    assert llm.calls[0]["user"].splitlines()[0] != llm.calls[1]["user"].splitlines()[0]
 
 
 def test_very_long_resume_is_capped_and_reported() -> None:

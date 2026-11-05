@@ -1,5 +1,5 @@
+import hashlib
 import json
-import secrets
 from dataclasses import dataclass
 
 from pydantic import ValidationError
@@ -9,7 +9,7 @@ from app.profile_schema import ExtractedProfile, InfoFlag
 from app.resume_sanitizer import sanitize_resume
 
 # Bump when the prompt changes, so stored results can be traced to the prompt that made them.
-PROMPT_VERSION = "2026-11-04.4"
+PROMPT_VERSION = "2026-11-05.1"
 MAX_ATTEMPTS = 3
 MAX_INPUT_CHARS = 24_000
 
@@ -66,8 +66,9 @@ class ExtractionResult:
 
 
 def _user_message(text: str, retry_note: str) -> str:
-    # A random marker stops resume text from forging the end of the data block.
-    marker = f"RESUME-{secrets.token_hex(8)}"
+    # A resume can't contain a hash of itself, so it can't forge the end of the data block. It isn't random
+    # because even a different marker changed what the AI read: the same resume scored 71 once and 77 another.
+    marker = f"RESUME-{hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]}"
     message = f"{marker}\n{text}\n{marker}"
     return f"{message}\n\n{retry_note}" if retry_note else message
 

@@ -58,7 +58,7 @@ class FakeMarket:
 def fake_market(monkeypatch: pytest.MonkeyPatch) -> FakeMarket:
     fake = FakeMarket()
     monkeypatch.setattr(market, "store", fake)
-    monkeypatch.setattr(market.embeddings, "embed_texts", lambda texts: [[0.1] for _ in texts])
+    monkeypatch.setattr("app.embeddings.embed_texts", lambda texts: [[0.1] for _ in texts])
     return fake
 
 

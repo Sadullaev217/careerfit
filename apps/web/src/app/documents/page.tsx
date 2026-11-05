@@ -106,7 +106,8 @@ export default function DocumentsPage() {
 
   async function handleDelete(document: Document) {
     const label = document.fileName ?? document.url ?? 'this item';
-    if (!window.confirm(`Delete ${label}?`)) return;
+    const scores = document.type === 'resume' ? ' and any scores made from it' : '';
+    if (!window.confirm(`Delete ${label}${scores}?`)) return;
     try {
       await getApi().documents.delete(document.id);
       await refresh();
@@ -121,9 +122,14 @@ export default function DocumentsPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-8 p-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Your documents</h1>
-        <Link className="underline" href="/account">
-          Account
-        </Link>
+        <div className="flex gap-4">
+          <Link className="underline" href="/analysis">
+            Score my resume
+          </Link>
+          <Link className="underline" href="/account">
+            Account
+          </Link>
+        </div>
       </div>
 
       <section className="flex flex-col gap-3" aria-labelledby="upload-heading">
