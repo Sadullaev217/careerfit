@@ -7,9 +7,13 @@ import httpx
 
 from app.config import settings
 
-# Ollama silently cuts off input beyond its default window, so the size is set explicitly.
-OLLAMA_CONTEXT_TOKENS = 16384
-OLLAMA_MAX_OUTPUT_TOKENS = 4096
+# Ollama silently cuts off input beyond its default window, so the size is set explicitly. It has to
+# hold the largest input plus the longest answer. On qwen3.5:4b, a Russian resume at the extraction cap
+# measured 11,015 tokens with its instructions. A master resume with 14 projects needed a 4,145-token
+# answer, so the old limit of 4,096 cut it off mid-way and every retry failed the same way.
+LARGEST_INPUT_TOKENS = 11_100
+OLLAMA_MAX_OUTPUT_TOKENS = 8192
+OLLAMA_CONTEXT_TOKENS = 20480
 RETRY_TEMPERATURE = 0.2
 
 

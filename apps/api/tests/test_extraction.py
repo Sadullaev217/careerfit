@@ -71,6 +71,14 @@ def test_retry_names_fields_but_never_repeats_values() -> None:
     assert "SENTINEL-VALUE" not in retry_message
 
 
+def test_a_cut_off_answer_is_retried_with_a_note_to_keep_it_brief() -> None:
+    llm = ScriptedLLM(VALID[: len(VALID) // 2], VALID)
+    result = extract_profile("resume text", llm)
+    assert result.attempts == 2
+    assert "cut off because it was too long" in llm.calls[1]["user"]
+    assert "invalid in these fields" not in llm.calls[1]["user"]
+
+
 NO_SKILLS = json.dumps({**VALID_PROFILE, "skills": []})
 
 
@@ -232,7 +240,13 @@ def test_ollama_request_shape() -> None:
     assert body["format"] == {"type": "object"}
     assert body["options"]["temperature"] == 0
     assert body["options"]["num_ctx"] == llm_module.OLLAMA_CONTEXT_TOKENS
+    assert body["options"]["num_predict"] == llm_module.OLLAMA_MAX_OUTPUT_TOKENS
     assert [m["role"] for m in body["messages"]] == ["system", "user"]
+
+
+def test_the_window_holds_the_largest_input_and_the_longest_answer() -> None:
+    needed = llm_module.LARGEST_INPUT_TOKENS + llm_module.OLLAMA_MAX_OUTPUT_TOKENS
+    assert needed <= llm_module.OLLAMA_CONTEXT_TOKENS
 
 
 def test_ollama_retry_changes_temperature_and_seed() -> None:

@@ -9,7 +9,7 @@ from app.profile_schema import ExtractedProfile, InfoFlag
 from app.resume_sanitizer import sanitize_resume
 
 # Bump when the prompt changes, so stored results can be traced to the prompt that made them.
-PROMPT_VERSION = "2026-11-05.1"
+PROMPT_VERSION = "2026-11-05.2"
 MAX_ATTEMPTS = 3
 MAX_INPUT_CHARS = 24_000
 
@@ -98,8 +98,18 @@ def extract_profile(resume_text: str, llm: LLMClient) -> ExtractionResult:
             profile = ExtractedProfile.model_validate_json(raw)
         except ValidationError as exc:
             # Field paths only: the error's input values could quote the resume.
-            fields = ", ".join(sorted({".".join(str(p) for p in e["loc"]) for e in exc.errors()}))
-            retry_note = f"Your previous answer was invalid in these fields: {fields}. Return valid JSON."
+            fields = sorted({".".join(str(p) for p in e["loc"]) for e in exc.errors()} - {""})
+            if fields:
+                retry_note = (
+                    f"Your previous answer was invalid in these fields: {', '.join(fields)}. "
+                    "Return valid JSON."
+                )
+            else:
+                # The answer is held to the schema, so JSON that doesn't parse at all ran out of room.
+                retry_note = (
+                    "Your previous answer was cut off because it was too long. "
+                    "Return complete JSON and keep every item brief."
+                )
             continue
         best = (profile, attempt + 1)
         if profile.skills:
