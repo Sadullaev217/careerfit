@@ -18,6 +18,7 @@ export default function HistoryScreen() {
   const [analyses, setAnalyses] = useState<Analysis[] | null>(null);
   const [documents, setDocuments] = useState<Document[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const [offline, setOffline] = useState(false);
   const [saved, setSaved] = useState<SavedResult | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -27,10 +28,13 @@ export default function HistoryScreen() {
       setAnalyses(nextAnalyses);
       setDocuments(nextDocuments);
       setFailed(false);
+      setOffline(false);
       setSaved(null);
     } catch (error) {
       setFailed(true);
-      setSaved(isOffline(error) && userId ? await loadLastResult(userId) : null);
+      setOffline(isOffline(error));
+      // Whatever went wrong, the copy saved on this phone is still worth showing.
+      setSaved(userId ? await loadLastResult(userId) : null);
     }
   }, [userId]);
 
@@ -51,10 +55,9 @@ export default function HistoryScreen() {
 
   return (
     <Screen onRefresh={() => void refresh()} refreshing={refreshing}>
-      {failed && !saved && <Notice tone="error">{t('history.loadFailed')}</Notice>}
+      {failed && (offline ? <Notice>{t('common.offline')}</Notice> : <Notice tone="error">{t('history.loadFailed')}</Notice>)}
       {saved && (
         <>
-          <Notice>{t('common.offline')}</Notice>
           <Card>
             <Heading>{t('history.savedTitle')}</Heading>
             <ResultRow analysis={saved.analysis} />

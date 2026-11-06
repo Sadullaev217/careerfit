@@ -32,6 +32,7 @@ export default function AnalysisScreen() {
   const userId = session?.user.id;
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [savedOn, setSavedOn] = useState<string | null>(null);
+  const [offline, setOffline] = useState(false);
   const [failed, setFailed] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<Tab>('overview');
@@ -42,14 +43,16 @@ export default function AnalysisScreen() {
       const next = await api.analyses.get(id);
       setAnalysis(next);
       setSavedOn(null);
+      setOffline(false);
       setFailed(false);
       if (next.status === 'completed' && userId) await saveLastResult(next, userId);
     } catch (error) {
-      // Without a connection, the copy saved on this phone is the next best thing.
-      const saved = isOffline(error) && userId ? await loadLastResult(userId) : null;
+      // When the server can't be reached or fails, the copy saved on this phone is the next best thing.
+      const saved = userId ? await loadLastResult(userId) : null;
       if (saved && saved.analysis.id === id) {
         setAnalysis(saved.analysis);
         setSavedOn(saved.savedAt);
+        setOffline(isOffline(error));
       } else {
         setFailed(true);
       }
@@ -136,7 +139,11 @@ export default function AnalysisScreen() {
   return (
     <Screen onRefresh={() => void refresh()} refreshing={refreshing}>
       {header}
-      {savedOn && <Notice>{`${t('common.offline')} ${t('results.savedOn', { date: i18n.date(savedOn) })}`}</Notice>}
+      {savedOn && (
+        <Notice>
+          {`${offline ? t('common.offline') : t('results.savedCopy')} ${t('results.savedOn', { date: i18n.date(savedOn) })}`}
+        </Notice>
+      )}
       <Muted>{[regionName(i18n, analysis.region), i18n.date(analysis.createdAt)].filter(Boolean).join(' · ')}</Muted>
       <Segmented<Tab>
         value={tab}

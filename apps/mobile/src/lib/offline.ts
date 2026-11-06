@@ -11,14 +11,20 @@ function savedFile(): File {
   return new File(Paths.document, FILE_NAME);
 }
 
+function warnInDevelopment(action: string, error: unknown) {
+  // The error's type only: its message could include a file path, and never the result itself.
+  if (__DEV__) console.warn(`[offline] couldn't ${action} the saved result:`, (error as Error)?.name ?? typeof error);
+}
+
 export async function saveLastResult(analysis: Analysis, userId: string): Promise<void> {
   try {
     const file = savedFile();
     file.create({ overwrite: true });
     const saved: SavedResult = { analysis, savedAt: new Date().toISOString(), userId };
     await file.write(JSON.stringify(saved));
-  } catch {
+  } catch (error) {
     // Saving for later is a convenience. The result on screen is unaffected if it fails.
+    warnInDevelopment('save', error);
   }
 }
 
@@ -28,7 +34,8 @@ export async function loadLastResult(userId: string): Promise<SavedResult | null
     if (!file.exists) return null;
     const saved = JSON.parse(await file.text()) as SavedResult;
     return saved.userId === userId ? saved : null;
-  } catch {
+  } catch (error) {
+    warnInDevelopment('read', error);
     return null;
   }
 }

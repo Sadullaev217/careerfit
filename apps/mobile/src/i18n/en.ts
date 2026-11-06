@@ -164,6 +164,7 @@ export const en = {
     loadFailed: 'It may have been deleted, or the connection may have dropped.',
     failedTitle: "We couldn't finish this analysis",
     savedOn: 'Saved on this phone on {date}.',
+    savedCopy: "We couldn't load the latest version, so this is the copy saved on this phone.",
   },
   plan: {
     stagesTitle: 'Your 30, 60 and 90 day plan',
