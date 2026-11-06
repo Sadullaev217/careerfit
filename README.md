@@ -57,9 +57,12 @@ npx eas-cli@latest build --profile preview --platform android
 The store checklist, including privacy answers and account deletion, is in
 [docs/mobile-release-checklist.md](docs/mobile-release-checklist.md).
 
-**Report-ready notifications** need the Expo project above, and on Android a Firebase project: `google-services.json` in `apps/mobile`, and the Firebase service
-account key uploaded to Expo. The key is secret and is git-ignored. The API sends the messages through
-Expo's push service; set `EXPO_ACCESS_TOKEN` only if push security is turned on at expo.dev.
+**Report-ready notifications** need the Expo project above, and on Android the Firebase project
+`careerfit-66b96`. Its `google-services.json` holds a Google API key, so it isn't in git: EAS builds get
+it from the secret file variable `GOOGLE_SERVICES_JSON`, and local builds read `apps/mobile/google-services.json`
+(download it from Firebase's project settings). The Firebase service account key is uploaded to Expo
+under the project's Android credentials, and never stored in the repository. The API sends the messages
+through Expo's push service; set `EXPO_ACCESS_TOKEN` only if push security is turned on at expo.dev.
 
 ## Supabase setup
 

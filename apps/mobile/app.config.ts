@@ -5,8 +5,11 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 // Plain http is only for testing against a computer nearby. A real release talks to an https API,
 // and then both platforms keep blocking unencrypted traffic.
 const allowsPlainHttp = apiUrl.startsWith('http://');
-// Android notifications need Firebase's file. Until it's added, the app builds without them.
-const hasFirebaseConfig = existsSync('./google-services.json');
+// Android notifications need Firebase's google-services.json. It holds a Google API key, so it stays out of
+// git: EAS builds get it from the GOOGLE_SERVICES_JSON file variable, which is a path on the build machine,
+// and local builds read ./google-services.json. Without either, the app builds without notifications.
+const googleServicesFile =
+  process.env.GOOGLE_SERVICES_JSON ?? (existsSync('./google-services.json') ? './google-services.json' : undefined);
 
 const config: ExpoConfig = {
   name: 'CareerFit',
@@ -36,7 +39,7 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
     // The camera only takes pictures of pages, so the microphone is never needed.
     blockedPermissions: ['android.permission.RECORD_AUDIO'],
-    ...(hasFirebaseConfig ? { googleServicesFile: './google-services.json' } : {}),
+    ...(googleServicesFile ? { googleServicesFile } : {}),
   },
   plugins: [
     'expo-router',

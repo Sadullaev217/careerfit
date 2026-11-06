@@ -40,6 +40,9 @@ yarn-error.*
 /ios
 /android
 
-# Firebase service account keys are secret. google-services.json is not, and may be committed.
+# Firebase service account keys are secret. google-services.json holds a Google API key, so it stays out of
+# git too: EAS builds get it from the GOOGLE_SERVICES_JSON file variable.
+google-services.json
+GoogleService-Info.plist
 *firebase-adminsdk*.json
 *service-account*.json
