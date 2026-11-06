@@ -1,5 +1,8 @@
+import contextlib
 import logging
+import re
 from typing import Annotated, Any, Literal
+from urllib.parse import unquote
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, UploadFile, status
@@ -20,6 +23,7 @@ router = APIRouter(prefix="/documents")
 User = Annotated[CurrentUser, Depends(get_current_user)]
 
 MAX_FILE_NAME_LENGTH = 200
+_PERCENT_ESCAPE = re.compile(r"%[0-9A-Fa-f]{2}")
 
 ERROR_MESSAGES = {
     "no_text": "We couldn't find any text in this file.",
@@ -118,7 +122,13 @@ def _queue_unavailable() -> HTTPException:
 
 
 def _display_name(name: str | None) -> str:
-    base = (name or "document").replace("\\", "/").rsplit("/", 1)[-1]
+    raw = name or "document"
+    # The mobile app's networking percent-encodes file names, which RFC 7578 allows, so "Резюме.pdf"
+    # arrives as "%D0%A0...". Decoding comes before the clean-up, so an encoded path is still cut off.
+    if _PERCENT_ESCAPE.search(raw):
+        with contextlib.suppress(UnicodeDecodeError):
+            raw = unquote(raw, errors="strict")
+    base = raw.replace("\\", "/").rsplit("/", 1)[-1]
     cleaned = "".join(char for char in base if char.isprintable()).strip()
     return cleaned[:MAX_FILE_NAME_LENGTH] or "document"
 

@@ -102,10 +102,26 @@ def test_crafted_file_name_cannot_choose_the_path(
         ("", "document"),
         (None, "document"),
         ("a" * 500, "a" * 200),
+        # Names from the mobile app arrive percent-encoded.
+        ("CareerFit%20test%20resume.pdf", "CareerFit test resume.pdf"),
+        ("%D0%A0%D0%B5%D0%B7%D1%8E%D0%BC%D0%B5.pdf", "Резюме.pdf"),
+        ("SENECA%20(1).pdf", "SENECA (1).pdf"),
+        ("..%2F..%2Fevil.pdf", "evil.pdf"),
+        ("evil%07.pdf", "evil.pdf"),
+        # Anything that isn't valid encoding is kept as it was sent.
+        ("100% done.pdf", "100% done.pdf"),
+        ("%FF%FE.pdf", "%FF%FE.pdf"),
     ],
 )
 def test_display_name_is_cleaned(raw: str | None, expected: str) -> None:
     assert documents._display_name(raw) == expected
+
+
+def test_a_percent_encoded_upload_name_is_shown_readably(
+    client: TestClient, fake_store: FakeStore, queue: FakeQueue
+) -> None:
+    body = upload(client, sample_files.text_pdf(), name="%D0%A0%D0%B5%D0%B7%D1%8E%D0%BC%D0%B5%201.pdf").json()
+    assert body["fileName"] == "Резюме 1.pdf"
 
 
 def test_upload_requires_auth(client: TestClient, fake_store: FakeStore, queue: FakeQueue) -> None:

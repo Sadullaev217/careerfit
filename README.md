@@ -23,9 +23,35 @@ pnpm dev
 
 - Web: http://localhost:3000
 - API: http://localhost:8000/health
-- Mobile: Expo dev server (press `a` or `i`). On an Android emulator or a real device, set `EXPO_PUBLIC_API_URL` to an address that reaches your machine.
+- Mobile: see below.
 
 Copy each app's `.env.example` to `.env` to override defaults.
+
+## Mobile app
+
+The Expo app in `apps/mobile` has the web app's core flow, in English and Russian: sign in, add a resume
+(a file, or pages scanned with the camera), choose a job and province, follow live progress, and read the
+results. The last result is kept on the phone for offline viewing.
+
+**Quick try in Expo Go** (no notifications, since Expo Go can't receive them):
+
+```bash
+adb reverse tcp:8000 tcp:8000   # the emulator reaches the API at localhost
+adb reverse tcp:8081 tcp:8081
+pnpm --filter mobile start:go
+```
+
+On a real phone, set `EXPO_PUBLIC_API_URL` in `apps/mobile/.env` to an address the phone can reach.
+
+**Installed builds** use EAS, with the profiles in `apps/mobile/eas.json`: `development` (for testing
+notifications), `preview` (an APK and an iPhone simulator app) and `production` (store builds). The
+store checklist, including privacy answers and account deletion, is in
+[docs/mobile-release-checklist.md](docs/mobile-release-checklist.md).
+
+**Report-ready notifications** need an Expo project (`extra.eas.projectId`, set with `EAS_PROJECT_ID`),
+and on Android a Firebase project: `google-services.json` in `apps/mobile`, and the Firebase service
+account key uploaded to Expo. The key is secret and is git-ignored. The API sends the messages through
+Expo's push service; set `EXPO_ACCESS_TOKEN` only if push security is turned on at expo.dev.
 
 ## Supabase setup
 
