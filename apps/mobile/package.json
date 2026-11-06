@@ -41,7 +41,8 @@
         "ios": "expo start --ios",
         "typecheck": "tsc --noEmit",
         "lint": "expo lint",
-        "doctor": "expo-doctor"
+        "doctor": "expo-doctor",
+        "eas-build-post-install": "pnpm --filter @careerfit/shared build"
     },
     "private": true
 }

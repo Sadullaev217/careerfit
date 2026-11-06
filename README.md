@@ -45,11 +45,19 @@ On a real phone, set `EXPO_PUBLIC_API_URL` in `apps/mobile/.env` to an address t
 
 **Installed builds** use EAS, with the profiles in `apps/mobile/eas.json`: `development` (for testing
 notifications), `preview` (an APK and an iPhone simulator app) and `production` (store builds). The
-store checklist, including privacy answers and account deletion, is in
+app belongs to the Expo project `@sadulllaev/careerfit` (`extra.eas.projectId` in `app.config.ts`).
+Builds don't read `apps/mobile/.env`: its three `EXPO_PUBLIC_` values are set as EAS environment
+variables instead (`eas env:list preview`). The cloud build compiles `packages/shared` itself, through
+the `eas-build-post-install` script. Run EAS commands from `apps/mobile`:
+
+```bash
+npx eas-cli@latest build --profile preview --platform android
+```
+
+The store checklist, including privacy answers and account deletion, is in
 [docs/mobile-release-checklist.md](docs/mobile-release-checklist.md).
 
-**Report-ready notifications** need an Expo project (`extra.eas.projectId`, set with `EAS_PROJECT_ID`),
-and on Android a Firebase project: `google-services.json` in `apps/mobile`, and the Firebase service
+**Report-ready notifications** need the Expo project above, and on Android a Firebase project: `google-services.json` in `apps/mobile`, and the Firebase service
 account key uploaded to Expo. The key is secret and is git-ignored. The API sends the messages through
 Expo's push service; set `EXPO_ACCESS_TOKEN` only if push security is turned on at expo.dev.
 

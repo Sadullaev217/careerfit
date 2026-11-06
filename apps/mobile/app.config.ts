@@ -56,8 +56,8 @@ const config: ExpoConfig = {
     ['expo-build-properties', { android: { usesCleartextTraffic: allowsPlainHttp } }],
   ],
   extra: {
-    // Set after the project is connected to an Expo account. It isn't secret.
-    eas: { projectId: process.env.EAS_PROJECT_ID },
+    // The Expo project (@sadulllaev/careerfit) that builds and push notifications belong to. It isn't secret.
+    eas: { projectId: 'ea3c9c4e-cbc4-4dba-8f34-819e2d23830d' },
   },
 };
 
