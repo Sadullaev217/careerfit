@@ -7,6 +7,7 @@ Card details never reach CareerFit: people pay on Stripe's own checkout page.
 
 import logging
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Any, Literal, Protocol
 
 import stripe
@@ -18,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 PRO_PRICE_KEY = "careerfit_pro_monthly"
 REPORT_PRICE_KEY = "careerfit_detailed_report"
+# Marks the customer-portal settings that scripts/stripe_setup.py creates.
+PORTAL_METADATA = {"app": "careerfit"}
 
 SUBSCRIPTION_EVENTS = frozenset(
     {"customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"}
@@ -78,6 +81,7 @@ class StripeGateway:
         self._client = stripe.StripeClient(secret_key)
         self._webhook_secret = webhook_secret
         self._prices: dict[str, str] = {}
+        self._portal: str | None = None
 
     def create_customer(self, user_id: str, email: str | None) -> str:
         params: dict[str, Any] = {"metadata": {"user_id": user_id}}
@@ -104,10 +108,25 @@ class StripeGateway:
         return str(session.url)
 
     def create_portal(self, customer_id: str, return_url: str) -> str:
-        session = self._client.v1.billing_portal.sessions.create(
-            {"customer": customer_id, "return_url": return_url}
-        )
+        params: dict[str, Any] = {"customer": customer_id, "return_url": return_url}
+        configuration = self._portal_configuration()
+        if configuration:
+            params["configuration"] = configuration
+        session = self._client.v1.billing_portal.sessions.create(params)  # type: ignore[arg-type]
         return str(session.url)
+
+    def _portal_configuration(self) -> str | None:
+        if self._portal is None:
+            found = self._client.v1.billing_portal.configurations.list({"active": True, "limit": 100})
+            self._portal = next(
+                (
+                    str(item.id)
+                    for item in found.data
+                    if (item.to_dict().get("metadata") or {}).get("app") == PORTAL_METADATA["app"]
+                ),
+                "",
+            )
+        return self._portal or None
 
     def get_subscription(self, subscription_id: str) -> dict[str, Any]:
         subscription: dict[str, Any] = self._client.v1.subscriptions.retrieve(subscription_id).to_dict()
@@ -132,8 +151,14 @@ class StripeGateway:
                 raise
 
 
+@lru_cache(maxsize=2)
+def _gateway_for(secret_key: str, webhook_secret: str) -> StripeGateway:
+    return StripeGateway(secret_key, webhook_secret)
+
+
 def default_gateway() -> Gateway:
-    return StripeGateway(settings.stripe_secret_key, settings.stripe_webhook_secret)
+    # One gateway per key, so its price and portal lookups are cached across requests.
+    return _gateway_for(settings.stripe_secret_key, settings.stripe_webhook_secret)
 
 
 # --- Starting payments ---
