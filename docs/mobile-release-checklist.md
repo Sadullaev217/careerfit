@@ -11,7 +11,7 @@ items marked "later" belong to Part 11 (security and privacy) or Part 12 (deploy
 | Apple Developer Program ($99 a year) | Not started. Needed for iPhone builds, TestFlight, notifications on iPhone and the App Store |
 | Google Play developer account ($25 once) | Not started |
 | Bundle ID and package name `com.sadullaev.careerfit` | Set in `app.config.ts`. Can't change after the first store upload |
-| Firebase project for Android notifications | Project `careerfit-66b96` created, `google-services.json` stored as the EAS secret file `GOOGLE_SERVICES_JSON`. To do: service account key uploaded to Expo |
+| Firebase project for Android notifications | Done: project `careerfit-66b96`, `google-services.json` stored as the EAS secret file `GOOGLE_SERVICES_JSON`, service account key uploaded to Expo. Checked on the emulator with a preview build: the report-ready notification arrives and opens the result |
 | App name, icon, splash and store screenshots | To do: the icons are still Expo's placeholders |
 
 ## Builds
