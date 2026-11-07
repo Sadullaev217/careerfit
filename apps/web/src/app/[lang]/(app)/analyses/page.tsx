@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePlan } from '@/hooks/use-plan';
 import { useI18n } from '@/i18n/provider';
 import { getApi } from '@/lib/api';
 
@@ -36,6 +37,8 @@ export default function HistoryPage() {
   const [analyses, setAnalyses] = useState<Analysis[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [chosenRole, setChosenRole] = useState<string | null>(null);
+  // Progress over time is part of Pro. Everyone keeps the full list of results below it.
+  const { plan } = usePlan();
 
   useEffect(() => {
     const api = getApi();
@@ -104,7 +107,23 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {role && (
+      {role && plan && plan.plan !== 'pro' && (
+        <section
+          aria-labelledby="progress-title"
+          className="flex flex-col items-start gap-3 rounded-lg border bg-card p-5"
+          data-testid="progress-locked"
+        >
+          <h2 id="progress-title" className="text-xl font-semibold">
+            {t('history.proTitle')}
+          </h2>
+          <p className="text-muted-foreground">{t('history.proBody')}</p>
+          <Button asChild variant="outline">
+            <Link href={path('/pricing')}>{t('billing.seePlans')}</Link>
+          </Button>
+        </section>
+      )}
+
+      {role && plan?.plan === 'pro' && (
         <section aria-labelledby="progress-title" className="flex flex-col gap-3 rounded-lg border bg-card p-5">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 id="progress-title" className="text-xl font-semibold">

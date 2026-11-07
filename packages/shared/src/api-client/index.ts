@@ -8,7 +8,15 @@ import type {
   Me,
   PlanInfo,
   RoleSuggestion,
+  CheckoutLink,
+  TailoredRewrites,
+  ProgressTrack,
 } from '../types/index.js';
+
+export type Language = 'en' | 'ru';
+
+/** Prices shown before checkout. Stripe's checkout page shows the amount actually charged. */
+export const PRICES = { proMonthly: 4.99, report: 2.99, currency: 'CAD' } as const;
 import type { TargetRoleInput, PortfolioLinkInput } from '../schemas/index.js';
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -68,6 +76,16 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
 
   const post = <T>(path: string, data: unknown) =>
     request<T>(path, { method: 'POST', body: JSON.stringify(data) });
+
+  // For files: the body is kept as bytes instead of being read as text.
+  async function download(path: string): Promise<Blob> {
+    const token = await getToken?.();
+    const res = await fetch(`${baseUrl}${path}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new ApiError(res.status, `API error ${res.status}: ${path}`, parseBody(await res.text()));
+    return res.blob();
+  }
 
   // fetch can't report upload progress, and XMLHttpRequest works in browsers and React Native.
   async function upload<T>(
@@ -136,6 +154,20 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
         post<{ analysisId: string }>('/analyses', data),
       get: (id: string) => request<Analysis>(`/analyses/${id}`),
       list: () => request<Analysis[]>('/analyses'),
+      /** Pro. Throws ApiError 402 "pro_required" on the free plan. */
+      progress: () => request<ProgressTrack[]>('/analyses/progress'),
+      /** Saved tailored lines; `rewrites` is null if there are none yet. */
+      tailored: (id: string) => request<TailoredRewrites>(`/analyses/${id}/tailored-rewrites`),
+      /** Pro. Makes the tailored lines with the AI, which can take up to a minute. */
+      tailor: (id: string) => post<TailoredRewrites>(`/analyses/${id}/tailored-rewrites`, {}),
+      /** The bought detailed report. ApiError 402 "report_not_purchased" otherwise. */
+      reportPdf: (id: string, language: Language = 'en') =>
+        download(`/analyses/${id}/report.pdf?language=${language}`),
+    },
+    billing: {
+      checkout: (data: { kind: 'pro' } | { kind: 'report'; analysisId: string }, language: Language = 'en') =>
+        post<CheckoutLink>('/billing/checkout', { ...data, language }),
+      portal: (language: Language = 'en') => post<CheckoutLink>('/billing/portal', { language }),
     },
     notifications: {
       register: (data: { token: string; platform: 'ios' | 'android'; language?: 'en' | 'ru' }) =>

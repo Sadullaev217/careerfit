@@ -156,7 +156,7 @@ def test_a_free_account_sees_its_limit_and_usage(client: TestClient, fake_store:
     assert body["plan"] == "free"
     assert body["analysesUsed"] == 1
     assert body["analysesLimit"] == 1
-    assert body["limitResetsAt"].endswith("T00:00:00+00:00")
+    assert body["limitResetsAt"] == plans.next_month_start(datetime.now(UTC)).date().isoformat()
     assert body["purchasedReports"] == []
 
 
@@ -278,6 +278,18 @@ def test_payments_are_unavailable_without_stripe_keys(
     client: TestClient, fake_store: FakeStore, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(billing.settings, "stripe_secret_key", "")
+    response = client.post("/billing/checkout", json={"kind": "pro"}, headers=auth_headers())
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "billing_unavailable"
+
+
+def test_a_stripe_error_is_reported_as_payments_unavailable(
+    client: TestClient, fake_store: FakeStore, gateway: FakeGateway, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def refuse(params: dict[str, Any]) -> str:
+        raise stripe.AuthenticationError("Invalid API Key provided")
+
+    monkeypatch.setattr(gateway, "create_checkout", refuse)
     response = client.post("/billing/checkout", json={"kind": "pro"}, headers=auth_headers())
     assert response.status_code == 503
     assert response.json()["detail"]["code"] == "billing_unavailable"

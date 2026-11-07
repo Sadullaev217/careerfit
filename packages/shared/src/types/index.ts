@@ -15,7 +15,49 @@ export interface Me {
 
 export interface PlanInfo {
   plan: SubscriptionPlan;
+  /** Stripe's status. "past_due" means a payment failed and Stripe is retrying; Pro continues meanwhile. */
   status: string;
+  provider: 'stripe' | 'revenuecat' | null;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: string | null;
+  analysesUsed: number;
+  /** null means unlimited (Pro). */
+  analysesLimit: number | null;
+  /** The day the monthly limit starts again, as YYYY-MM-DD (midnight UTC). */
+  limitResetsAt: string;
+  /** Analyses whose detailed PDF report has been bought. */
+  purchasedReports: string[];
+}
+
+export interface CheckoutLink {
+  url: string;
+}
+
+export interface TailoredRewrite {
+  before: string;
+  after: string;
+  /** The job skill this line now shows. */
+  skill: string;
+}
+
+export interface TailoredRewrites {
+  job: string;
+  /** null until the resume has been tailored for this result. */
+  rewrites: TailoredRewrite[] | null;
+}
+
+export interface ProgressPoint {
+  analysisId: string;
+  date: string;
+  score: number;
+}
+
+export interface ProgressTrack {
+  role: string;
+  region: string | null;
+  points: ProgressPoint[];
+  /** Latest score minus the first, or null with only one run. */
+  change: number | null;
 }
 
 export interface RoleSuggestion {

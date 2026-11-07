@@ -3,10 +3,10 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { Document } from '@careerfit/shared';
+import { apiErrorCode, type Document } from '@careerfit/shared';
 import { RegionSelect } from '@/components/region-select';
 import { RoleCombobox, type ChosenRole } from '@/components/role-combobox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePlan } from '@/hooks/use-plan';
 import { useI18n } from '@/i18n/provider';
 import { getApi } from '@/lib/api';
 import { apiErrorText } from '@/lib/api-error';
@@ -30,13 +31,18 @@ export function RoleForm({
   initialRole?: ChosenRole | null;
 }) {
   const i18n = useI18n();
-  const { t, path, locale } = i18n;
+  const { t, plural, date, path, locale } = i18n;
   const router = useRouter();
   const [picked, setPicked] = useState<string | null>(null);
   const [role, setRole] = useState<ChosenRole | null>(initialRole);
   const [region, setRegion] = useState<string>(DEFAULT_REGION);
   const [error, setError] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { plan, reload: reloadPlan } = usePlan();
+  const usedUp =
+    limitReached ||
+    (plan !== null && plan.analysesLimit !== null && plan.analysesUsed >= plan.analysesLimit);
 
   const resumes = useMemo(
     () => (documents ?? []).filter((document) => document.type === 'resume'),
@@ -71,8 +77,10 @@ export function RoleForm({
       });
       router.push(path(`/analyses/${analysisId}`));
     } catch (err) {
+      setLimitReached(apiErrorCode(err) === 'limit_reached');
       setError(apiErrorText(i18n, err, 'role.startFailed'));
       setBusy(false);
+      void reloadPlan();
     }
   }
 
@@ -123,17 +131,37 @@ export function RoleForm({
         <Label htmlFor="region">{t('role.where')}</Label>
         <RegionSelect id="region" value={region} onChange={setRegion} />
       </div>
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+      {usedUp && plan ? (
+        <Alert data-testid="limit-reached">
+          <AlertTitle>{t('billing.limitTitle')}</AlertTitle>
+          <AlertDescription className="flex flex-col items-start gap-3">
+            <span>{t('billing.limitBody', { date: date(plan.limitResetsAt) })}</span>
+            <Button asChild size="sm">
+              <Link href={path('/pricing')}>{t('billing.upgrade')}</Link>
+            </Button>
+          </AlertDescription>
         </Alert>
+      ) : (
+        error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )
+      )}
+      {plan?.analysesLimit != null && !usedUp && (
+        <p className="text-sm text-muted-foreground" data-testid="plan-usage">
+          {plural('billing.usage', plan.analysesLimit, {
+            count: plan.analysesUsed,
+            limit: plan.analysesLimit,
+          })}
+        </p>
       )}
       {ready.length === 0 && stillReading && (
         <p role="status" className="text-sm text-muted-foreground">
           {t('role.stillReading')}
         </p>
       )}
-      <Button type="submit" size="lg" disabled={busy || !documentId} className="self-start">
+      <Button type="submit" size="lg" disabled={busy || !documentId || usedUp} className="self-start">
         {busy ? t('role.starting') : t('role.start')}
       </Button>
     </form>

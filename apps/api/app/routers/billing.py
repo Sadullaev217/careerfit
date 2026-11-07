@@ -2,6 +2,7 @@ import logging
 from typing import Annotated, Literal
 from uuid import UUID
 
+import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -90,6 +91,9 @@ def checkout(user: User, body: CheckoutRequest, gateway: Gateway) -> LinkRespons
         return LinkResponse(url=url)
     except billing.BillingUnavailable:
         raise _unavailable() from None
+    except stripe.StripeError as exc:
+        logger.error("Stripe refused a checkout: %s", type(exc).__name__)
+        raise _unavailable() from None
 
 
 @router.post("/portal", response_model=LinkResponse)
@@ -97,6 +101,9 @@ def portal(user: User, body: PortalRequest, gateway: Gateway) -> LinkResponse:
     try:
         url = billing.portal_url(user.id, body.language, store, gateway)
     except billing.BillingUnavailable:
+        raise _unavailable() from None
+    except stripe.StripeError as exc:
+        logger.error("Stripe refused a portal session: %s", type(exc).__name__)
         raise _unavailable() from None
     if url is None:
         raise _error(

@@ -70,6 +70,14 @@ export function createTranslator(locale: Locale, dict: Dictionary) {
         maximumFractionDigits: 0,
       }).format(value);
     },
+    /** A price with its cents, unlike money(), which rounds salaries to whole dollars. */
+    price(value: number, currency = 'CAD'): string {
+      return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-CA', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+      }).format(value);
+    },
     date(value: string | Date): string {
       return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-CA', {
         year: 'numeric',

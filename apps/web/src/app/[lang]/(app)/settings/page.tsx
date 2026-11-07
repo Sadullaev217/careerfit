@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Me, PlanInfo } from '@careerfit/shared';
+import { apiErrorCode, type Me } from '@careerfit/shared';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { PlanStatus } from '@/components/plan-status';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
@@ -16,9 +17,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePlan } from '@/hooks/use-plan';
 import { useI18n } from '@/i18n/provider';
 import { getApi } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
@@ -27,18 +28,17 @@ export default function SettingsPage() {
   const { t, path } = useI18n();
   const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
-  const [plan, setPlan] = useState<PlanInfo | null>(null);
+  const { plan, failed: planFailed, reload } = usePlan();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const api = getApi();
-    Promise.all([api.account.me(), api.account.plan()])
-      .then(([account, subscription]) => {
-        setMe(account);
-        setPlan(subscription);
-      })
+    getApi()
+      .account.me()
+      .then(setMe)
       .catch(() => setError(t('settings.loadFailed')));
   }, [t]);
+
+  const shownError = error ?? (planFailed ? t('settings.loadFailed') : null);
 
   async function signOut() {
     await createClient().auth.signOut();
@@ -53,8 +53,13 @@ export default function SettingsPage() {
       await createClient().auth.signOut();
       router.push(path('/'));
       router.refresh();
-    } catch {
-      setError(t('settings.deleteFailed'));
+    } catch (err) {
+      // Deleting stops billing first; if Stripe can't be reached, the account is kept and says so.
+      setError(
+        apiErrorCode(err) === 'billing_unavailable'
+          ? t('settings.deleteBillingFailed')
+          : t('settings.deleteFailed'),
+      );
     }
   }
 
@@ -64,9 +69,9 @@ export default function SettingsPage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
       <h1 className="text-3xl font-semibold tracking-tight">{t('settings.title')}</h1>
 
-      {error && (
+      {shownError && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>{shownError}</AlertDescription>
         </Alert>
       )}
 
@@ -96,17 +101,9 @@ export default function SettingsPage() {
         <h2 id="subscription" className="text-xl font-semibold">
           {t('settings.subscription')}
         </h2>
-        {plan ? (
-          <div className="flex items-center gap-2">
-            <span>{t('settings.currentPlan')}</span>
-            <Badge variant="secondary">
-              {plan.plan === 'pro' ? t('settings.planPro') : t('settings.planFree')}
-            </Badge>
-          </div>
-        ) : (
-          <Skeleton role="status" aria-label={t('common.loading')} className="h-6 w-1/3" />
-        )}
-        <p className="text-sm text-muted-foreground">{t('settings.plansSoon')}</p>
+        <Suspense>
+          <PlanStatus plan={plan} reload={reload} />
+        </Suspense>
       </section>
 
       <section aria-labelledby="delete" className={sectionClass}>

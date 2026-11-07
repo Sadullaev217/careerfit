@@ -52,7 +52,8 @@ def account_plan(user: User) -> PlanResponse:
         current_period_end=entitlements.current_period_end,
         analyses_used=store.count_analyses_since(user.id, plans.month_start(now)),
         analyses_limit=entitlements.analyses_limit,
-        limit_resets_at=plans.next_month_start(now).isoformat(),
+        # A plain date: the limit resets at midnight UTC, and apps show this as that calendar day.
+        limit_resets_at=plans.next_month_start(now).date().isoformat(),
         purchased_reports=sorted(store.purchased_report_ids(user.id)),
     )
 

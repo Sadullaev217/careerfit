@@ -9,6 +9,7 @@ import { ActionPlan } from '@/components/results/action-plan';
 import { AllSkills } from '@/components/results/all-skills';
 import { OtherRoles } from '@/components/results/other-roles';
 import { Overview } from '@/components/results/overview';
+import { ResultExtras } from '@/components/results/result-extras';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -188,6 +189,8 @@ function AnalysisView() {
           <AlertDescription>{t('results.reportFailed')}</AlertDescription>
         </Alert>
       )}
+
+      {analysis.status === 'completed' && result && <ResultExtras analysisId={analysis.id} />}
 
       {result && (
         <footer className="flex flex-col gap-1 border-t pt-3 text-sm text-muted-foreground" data-testid="disclaimer">

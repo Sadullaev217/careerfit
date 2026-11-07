@@ -968,7 +968,7 @@ def test_progress_follows_one_job_over_time(
     tracks = client.get("/analyses/progress", headers=auth_headers()).json()
     assert len(tracks) == 1
     track = tracks[0]
-    assert (track["role"], track["region"]) == ("software developer", "Ontario")
+    assert (track["role"], track["region"]) == ("Software developers and programmers", "Ontario")
     assert [point["analysisId"] for point in track["points"]] == [first, second]
     assert track["change"] == 7
 
@@ -993,7 +993,7 @@ def test_tailored_lines_are_made_once_and_kept(
 ) -> None:
     analysis_id = finished(client, store, queue)
     url = f"/analyses/{analysis_id}/tailored-rewrites"
-    assert client.get(url, headers=auth_headers()).status_code == 404
+    assert client.get(url, headers=auth_headers()).json() == {"job": "software developer", "rewrites": None}
     calls = llm.calls
     body = client.post(url, headers=auth_headers()).json()
     assert body["job"] == "software developer"

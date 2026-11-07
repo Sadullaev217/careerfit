@@ -8,6 +8,7 @@ const PROTECTED_ROUTES = [
   '/analyses',
   '/market',
   '/settings',
+  '/pricing',
   '/reset-password',
 ];
 

@@ -175,28 +175,37 @@ def _pro_required() -> HTTPException:
 
 @router.get("/progress", response_model=list[ProgressTrack])
 def progress(user: User) -> list[ProgressTrack]:
-    """Pro: scores for the same job and region over time, oldest first, most recently checked job first."""
+    """Pro: each job's score over time, oldest first, most recently checked job first.
+
+    Runs group by occupation, like the web chart, so the same job checked in English and in Russian is
+    one line. The region is shown only when every run used the same one.
+    """
     if not plans.entitlements(store.get_subscription(user.id)).is_pro:
         raise _pro_required()
-    tracks: dict[tuple[str, str | None], list[ProgressPoint]] = {}
+    tracks: dict[str, list[tuple[ProgressPoint, str, str | None]]] = {}
     for row in sorted(store.list_analyses(user.id), key=lambda r: str(r["created_at"])):
+        result = row.get("result") or {}
         target = row.get("target_roles") or {}
-        if row["status"] != "completed" or row["score"] is None or not target.get("title"):
+        name = result.get("occupation_name") or target.get("title")
+        if row["status"] != "completed" or row["score"] is None or not name:
             continue
-        key = (str(target["title"]), target.get("region"))
-        tracks.setdefault(key, []).append(
-            ProgressPoint(analysis_id=row["id"], date=row["created_at"], score=round(row["score"]))
+        point = ProgressPoint(analysis_id=row["id"], date=row["created_at"], score=round(row["score"]))
+        key = str(result.get("occupation_code") or name)
+        tracks.setdefault(key, []).append((point, str(name), target.get("region")))
+    ordered = sorted(tracks.values(), key=lambda runs: runs[-1][0].date, reverse=True)
+    output: list[ProgressTrack] = []
+    for runs in ordered:
+        points = [point for point, _, _ in runs]
+        regions = {region for _, _, region in runs}
+        output.append(
+            ProgressTrack(
+                role=runs[-1][1],
+                region=regions.pop() if len(regions) == 1 else None,
+                points=points,
+                change=points[-1].score - points[0].score if len(points) > 1 else None,
+            )
         )
-    ordered = sorted(tracks.items(), key=lambda item: item[1][-1].date, reverse=True)
-    return [
-        ProgressTrack(
-            role=role,
-            region=region,
-            points=points,
-            change=points[-1].score - points[0].score if len(points) > 1 else None,
-        )
-        for (role, region), points in ordered
-    ]
+    return output
 
 
 @router.get("/{analysis_id}", response_model=AnalysisResponse)
@@ -237,7 +246,8 @@ def detailed_report(
 
 class TailoredResponse(CamelModel):
     job: str
-    rewrites: list[TailoredRewrite]
+    # None until the resume has been tailored for this result.
+    rewrites: list[TailoredRewrite] | None
 
 
 def _finished_analysis(analysis_id: UUID, user_id: str) -> dict[str, Any]:
@@ -262,10 +272,9 @@ def get_tailored_rewrites(analysis_id: UUID, user: User) -> TailoredResponse:
     """Rewrites made earlier stay readable, even after Pro ends."""
     row = _finished_analysis(analysis_id, user.id)
     saved = store.get_tailored_rewrites(row["id"], user.id)
-    if saved is None:
-        raise _error(status.HTTP_404_NOT_FOUND, "not_tailored", "This resume hasn't been tailored yet.")
     return TailoredResponse(
-        job=_job_title(row), rewrites=[TailoredRewrite.model_validate(item) for item in saved]
+        job=_job_title(row),
+        rewrites=None if saved is None else [TailoredRewrite.model_validate(i) for i in saved],
     )
 
 

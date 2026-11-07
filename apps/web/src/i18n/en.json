@@ -342,7 +342,9 @@
     "onePoint": "After you update your resume, run this again to see your progress here.",
     "allTitle": "All analyses",
     "working": "In progress",
-    "failed": "Didn't finish"
+    "failed": "Didn't finish",
+    "proTitle": "Track your progress",
+    "proBody": "See how your score for a job changes as you improve your resume. Part of Pro."
   },
   "settings": {
     "title": "Settings",
@@ -361,9 +363,10 @@
     "deleteBody": "This permanently deletes your account, documents and results.",
     "deleteAction": "Delete my account",
     "deleteConfirmTitle": "Delete your account for good?",
-    "deleteConfirmBody": "Your account, documents and results will be permanently deleted. This can't be undone.",
+    "deleteConfirmBody": "Your account, documents and results will be permanently deleted. This can't be undone. A Pro subscription is cancelled straight away, with no further charges.",
     "deleteConfirmAction": "Yes, delete everything",
-    "deleteFailed": "We couldn't delete your account. Please try again."
+    "deleteFailed": "We couldn't delete your account. Please try again.",
+    "deleteBillingFailed": "We couldn't cancel your subscription, so your account wasn't deleted. Please try again."
   },
   "market": {
     "title": "Job market",
@@ -427,7 +430,17 @@
       "not_found": "We couldn't find that.",
       "resume_not_ready": "We haven't finished reading this resume yet. Please try again shortly.",
       "unknown_region": "Choose a Canadian province or territory, or all of Canada.",
-      "role_not_found": "We couldn't recognise this job. Please choose one from the list."
+      "role_not_found": "We couldn't recognise this job. Please choose one from the list.",
+      "limit_reached": "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
+      "pro_required": "This is part of CareerFit Pro.",
+      "report_not_purchased": "Buy the detailed report for this result to download it.",
+      "already_pro": "You already have Pro.",
+      "already_purchased": "You already have this report.",
+      "analysis_not_finished": "This result isn't finished yet.",
+      "billing_unavailable": "Payments aren't available right now. Please try again later.",
+      "no_billing_account": "There are no payments to manage yet.",
+      "nothing_to_tailor": "We couldn't find lines in this resume that show the job's skills.",
+      "ai_unavailable": "Our AI is busy right now. Please try again in a few minutes."
     },
     "document": {
       "no_text": "We couldn't find any text in this file.",
@@ -459,5 +472,71 @@
       "queue_unavailable": "We can't score resumes right now. Please try again in a few minutes.",
       "analysis_error": "Something went wrong while scoring. Please try again."
     }
+  },
+  "billing": {
+    "planFree": "Free",
+    "planPro": "Pro",
+    "usage": {
+      "one": "You've used {count} of {limit} free analysis this month.",
+      "other": "You've used {count} of {limit} free analyses this month."
+    },
+    "resets": "Your free analysis comes back on {date}.",
+    "unlimited": "Unlimited analyses.",
+    "renews": "Renews on {date}.",
+    "ends": "Pro ends on {date}. You keep it until then.",
+    "pastDue": "Your last payment didn't go through. Stripe will try again. Update your card to keep Pro.",
+    "upgrade": "Upgrade to Pro",
+    "manage": "Manage billing",
+    "seePlans": "See plans",
+    "opening": "Opening the payment page…",
+    "checkoutFailed": "We couldn't open the payment page. Please try again.",
+    "proStarting": "Thanks! Your Pro plan is starting. This takes a few seconds.",
+    "proActive": "You're on Pro. Enjoy unlimited analyses.",
+    "proSlow": "Your payment went through, but we haven't heard back from Stripe yet. Refresh this page in a minute.",
+    "viaApp": "Your Pro plan was bought in the CareerFit app. Manage it in your phone’s app store.",
+    "limitTitle": "You've used this month's free analysis",
+    "limitBody": "Upgrade to Pro for unlimited analyses, or come back on {date}."
+  },
+  "pricing": {
+    "title": "Plans",
+    "intro": "Start free. Upgrade when you want to check more jobs.",
+    "free": "Free",
+    "freePrice": "Free",
+    "freeItem1": "One analysis a month",
+    "freeItem2": "Your full report and 30, 60 and 90 day plan",
+    "freeItem3": "All your past results",
+    "pro": "Pro",
+    "proPrice": "{price} a month",
+    "proItem1": "Unlimited analyses",
+    "proItem2": "Your resume rewritten for each job",
+    "proItem3": "Your progress over time",
+    "report": "Detailed report",
+    "reportPrice": "{price} per result",
+    "reportBody": "A polished PDF of one result to keep, print or share. Buy it from any result.",
+    "current": "Your plan",
+    "smallPrint": "Cancel anytime. Prices in Canadian dollars. Taxes may apply.",
+    "testMode": "Payments are in test mode, so no real money is charged."
+  },
+  "extras": {
+    "title": "Get more from this result",
+    "pro": "Pro",
+    "tailorTitle": "Your resume, tailored to this job",
+    "tailorBody": "We reword lines from your resume so this job's skills stand out. Only skills your resume already shows are used, and nothing is made up.",
+    "tailorAction": "Tailor my resume",
+    "tailorWorking": "Rewriting your lines. This can take up to a minute…",
+    "tailorNone": "We couldn't find lines that show this job's skills. Add more detail to your resume, then try again.",
+    "tailorEmpty": "None of the suggested lines passed our checks, so there is nothing to change yet.",
+    "tailorFailed": "We couldn't rewrite your lines. Please try again.",
+    "before": "Before",
+    "after": "After",
+    "shows": "Shows: {skill}",
+    "copy": "Copy",
+    "copied": "Copied",
+    "reportTitle": "Detailed PDF report",
+    "reportBody": "This result as a polished PDF: your score explained, skills, pay and your 30, 60 and 90 day plan.",
+    "reportBuy": "Buy for {price}",
+    "reportDownload": "Download PDF",
+    "reportWaiting": "Payment received. Getting your report ready…",
+    "reportFailed": "We couldn't download your report. Please try again."
   }
 }
