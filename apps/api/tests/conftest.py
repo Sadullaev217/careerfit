@@ -17,10 +17,14 @@ class _NoQueue:
 
 
 @pytest.fixture(autouse=True)
-def isolated_from_local_settings() -> Iterator[None]:
+def isolated_from_local_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     # A developer's .env may turn on inline jobs, which would run real AI during tests.
     previous = celery_app.conf.task_always_eager
     celery_app.conf.task_always_eager = False
+    # Nor may a test reach a real AI model or Stripe by accident: these addresses go nowhere.
+    monkeypatch.setattr(settings, "ollama_url", "http://127.0.0.1:9")
+    monkeypatch.setattr(settings, "stripe_secret_key", "")
+    monkeypatch.setattr(settings, "stripe_webhook_secret", "")
     yield
     celery_app.conf.task_always_eager = previous
 

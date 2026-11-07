@@ -146,6 +146,7 @@ dependencies = [
     { name = "celery", extra = ["redis"] },
     { name = "fastapi" },
     { name = "fastembed" },
+    { name = "fpdf2" },
     { name = "httpx" },
     { name = "pdfplumber" },
     { name = "pillow" },
@@ -165,7 +166,6 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
-    { name = "fpdf2" },
     { name = "httpx" },
     { name = "mypy" },
     { name = "psycopg", extra = ["binary"] },
@@ -180,7 +180,7 @@ requires-dist = [
     { name = "celery", extras = ["redis"], specifier = ">=5.4.0" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "fastembed", specifier = ">=0.7.0" },
-    { name = "fpdf2", marker = "extra == 'dev'", specifier = ">=2.8.0" },
+    { name = "fpdf2", specifier = ">=2.8.0" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.28.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },

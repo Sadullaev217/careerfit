@@ -3,15 +3,17 @@ from datetime import UTC, datetime
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from app import market_lookup, plans, store
+from app import market_lookup, plans, report_pdf, store, tailoring
 from app.auth import CurrentUser, get_current_user
+from app.llm import LLMUnavailable, get_llm
 from app.queueing import enqueue
 from app.recommendations import FullResult
+from app.tailoring import TailoredRewrite
 from app.tasks import run_analysis
 
 logger = logging.getLogger(__name__)
@@ -154,9 +156,153 @@ def list_analyses(user: User) -> list[AnalysisResponse]:
     return [_to_response(row) for row in store.list_analyses(user.id)]
 
 
+class ProgressPoint(CamelModel):
+    analysis_id: str
+    date: str
+    score: int
+
+
+class ProgressTrack(CamelModel):
+    role: str
+    region: str | None
+    points: list[ProgressPoint]
+    change: int | None
+
+
+def _pro_required() -> HTTPException:
+    return _error(status.HTTP_402_PAYMENT_REQUIRED, "pro_required", "This is part of CareerFit Pro.")
+
+
+@router.get("/progress", response_model=list[ProgressTrack])
+def progress(user: User) -> list[ProgressTrack]:
+    """Pro: scores for the same job and region over time, oldest first, most recently checked job first."""
+    if not plans.entitlements(store.get_subscription(user.id)).is_pro:
+        raise _pro_required()
+    tracks: dict[tuple[str, str | None], list[ProgressPoint]] = {}
+    for row in sorted(store.list_analyses(user.id), key=lambda r: str(r["created_at"])):
+        target = row.get("target_roles") or {}
+        if row["status"] != "completed" or row["score"] is None or not target.get("title"):
+            continue
+        key = (str(target["title"]), target.get("region"))
+        tracks.setdefault(key, []).append(
+            ProgressPoint(analysis_id=row["id"], date=row["created_at"], score=round(row["score"]))
+        )
+    ordered = sorted(tracks.items(), key=lambda item: item[1][-1].date, reverse=True)
+    return [
+        ProgressTrack(
+            role=role,
+            region=region,
+            points=points,
+            change=points[-1].score - points[0].score if len(points) > 1 else None,
+        )
+        for (role, region), points in ordered
+    ]
+
+
 @router.get("/{analysis_id}", response_model=AnalysisResponse)
 def get_analysis(analysis_id: UUID, user: User) -> AnalysisResponse:
     row = store.get_analysis(str(analysis_id), user.id)
     if row is None:
         raise _error(status.HTTP_404_NOT_FOUND, "not_found", "Analysis not found.")
     return _to_response(row)
+
+
+@router.get("/{analysis_id}/report.pdf", response_class=Response)
+def detailed_report(
+    analysis_id: UUID, user: User, language: Literal["en", "ru"] = "en"
+) -> Response:
+    """The one-time purchase: this result as a PDF. Only for people who bought it for this analysis."""
+    row = _finished_analysis(analysis_id, user.id)
+    if row["id"] not in store.purchased_report_ids(user.id):
+        raise _error(
+            status.HTTP_402_PAYMENT_REQUIRED,
+            "report_not_purchased",
+            "Buy the detailed report for this result to download it.",
+        )
+    target = row.get("target_roles") or {}
+    pdf = report_pdf.build_report_pdf(
+        FullResult.model_validate(row["result"]),
+        _job_title(row),
+        target.get("region"),
+        row["created_at"],
+        language,
+    )
+    name = report_pdf.report_file_name(row["created_at"])
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{name}"', "Cache-Control": "no-store"},
+    )
+
+
+class TailoredResponse(CamelModel):
+    job: str
+    rewrites: list[TailoredRewrite]
+
+
+def _finished_analysis(analysis_id: UUID, user_id: str) -> dict[str, Any]:
+    row = store.get_analysis(str(analysis_id), user_id)
+    if row is None:
+        raise _error(status.HTTP_404_NOT_FOUND, "not_found", "Analysis not found.")
+    if row["status"] != "completed" or not row.get("result"):
+        raise _error(
+            status.HTTP_409_CONFLICT, "analysis_not_finished", "This result isn't finished yet."
+        )
+    return row
+
+
+def _job_title(row: dict[str, Any]) -> str:
+    # The job as the person typed it, else the occupation it was matched to. Saved results use snake_case.
+    target = row.get("target_roles") or {}
+    return str(target.get("title") or row["result"].get("occupation_name") or "")
+
+
+@router.get("/{analysis_id}/tailored-rewrites", response_model=TailoredResponse)
+def get_tailored_rewrites(analysis_id: UUID, user: User) -> TailoredResponse:
+    """Rewrites made earlier stay readable, even after Pro ends."""
+    row = _finished_analysis(analysis_id, user.id)
+    saved = store.get_tailored_rewrites(row["id"], user.id)
+    if saved is None:
+        raise _error(status.HTTP_404_NOT_FOUND, "not_tailored", "This resume hasn't been tailored yet.")
+    return TailoredResponse(
+        job=_job_title(row), rewrites=[TailoredRewrite.model_validate(item) for item in saved]
+    )
+
+
+@router.post("/{analysis_id}/tailored-rewrites", response_model=TailoredResponse)
+def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
+    """Pro: rewrites resume lines for this result's job. Takes up to a minute on the local AI model."""
+    row = _finished_analysis(analysis_id, user.id)
+    job = _job_title(row)
+    saved = store.get_tailored_rewrites(row["id"], user.id)
+    if saved is not None:
+        return TailoredResponse(job=job, rewrites=[TailoredRewrite.model_validate(i) for i in saved])
+    if not plans.entitlements(store.get_subscription(user.id)).is_pro:
+        raise _pro_required()
+
+    resume_text = store.get_parsed_text(row["document_id"]) if row.get("document_id") else None
+    llm = get_llm()
+    try:
+        rewrites = tailoring.tailor(
+            resume_text or "", job, tailoring.shown_skills(row["result"]), llm
+        )
+    except tailoring.NothingToTailor:
+        raise _error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "nothing_to_tailor",
+            "We couldn't find lines in this resume that show the job's skills.",
+        ) from None
+    except LLMUnavailable:
+        raise _error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "ai_unavailable",
+            "Our AI is busy right now. Please try again in a few minutes.",
+        ) from None
+    store.save_tailored_rewrites(
+        row["id"],
+        user.id,
+        [rewrite.model_dump(by_alias=True) for rewrite in rewrites],
+        llm.model,
+        tailoring.PROMPT_VERSION,
+    )
+    return TailoredResponse(job=job, rewrites=rewrites)

@@ -347,6 +347,37 @@ def purchased_report_ids(user_id: str) -> set[str]:
     return {str(row["analysis_id"]) for row in rows}
 
 
+def get_tailored_rewrites(analysis_id: str, user_id: str) -> list[dict[str, Any]] | None:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/tailored_rewrites",
+            params={
+                "analysis_id": f"eq.{analysis_id}",
+                "user_id": f"eq.{user_id}",
+                "select": "rewrites",
+            },
+        )
+    )
+    return list(rows[0]["rewrites"]) if rows else None
+
+
+def save_tailored_rewrites(
+    analysis_id: str, user_id: str, rewrites: list[dict[str, Any]], model: str, prompt_version: str
+) -> None:
+    _client().post(
+        "/rest/v1/tailored_rewrites",
+        params={"on_conflict": "analysis_id"},
+        headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+        json={
+            "analysis_id": analysis_id,
+            "user_id": user_id,
+            "rewrites": rewrites,
+            "model": model,
+            "prompt_version": prompt_version,
+        },
+    ).raise_for_status()
+
+
 def count_analyses_since(user_id: str, start: datetime) -> int:
     rows = _rows(
         _client().get(

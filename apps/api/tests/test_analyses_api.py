@@ -61,6 +61,13 @@ ACTION_ANSWER = {
     "unsure": False,
 }
 RESUME_LINE = "Patient assessment, wound care and triage in the emergency department."
+TAILOR_LINE = "Fixed bugs in Python services for the billing team every week"
+# Skill 2 of those the analysis found ("computer programming", "debug software").
+TAILORED_ANSWER = {
+    "line": 1,
+    "skill": 2,
+    "after": "Debugged and fixed bugs in Python services for the billing team every week",
+}
 REWRITE_ANSWER = {
     "line": 1,
     "after": "Assessed patients, provided wound care, and performed triage in the emergency department.",
@@ -79,6 +86,8 @@ class FakeLLM:
         if self.error:
             raise self.error
         properties = schema["properties"]
+        if "tailor lines" in system:
+            return json.dumps({"rewrites": [TAILORED_ANSWER]})
         if "judgements" in properties:
             return json.dumps(SKILLS_ANSWER)
         if "actions" in properties:
@@ -101,6 +110,7 @@ class AnalysisFakeStore(FakeStore):
         self.target_roles: list[dict[str, str]] = []
         self.market_error: Exception | None = None
         self.translations: dict[str, str] = {}
+        self.tailored: dict[str, dict[str, Any]] = {}
         # Most tests start several analyses, so their account is Pro. The limit tests switch it to free.
         self.update_subscription(USER_ID, {"plan": "pro", "status": "active"})
 
@@ -190,6 +200,20 @@ class AnalysisFakeStore(FakeStore):
     def save_skill_judgement(self, document_id: str, key: str, result: dict[str, Any]) -> None:
         self.judgements[(document_id, key)] = json.loads(json.dumps(result))
 
+    def get_tailored_rewrites(self, analysis_id: str, user_id: str) -> list[dict[str, Any]] | None:
+        saved = self.tailored.get(analysis_id)
+        return list(saved["rewrites"]) if saved and saved["user_id"] == user_id else None
+
+    def save_tailored_rewrites(
+        self,
+        analysis_id: str,
+        user_id: str,
+        rewrites: list[dict[str, Any]],
+        model: str,
+        prompt_version: str,
+    ) -> None:
+        self.tailored[analysis_id] = {"user_id": user_id, "rewrites": json.loads(json.dumps(rewrites))}
+
     def get_translations(self, terms: list[str], _language: str) -> dict[str, str]:
         return {term: self.translations[term] for term in terms if term in self.translations}
 
@@ -225,6 +249,8 @@ def store(monkeypatch: pytest.MonkeyPatch) -> AnalysisFakeStore:
 def llm(monkeypatch: pytest.MonkeyPatch) -> FakeLLM:
     fake = FakeLLM()
     monkeypatch.setattr(tasks, "get_llm", lambda: fake)
+    # The tailoring endpoint asks for the model itself; tests must never reach the real one.
+    monkeypatch.setattr(analyses, "get_llm", lambda: fake)
     return fake
 
 
@@ -911,3 +937,152 @@ def test_a_failed_analysis_sends_no_alert(
     tasks._end_analysis_early("failed", USER_ID, None, tasks.datetime.now(tasks.UTC), "timeout")
     assert store.analyses["failed"]["status"] == "failed"
     assert sent == []
+
+
+# --- Pro: progress over time ---
+
+
+def finished(client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, **changes: Any) -> str:
+    start(client, add_resume(store, parsed_text=TAILOR_LINE), **changes)
+    return run(store, queue)
+
+
+def test_progress_is_part_of_pro(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    store.update_subscription(USER_ID, {"plan": "free"})
+    response = client.get("/analyses/progress", headers=auth_headers())
+    assert response.status_code == 402
+    assert response.json()["detail"]["code"] == "pro_required"
+
+
+def test_progress_follows_one_job_over_time(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    first = finished(client, store, queue)
+    second = finished(client, store, queue)
+    store.analyses[first]["created_at"] = "2026-10-01T00:00:00+00:00"
+    store.analyses[first]["score"] = store.analyses[second]["score"] - 7
+    # An unfinished analysis isn't a point on the line.
+    start(client, add_resume(store))
+    tracks = client.get("/analyses/progress", headers=auth_headers()).json()
+    assert len(tracks) == 1
+    track = tracks[0]
+    assert (track["role"], track["region"]) == ("software developer", "Ontario")
+    assert [point["analysisId"] for point in track["points"]] == [first, second]
+    assert track["change"] == 7
+
+
+# --- Pro: the resume tailored to one job ---
+
+
+def test_tailoring_a_resume_is_part_of_pro(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    store.update_subscription(USER_ID, {"plan": "free"})
+    calls = llm.calls
+    response = client.post(f"/analyses/{analysis_id}/tailored-rewrites", headers=auth_headers())
+    assert response.status_code == 402
+    assert response.json()["detail"]["code"] == "pro_required"
+    assert llm.calls == calls
+
+
+def test_tailored_lines_are_made_once_and_kept(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    url = f"/analyses/{analysis_id}/tailored-rewrites"
+    assert client.get(url, headers=auth_headers()).status_code == 404
+    calls = llm.calls
+    body = client.post(url, headers=auth_headers()).json()
+    assert body["job"] == "software developer"
+    assert body["rewrites"] == [
+        {"before": TAILOR_LINE, "after": TAILORED_ANSWER["after"], "skill": "debug software"}
+    ]
+    assert llm.calls == calls + 1
+    # Asking again, or after Pro ends, shows the saved lines without the AI.
+    assert client.post(url, headers=auth_headers()).json() == body
+    store.update_subscription(USER_ID, {"plan": "free"})
+    assert client.get(url, headers=auth_headers()).json() == body
+    assert llm.calls == calls + 1
+
+
+def test_tailoring_when_the_ai_is_down(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    llm.error = LLMUnavailable("down")
+    response = client.post(f"/analyses/{analysis_id}/tailored-rewrites", headers=auth_headers())
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "ai_unavailable"
+    assert store.tailored == {}
+
+
+def test_someone_elses_result_cant_be_tailored(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    response = client.post(
+        f"/analyses/{analysis_id}/tailored-rewrites", headers=auth_headers(OTHER_USER_ID)
+    )
+    assert response.status_code == 404
+
+
+# --- The detailed report ---
+
+
+def pdf_text(content: bytes) -> str:
+    import io
+
+    import pdfplumber
+
+    with pdfplumber.open(io.BytesIO(content)) as pdf:
+        return "\n".join(page.extract_text() or "" for page in pdf.pages)
+
+
+def test_the_detailed_report_needs_buying_first(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    response = client.get(f"/analyses/{analysis_id}/report.pdf", headers=auth_headers())
+    assert response.status_code == 402
+    assert response.json()["detail"]["code"] == "report_not_purchased"
+
+
+def test_a_bought_report_downloads_as_a_pdf(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    store.record_report_purchase(USER_ID, analysis_id, "stripe", "cs_1")
+    response = client.get(f"/analyses/{analysis_id}/report.pdf", headers=auth_headers())
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["content-disposition"].startswith('attachment; filename="careerfit-report-')
+    text = pdf_text(response.content)
+    score = store.analyses[analysis_id]["score"]
+    assert f"Match score: {round(score)} out of 100" in text
+    assert "software developer · Ontario" in text
+    assert "Your 30, 60 and 90 day plan" in text
+
+
+def test_the_report_can_be_in_russian(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue, language="ru")
+    store.record_report_purchase(USER_ID, analysis_id, "stripe", "cs_1")
+    response = client.get(
+        f"/analyses/{analysis_id}/report.pdf", params={"language": "ru"}, headers=auth_headers()
+    )
+    text = pdf_text(response.content)
+    assert "Оценка совпадения" in text
+    assert "Онтарио" in text
+
+
+def test_a_report_bought_by_someone_else_isnt_yours(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    store.record_report_purchase(OTHER_USER_ID, analysis_id, "stripe", "cs_1")
+    response = client.get(f"/analyses/{analysis_id}/report.pdf", headers=auth_headers())
+    assert response.status_code == 402

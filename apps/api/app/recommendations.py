@@ -462,8 +462,12 @@ def _plain_words(text: str) -> list[str]:
     return [word for word in (w.lower() for w in _WORD.findall(text)) if word not in ("and", "и")]
 
 
-def rewrite_is_honest(before: str, after: str) -> bool:
-    """A rewrite may reword a line, but it can't claim anything new or lose anything the person wrote."""
+def rewrite_is_honest(before: str, after: str, allowed: str = "") -> bool:
+    """A rewrite may reword a line, but it can't claim anything new or lose anything the person wrote.
+
+    `allowed` holds words that may appear on top of the usual few new verbs: the name of a skill the
+    analysis already found evidence of, when a line is tailored to a job.
+    """
     if not after or not after[0].isalpha() or _invents_detail(after) or len(after) > MAX_TEXT_CHARS:
         return False
     # Changing only the punctuation isn't worth the person's time to read.
@@ -472,11 +476,10 @@ def rewrite_is_honest(before: str, after: str) -> bool:
     if set(_NUMBER.findall(before)) ^ set(_NUMBER.findall(after)):
         return False
     words_after = {word.lower() for word in _WORD.findall(after)}
-    if _names(before) - words_after or _names(after) - {
-        word.lower() for word in _WORD.findall(before)
-    }:
+    known_words = {word.lower() for word in _WORD.findall(f"{before} {allowed}")}
+    if _names(before) - words_after or _names(after) - known_words:
         return False
-    old, new = _stems(before), _stems(after)
+    old, new = _stems(before), _stems(after) - _stems(allowed)
     # Rewording needs a few new verbs. More than that means the model is adding to what the line says.
     if len(new - old) > MAX_NEW_WORDS_IN_REWRITE:
         return False
