@@ -1,7 +1,7 @@
 import json
 import re
 from copy import deepcopy
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -101,6 +101,29 @@ class AnalysisFakeStore(FakeStore):
         self.target_roles: list[dict[str, str]] = []
         self.market_error: Exception | None = None
         self.translations: dict[str, str] = {}
+        # Most tests start several analyses, so their account is Pro. The limit tests switch it to free.
+        self.update_subscription(USER_ID, {"plan": "pro", "status": "active"})
+
+    def count_analyses_since(self, user_id: str, start: Any) -> int:
+        return sum(
+            1
+            for row in self.analyses.values()
+            if row["user_id"] == user_id and row["status"] != "failed" and row["created_at"] >= start.isoformat()
+        )
+
+    def start_analysis_within_limit(
+        self, user_id: str, target_role_id: str, document_id: str, limit: int | None, period_start: Any
+    ) -> dict[str, Any] | None:
+        if limit is not None and self.count_analyses_since(user_id, period_start) >= limit:
+            return None
+        return self.insert_analysis(
+            {
+                "user_id": user_id,
+                "target_role_id": target_role_id,
+                "document_id": document_id,
+                "created_at": datetime.now(UTC).isoformat(),
+            }
+        )
 
     def match_occupation(self, _embedding: list[float]) -> dict[str, Any] | None:
         return MATCH
@@ -330,6 +353,70 @@ def test_a_queue_outage_is_reported_and_recorded(
     assert response.status_code == 503
     only = next(iter(store.analyses.values()))
     assert (only["status"], only["error_code"]) == ("failed", "queue_unavailable")
+
+
+# --- Plan limits ---
+
+
+def test_a_free_account_gets_one_analysis_a_month(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    store.update_subscription(USER_ID, {"plan": "free"})
+    resume = add_resume(store)
+    assert start(client, resume).status_code == 202
+    response = start(client, resume)
+    assert response.status_code == 402
+    assert response.json()["detail"]["code"] == "limit_reached"
+    assert len(queue.calls) == 1
+    assert len(store.analyses) == 1
+
+
+def test_a_failed_analysis_doesnt_use_up_the_free_one(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    store.update_subscription(USER_ID, {"plan": "free"})
+    resume = add_resume(store)
+    start(client, resume)
+    next(iter(store.analyses.values()))["status"] = "failed"
+    assert start(client, resume).status_code == 202
+
+
+def test_last_months_analyses_dont_count(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    store.update_subscription(USER_ID, {"plan": "free"})
+    resume = add_resume(store)
+    start(client, resume)
+    next(iter(store.analyses.values()))["created_at"] = "2000-01-31T23:59:59+00:00"
+    assert start(client, resume).status_code == 202
+
+
+def test_pro_has_no_monthly_limit(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    resume = add_resume(store)
+    assert [start(client, resume).status_code for _ in range(3)] == [202, 202, 202]
+
+
+def test_a_cancelled_pro_plan_is_limited_again(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue
+) -> None:
+    store.update_subscription(USER_ID, {"plan": "pro", "status": "canceled"})
+    resume = add_resume(store)
+    assert start(client, resume).status_code == 202
+    assert start(client, resume).status_code == 402
+
+
+def test_the_database_has_the_last_word_on_the_limit(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Two requests at once both pass the quick check; the locked database step lets only one through.
+    store.update_subscription(USER_ID, {"plan": "free"})
+    monkeypatch.setattr(store, "count_analyses_since", lambda user_id, start: 0)
+    monkeypatch.setattr(store, "start_analysis_within_limit", lambda *args: None)
+    response = start(client, add_resume(store))
+    assert response.status_code == 402
+    assert queue.calls == []
 
 
 # --- Running ---

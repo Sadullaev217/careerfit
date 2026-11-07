@@ -426,6 +426,65 @@ def test_signup_creates_profile_and_free_subscription(conn: psycopg.Connection) 
     assert row == ("free",)
 
 
+def add_report_purchase(conn: psycopg.Connection, user_id: str, reference: str) -> None:
+    conn.execute("reset role")
+    conn.execute(
+        "insert into public.analyses (user_id, score) values (%s, 40) returning id", (user_id,)
+    )
+    conn.execute(
+        "insert into public.report_purchases (user_id, analysis_id, provider, provider_reference) "
+        "select %s, id, 'stripe', %s from public.analyses where user_id = %s and score = 40",
+        (user_id, reference, user_id),
+    )
+
+
+def test_people_see_only_their_own_report_purchases(conn: psycopg.Connection) -> None:
+    add_report_purchase(conn, ALICE, "cs_alice")
+    add_report_purchase(conn, BOB, "cs_bob")
+    act_as(conn, ALICE)
+    rows = conn.execute("select provider_reference from public.report_purchases").fetchall()
+    assert rows == [("cs_alice",)]
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "select * from public.stripe_events",
+        "insert into public.stripe_events (id, type) values ('evt_x', 'invoice.paid')",
+        "insert into public.report_purchases (user_id, analysis_id, provider, provider_reference) "
+        "select auth.uid(), id, 'stripe', 'cs_fake' from public.analyses limit 1",
+        "update public.subscriptions set provider = 'stripe', cancel_at_period_end = true",
+        "select public.start_analysis_within_limit(auth.uid(), null, null, null, now())",
+    ],
+)
+def test_clients_cannot_grant_themselves_purchases_or_skip_the_limit(
+    conn: psycopg.Connection, statement: str
+) -> None:
+    act_as(conn, ALICE)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute(statement.encode())
+
+
+def start_within_limit(conn: psycopg.Connection, user_id: str, limit: int | None) -> object:
+    row = conn.execute(
+        "select public.start_analysis_within_limit(%s, null, null, %s, date_trunc('month', now()))",
+        (user_id, limit),
+    ).fetchone()
+    assert row
+    return row[0]
+
+
+def test_the_limit_function_stops_at_the_monthly_limit(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    # Bob has no analyses yet. With a limit of 1, the first starts and the second is refused.
+    assert start_within_limit(conn, BOB, 1) is not None
+    assert start_within_limit(conn, BOB, 1) is None
+    # A failed analysis gives the slot back; no limit means Pro.
+    conn.execute("update public.analyses set status = 'failed' where user_id = %s", (BOB,))
+    assert start_within_limit(conn, BOB, 1) is not None
+    assert start_within_limit(conn, BOB, None) is not None
+
+
 def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:
     conn.execute("reset role")
     conn.execute(
@@ -433,9 +492,14 @@ def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:
         "values ('ExponentPushToken[alice]', %s, 'android')",
         (ALICE,),
     )
+    add_report_purchase(conn, ALICE, "cs_alice")
     conn.execute("delete from auth.users where id = %s", (ALICE,))
     tokens = conn.execute("select count(*) from public.push_tokens where user_id = %s", (ALICE,))
     assert tokens.fetchone() == (0,)
+    purchases = conn.execute(
+        "select count(*) from public.report_purchases where user_id = %s", (ALICE,)
+    )
+    assert purchases.fetchone() == (0,)
     for table in USER_TABLES:
         row = conn.execute(
             f"select count(*) from public.{table} where "

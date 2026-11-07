@@ -1,4 +1,5 @@
 import logging
+from datetime import UTC, datetime
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
@@ -7,7 +8,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from app import market_lookup, store
+from app import market_lookup, plans, store
 from app.auth import CurrentUser, get_current_user
 from app.queueing import enqueue
 from app.recommendations import FullResult
@@ -55,6 +56,15 @@ def _error(status_code: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code, detail={"code": code, "message": message})
 
 
+def _limit_reached() -> HTTPException:
+    return _error(
+        status.HTTP_402_PAYMENT_REQUIRED,
+        "limit_reached",
+        "You've used this month's free analysis. Upgrade to Pro for unlimited analyses, "
+        "or try again next month.",
+    )
+
+
 def _to_response(row: dict[str, Any]) -> AnalysisResponse:
     target = row.get("target_roles") or {}
     return AnalysisResponse(
@@ -87,6 +97,12 @@ def start_analysis(
             "We haven't finished reading this resume yet. Please try again shortly.",
         )
 
+    # A quick check before any matching work. The database checks again, atomically, when saving.
+    limit = plans.entitlements(store.get_subscription(user.id)).analyses_limit
+    period_start = plans.month_start(datetime.now(UTC))
+    if limit is not None and store.count_analyses_since(user.id, period_start) >= limit:
+        raise _limit_reached()
+
     role = body.role.strip()
     try:
         province = market_lookup.resolve_region(body.region)
@@ -111,9 +127,11 @@ def start_analysis(
     target_role_id = store.get_or_create_target_role(
         user.id, role, province or market_lookup.NATIONAL
     )
-    row = store.insert_analysis(
-        {"user_id": user.id, "target_role_id": target_role_id, "document_id": document_id}
+    row = store.start_analysis_within_limit(
+        user.id, target_role_id, document_id, limit, period_start
     )
+    if row is None:
+        raise _limit_reached()
     try:
         enqueue(
             run_analysis,

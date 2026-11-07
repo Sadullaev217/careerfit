@@ -1,12 +1,17 @@
-from typing import Annotated
+from datetime import UTC, datetime
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
-from app import store
+from app import billing, plans, store
 from app.auth import CurrentUser, delete_auth_user, get_current_user
 
 router = APIRouter()
+
+# Replaced in tests. Raises BillingUnavailable when Stripe isn't set up on this server.
+gateway_factory = billing.default_gateway
 
 User = Annotated[CurrentUser, Depends(get_current_user)]
 
@@ -17,8 +22,17 @@ class MeResponse(BaseModel):
 
 
 class PlanResponse(BaseModel):
-    plan: str
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    plan: Literal["free", "pro"]
     status: str
+    provider: str | None
+    cancel_at_period_end: bool
+    current_period_end: str | None
+    analyses_used: int
+    analyses_limit: int | None
+    limit_resets_at: str
+    purchased_reports: list[str]
 
 
 @router.get("/me", response_model=MeResponse)
@@ -28,12 +42,35 @@ def me(user: User) -> MeResponse:
 
 @router.get("/account/plan", response_model=PlanResponse)
 def account_plan(user: User) -> PlanResponse:
-    row = store.get_subscription(user.id)
-    return PlanResponse(plan=row["plan"] if row else "free", status=row["status"] if row else "active")
+    entitlements = plans.entitlements(store.get_subscription(user.id))
+    now = datetime.now(UTC)
+    return PlanResponse(
+        plan=entitlements.plan,
+        status=entitlements.status,
+        provider=entitlements.provider,
+        cancel_at_period_end=entitlements.cancel_at_period_end,
+        current_period_end=entitlements.current_period_end,
+        analyses_used=store.count_analyses_since(user.id, plans.month_start(now)),
+        analyses_limit=entitlements.analyses_limit,
+        limit_resets_at=plans.next_month_start(now).isoformat(),
+        purchased_reports=sorted(store.purchased_report_ids(user.id)),
+    )
 
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
 def delete_account(user: User) -> None:
-    # Files go first: if this fails the account still exists, so the user can retry.
+    # Billing goes first, then files: if either fails the account still exists, so the user can retry.
+    if (store.get_subscription(user.id) or {}).get("stripe_customer_id"):
+        try:
+            billing.forget_customer(user.id, store, gateway_factory())
+        except billing.BillingUnavailable:
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "billing_unavailable",
+                    "message": "We couldn't cancel your subscription, so your account wasn't deleted. "
+                    "Please try again.",
+                },
+            ) from None
     store.delete_all_user_files(user.id)
     delete_auth_user(user.id)

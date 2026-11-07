@@ -74,6 +74,55 @@ class FakeStore:
         self.skill_matches: dict[str, dict[str, Any] | None] = {}
         # Keyed by token, like the real table.
         self.push_tokens: dict[str, dict[str, Any]] = {}
+        # Every account gets a free subscription row when it's created, like the database trigger.
+        self.subscriptions: dict[str, dict[str, Any]] = {}
+        self.stripe_events: dict[str, str] = {}
+        self.report_purchases: dict[str, dict[str, Any]] = {}  # keyed by analysis id
+
+    def get_subscription(self, user_id: str) -> dict[str, Any] | None:
+        row = self.subscriptions.setdefault(
+            user_id,
+            {
+                "user_id": user_id,
+                "plan": "free",
+                "status": "active",
+                "provider": None,
+                "stripe_customer_id": None,
+                "stripe_subscription_id": None,
+                "current_period_end": None,
+                "cancel_at_period_end": False,
+            },
+        )
+        return dict(row)
+
+    def find_subscription_by_customer(self, customer_id: str) -> dict[str, Any] | None:
+        for row in self.subscriptions.values():
+            if row.get("stripe_customer_id") == customer_id:
+                return dict(row)
+        return None
+
+    def update_subscription(self, user_id: str, fields: dict[str, Any]) -> None:
+        self.get_subscription(user_id)
+        self.subscriptions[user_id].update(fields)
+
+    def stripe_event_seen(self, event_id: str) -> bool:
+        return event_id in self.stripe_events
+
+    def record_stripe_event(self, event_id: str, event_type: str) -> None:
+        self.stripe_events.setdefault(event_id, event_type)
+
+    def record_report_purchase(
+        self, user_id: str, analysis_id: str, provider: str, reference: str
+    ) -> None:
+        self.report_purchases.setdefault(
+            analysis_id, {"user_id": user_id, "provider": provider, "reference": reference}
+        )
+
+    def purchased_report_ids(self, user_id: str) -> set[str]:
+        return {key for key, row in self.report_purchases.items() if row["user_id"] == user_id}
+
+    def count_analyses_since(self, user_id: str, start: Any) -> int:
+        return 0
 
     def get_parsed_text(self, document_id: str) -> str | None:
         row = self.documents.get(document_id)

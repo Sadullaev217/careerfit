@@ -35,9 +35,10 @@ class Settings(BaseSettings):
     expo_push_url: str = "https://exp.host/--/api/v2/push/send"
     expo_access_token: str = ""
 
-    # Stripe
+    # Stripe. Payment pages send people back to the web app at web_url.
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
+    web_url: str = "http://localhost:3000"
 
     # Sentry
     sentry_dsn: str = ""

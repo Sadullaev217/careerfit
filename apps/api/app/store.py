@@ -272,14 +272,113 @@ def save_translations(translations: dict[str, str], language: str) -> None:
     )
 
 
+SUBSCRIPTION_COLUMNS = (
+    "user_id,plan,status,provider,stripe_customer_id,stripe_subscription_id,"
+    "current_period_end,cancel_at_period_end"
+)
+
+
 def get_subscription(user_id: str) -> dict[str, Any] | None:
     rows = _rows(
         _client().get(
             "/rest/v1/subscriptions",
-            params={"user_id": f"eq.{user_id}", "select": "plan,status"},
+            params={"user_id": f"eq.{user_id}", "select": SUBSCRIPTION_COLUMNS},
         )
     )
     return rows[0] if rows else None
+
+
+def find_subscription_by_customer(customer_id: str) -> dict[str, Any] | None:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/subscriptions",
+            params={"stripe_customer_id": f"eq.{customer_id}", "select": SUBSCRIPTION_COLUMNS},
+        )
+    )
+    return rows[0] if rows else None
+
+
+def update_subscription(user_id: str, fields: dict[str, Any]) -> None:
+    _client().patch(
+        "/rest/v1/subscriptions",
+        params={"user_id": f"eq.{user_id}"},
+        json={**fields, "updated_at": datetime.now(UTC).isoformat()},
+    ).raise_for_status()
+
+
+def stripe_event_seen(event_id: str) -> bool:
+    rows = _rows(
+        _client().get("/rest/v1/stripe_events", params={"id": f"eq.{event_id}", "select": "id"})
+    )
+    return bool(rows)
+
+
+def record_stripe_event(event_id: str, event_type: str) -> None:
+    _client().post(
+        "/rest/v1/stripe_events",
+        params={"on_conflict": "id"},
+        headers={"Prefer": "resolution=ignore-duplicates,return=minimal"},
+        json={"id": event_id, "type": event_type},
+    ).raise_for_status()
+
+
+def record_report_purchase(user_id: str, analysis_id: str, provider: str, reference: str) -> None:
+    # A second payment for the same analysis is ignored here; it shows up in Stripe for a refund.
+    _client().post(
+        "/rest/v1/report_purchases",
+        params={"on_conflict": "analysis_id"},
+        headers={"Prefer": "resolution=ignore-duplicates,return=minimal"},
+        json={
+            "user_id": user_id,
+            "analysis_id": analysis_id,
+            "provider": provider,
+            "provider_reference": reference,
+        },
+    ).raise_for_status()
+
+
+def purchased_report_ids(user_id: str) -> set[str]:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/report_purchases",
+            params={"user_id": f"eq.{user_id}", "select": "analysis_id"},
+        )
+    )
+    return {str(row["analysis_id"]) for row in rows}
+
+
+def count_analyses_since(user_id: str, start: datetime) -> int:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/analyses",
+            params={
+                "user_id": f"eq.{user_id}",
+                "created_at": f"gte.{start.isoformat()}",
+                "status": "neq.failed",
+                "select": "id",
+            },
+        )
+    )
+    return len(rows)
+
+
+def start_analysis_within_limit(
+    user_id: str, target_role_id: str, document_id: str, limit: int | None, period_start: datetime
+) -> dict[str, Any] | None:
+    """Creates the analysis, or returns None when the monthly limit is already used."""
+    response = _client().post(
+        "/rest/v1/rpc/start_analysis_within_limit",
+        json={
+            "p_user_id": user_id,
+            "p_target_role_id": target_role_id,
+            "p_document_id": document_id,
+            "p_limit": limit,
+            "p_period_start": period_start.isoformat(),
+        },
+    )
+    response.raise_for_status()
+    new_id = response.json()
+    return get_analysis(str(new_id), user_id) if new_id else None
 
 
 def match_occupations(embedding: list[float], count: int) -> list[dict[str, Any]]:
