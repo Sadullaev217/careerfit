@@ -32,11 +32,23 @@ class Entitlements:
         return self.plan == "pro"
 
 
-def entitlements(subscription: dict[str, Any] | None) -> Entitlements:
+def _expired(row: dict[str, Any], now: datetime) -> bool:
+    # Store plans have no webhook telling us they ended, so their saved end date decides. Stripe sends events.
+    end = row.get("current_period_end")
+    if row.get("provider") != "revenuecat" or not end:
+        return False
+    return datetime.fromisoformat(str(end).replace("Z", "+00:00")) <= now
+
+
+def entitlements(subscription: dict[str, Any] | None, now: datetime | None = None) -> Entitlements:
     """Reads the stored subscription row. A missing row is a free account."""
     row = subscription or {}
     status = str(row.get("status") or "active")
-    is_pro = row.get("plan") == "pro" and status in PRO_STATUSES
+    is_pro = (
+        row.get("plan") == "pro"
+        and status in PRO_STATUSES
+        and not _expired(row, now or datetime.now(UTC))
+    )
     return Entitlements(
         plan="pro" if is_pro else "free",
         status=status,

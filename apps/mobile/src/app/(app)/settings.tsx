@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
-import type { PlanInfo } from '@careerfit/shared';
+import { apiErrorCode, type PlanInfo } from '@careerfit/shared';
 import { Choice } from '@/components/Choice';
+import { PlanCard } from '@/components/PlanCard';
 import { Body, Button, Card, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { LOCALE_NAMES, LOCALES, useI18n, type Locale, type TextKey } from '@/i18n';
 import { forgetDeletedAccount, signOut } from '@/lib/account';
 import { api } from '@/lib/api';
+import { refreshStorePlan } from '@/lib/purchases';
 import { alertsSupported, reportAlertsOn, turnOffReportAlerts, turnOnReportAlerts, type AlertsState } from '@/lib/push';
 import { useSession } from '@/lib/session';
 import { colors, space } from '@/theme';
@@ -24,12 +26,16 @@ export default function SettingsScreen() {
   const [alertsProblem, setAlertsProblem] = useState<TextKey | null>(alertsSupported() ? null : 'settings.notificationsUnavailable');
   const [switching, setSwitching] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deleteFailed, setDeleteFailed] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState<'billing' | 'other' | null>(null);
+
+  const userId = session?.user.id;
+  const loadPlan = useCallback(() => api.account.plan().then(setPlan).catch(() => undefined), []);
 
   useEffect(() => {
-    api.account.plan().then(setPlan).catch(() => undefined);
+    // A store subscription can end without the API hearing about it, so it's checked before showing the plan.
+    (userId ? refreshStorePlan(userId) : Promise.resolve()).finally(() => void loadPlan());
     reportAlertsOn().then(setAlertsOn).catch(() => undefined);
-  }, []);
+  }, [userId, loadPlan]);
 
   async function setAlerts(on: boolean) {
     setSwitching(true);
@@ -60,12 +66,12 @@ export default function SettingsScreen() {
 
   async function deleteAccount() {
     setDeleting(true);
-    setDeleteFailed(false);
+    setDeleteFailed(null);
     try {
       await api.account.delete();
       await forgetDeletedAccount();
-    } catch {
-      setDeleteFailed(true);
+    } catch (error) {
+      setDeleteFailed(apiErrorCode(error) === 'billing_unavailable' ? 'billing' : 'other');
       setDeleting(false);
     }
   }
@@ -107,11 +113,7 @@ export default function SettingsScreen() {
         {alertsProblem && <Muted>{t(alertsProblem)}</Muted>}
       </Card>
 
-      <Card>
-        <Heading>{t('settings.plan')}</Heading>
-        <Body>{t('settings.currentPlan', { plan: plan?.plan === 'pro' ? t('settings.planPro') : t('settings.planFree') })}</Body>
-        <Muted>{t('settings.plansSoon')}</Muted>
-      </Card>
+      <PlanCard plan={plan} userId={userId} onChanged={loadPlan} />
 
       <Card>
         <Heading>{t('settings.privacy')}</Heading>
@@ -121,7 +123,11 @@ export default function SettingsScreen() {
       <Card>
         <Heading>{t('settings.deleteTitle')}</Heading>
         <Body>{t('settings.deleteBody')}</Body>
-        {deleteFailed && <Notice tone="error">{t('settings.deleteFailed')}</Notice>}
+        {deleteFailed && (
+          <Notice tone="error">
+            {deleteFailed === 'billing' ? t('settings.deleteBillingFailed') : t('settings.deleteFailed')}
+          </Notice>
+        )}
         <Button variant="destructive" title={t('settings.deleteAction')} busy={deleting} onPress={confirmDelete} />
       </Card>
     </Screen>

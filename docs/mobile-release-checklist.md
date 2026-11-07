@@ -13,6 +13,7 @@ items marked "later" belong to Part 11 (security and privacy) or Part 12 (deploy
 | Bundle ID and package name `com.sadullaev.careerfit` | Set in `app.config.ts`. Can't change after the first store upload |
 | Firebase project for Android notifications | Done: project `careerfit-66b96`, `google-services.json` stored as the EAS secret file `GOOGLE_SERVICES_JSON`, service account key uploaded to Expo. Checked on the emulator with a preview build: the report-ready notification arrives and opens the result |
 | App name, icon, splash and store screenshots | To do: the icons are still Expo's placeholders |
+| In-app purchases (see [payments.md](payments.md)) | To do before the stores: create `careerfit_pro_monthly` (subscription) and `careerfit_detailed_report` (one-time) in App Store Connect and Google Play, connect both stores in RevenueCat, and build store versions with the stores' RevenueCat keys instead of the Test Store key, which stops release builds on purpose. Apple also needs the subscription's terms and a restore button, which Settings has |
 
 ## Builds
 
@@ -58,6 +59,7 @@ Answers for App Store Connect's "App Privacy" section, based on what the app doe
 | User content: other (resumes, cover letters, portfolio links) | Yes | Yes | No | App functionality (scoring and plans) |
 | Identifiers: user ID | Yes | Yes | No | App functionality |
 | Identifiers: device ID (the notification token) | Yes, if notifications are on | Yes | No | App functionality (report-ready alerts) |
+| Purchases: purchase history (Pro, reports) | Yes, if something is bought | Yes | No | App functionality (unlocking what was bought) |
 | Usage data, diagnostics, location, contacts, financial info | No | | | |
 
 Other answers:
@@ -71,10 +73,11 @@ Other answers:
 
 | Question | Answer |
 |---|---|
-| Does the app collect or share user data? | Collects. Nothing is shared with third parties; Supabase and Expo act as service providers |
+| Does the app collect or share user data? | Collects. Nothing is shared with third parties; Supabase, Expo, RevenueCat and Stripe act as service providers |
 | Personal info | Email address, user IDs. Required, for app functionality and account management |
 | Files and docs | Resumes and cover letters. Required, for app functionality |
 | Device or other IDs | Notification token. Optional, for app functionality |
+| Financial info | Purchase history (Pro, reports). Optional, for app functionality. Payment details stay with Apple, Google or Stripe |
 | Is data encrypted in transit? | Yes, once the API is on https (see above) |
 | Can people ask for their data to be deleted? | Yes, in the app (Settings, Delete my account) and on the web (Settings) |
 

@@ -4,11 +4,11 @@ from uuid import UUID
 
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from starlette.concurrency import run_in_threadpool
 
-from app import billing, plans, store
+from app import billing, plans, revenuecat, store
 from app.auth import CurrentUser, get_current_user
 
 logger = logging.getLogger(__name__)
@@ -110,6 +110,51 @@ def portal(user: User, body: PortalRequest, gateway: Gateway) -> LinkResponse:
             status.HTTP_404_NOT_FOUND, "no_billing_account", "There are no payments to manage yet."
         )
     return LinkResponse(url=url)
+
+
+def get_store_source() -> revenuecat.SubscriberSource:
+    try:
+        return revenuecat.default_client()
+    except revenuecat.RevenueCatUnavailable:
+        raise _unavailable() from None
+
+
+StoreSource = Annotated[revenuecat.SubscriberSource, Depends(get_store_source)]
+
+
+class AppStoreReportRequest(CamelModel):
+    analysis_id: UUID
+    transaction_id: str = Field(min_length=1, max_length=200)
+
+
+@router.post("/app-store/sync", status_code=status.HTTP_204_NO_CONTENT)
+def sync_app_store(user: User, source: StoreSource) -> None:
+    """After a purchase or restore in the app: checks the account with RevenueCat and updates the plan."""
+    try:
+        revenuecat.sync_pro(user.id, store, source)
+    except revenuecat.RevenueCatUnavailable:
+        raise _unavailable() from None
+
+
+@router.post("/app-store/report", status_code=status.HTTP_204_NO_CONTENT)
+def claim_app_store_report(user: User, body: AppStoreReportRequest, source: StoreSource) -> None:
+    """After buying a report in the app: unlocks it for one result once RevenueCat confirms the purchase."""
+    analysis_id = str(body.analysis_id)
+    analysis = store.get_analysis(analysis_id, user.id)
+    if analysis is None:
+        raise _error(status.HTTP_404_NOT_FOUND, "not_found", "Analysis not found.")
+    if analysis_id in store.purchased_report_ids(user.id):
+        return
+    try:
+        revenuecat.claim_report(user.id, analysis_id, body.transaction_id, store, source)
+    except revenuecat.RevenueCatUnavailable:
+        raise _unavailable() from None
+    except revenuecat.PurchaseNotFound:
+        raise _error(
+            status.HTTP_409_CONFLICT,
+            "purchase_not_found",
+            "We couldn't confirm this purchase with the store yet. Please try again in a moment.",
+        ) from None
 
 
 @router.post("/stripe-webhook", include_in_schema=False)

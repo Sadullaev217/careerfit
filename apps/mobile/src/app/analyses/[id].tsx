@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import type { Analysis } from '@careerfit/shared';
+import { Extras } from '@/components/results/Extras';
 import { OtherRoles } from '@/components/results/OtherRoles';
 import { Overview } from '@/components/results/Overview';
 import { PlanView } from '@/components/results/PlanView';
@@ -159,6 +160,8 @@ export default function AnalysisScreen() {
       {tab === 'plan' && <PlanView result={result} />}
       {tab === 'roles' && <OtherRoles result={result} documentId={analysis.documentId} />}
       {tab === 'skills' && <SkillsView result={result} />}
+      {/* The copy saved for offline use can't reach the server, so it offers nothing to buy or make. */}
+      {!savedOn && <Extras analysisId={analysis.id} userId={userId} />}
     </Screen>
   );
 }

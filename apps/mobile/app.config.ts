@@ -56,6 +56,7 @@ const config: ExpoConfig = {
       },
     ],
     ['expo-notifications', { color: '#00584C', defaultChannel: 'reports' }],
+    'expo-sharing',
     ['expo-build-properties', { android: { usesCleartextTraffic: allowsPlainHttp } }],
   ],
   extra: {

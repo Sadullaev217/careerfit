@@ -168,6 +168,11 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       checkout: (data: { kind: 'pro' } | { kind: 'report'; analysisId: string }, language: Language = 'en') =>
         post<CheckoutLink>('/billing/checkout', { ...data, language }),
       portal: (language: Language = 'en') => post<CheckoutLink>('/billing/portal', { language }),
+      /** Phones: after an App Store or Google Play purchase or restore, re-checks the plan with RevenueCat. */
+      syncAppStore: () => post<void>('/billing/app-store/sync', {}),
+      /** Phones: unlocks one result's report with a confirmed store purchase. */
+      claimAppStoreReport: (data: { analysisId: string; transactionId: string }) =>
+        post<void>('/billing/app-store/report', data),
     },
     notifications: {
       register: (data: { token: string; platform: 'ios' | 'android'; language?: 'en' | 'ru' }) =>

@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { DEFAULT_REGION, REGIONS, type Document, type Region, type RoleSuggestion } from '@careerfit/shared';
+import {
+  apiErrorCode,
+  DEFAULT_REGION,
+  REGIONS,
+  type Document,
+  type PlanInfo,
+  type Region,
+  type RoleSuggestion,
+} from '@careerfit/shared';
 import { Choice } from '@/components/Choice';
 import { Body, Button, Card, Field, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { useI18n } from '@/i18n';
@@ -31,6 +39,8 @@ export default function NewAnalysisScreen() {
   const [region, setRegion] = useState<Region>(DEFAULT_REGION);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [plan, setPlan] = useState<PlanInfo | null>(null);
+  const [limitHit, setLimitHit] = useState(false);
 
   // "Run a full analysis" on another role arrives here with the job already picked. This tab stays
   // mounted, so new values are applied while rendering, React's pattern for state that follows input.
@@ -59,11 +69,18 @@ export default function NewAnalysisScreen() {
     }
   }, [params.documentId]);
 
+  // The plan is read again on each visit: an analysis or an upgrade elsewhere changes what's left.
+  const loadPlan = useCallback(() => api.account.plan().then(setPlan).catch(() => undefined), []);
+
   useFocusEffect(
     useCallback(() => {
       void loadDocuments();
-    }, [loadDocuments]),
+      void loadPlan();
+    }, [loadDocuments, loadPlan]),
   );
+
+  const limit = plan?.analysesLimit ?? null;
+  const usedUp = limitHit || (plan !== null && limit !== null && plan.analysesUsed >= limit);
 
   const text = query.trim();
   const longEnough = text.length >= MIN_QUERY;
@@ -105,7 +122,9 @@ export default function NewAnalysisScreen() {
       });
       router.push(`/analyses/${analysisId}`);
     } catch (startError) {
+      setLimitHit(apiErrorCode(startError) === 'limit_reached');
       setError(i18n.errorText(startError, 'role.startFailed'));
+      void loadPlan();
     }
     setStarting(false);
   }
@@ -199,8 +218,26 @@ export default function NewAnalysisScreen() {
         />
       </Card>
 
-      {error && <Notice tone="error">{error}</Notice>}
-      <Button title={starting ? t('role.starting') : t('role.start')} busy={starting} disabled={!documentId} onPress={() => void start()} />
+      {usedUp && plan ? (
+        <Card>
+          <Heading>{t('billing.limitTitle')}</Heading>
+          <Body>{t('billing.limitBody', { date: i18n.date(plan.limitResetsAt) })}</Body>
+          <Button variant="secondary" title={t('billing.seePro')} onPress={() => router.push('/settings')} />
+        </Card>
+      ) : (
+        <>
+          {error && <Notice tone="error">{error}</Notice>}
+          {plan && limit !== null && (
+            <Muted>{i18n.plural('billing.usage', limit, { count: plan.analysesUsed, limit })}</Muted>
+          )}
+        </>
+      )}
+      <Button
+        title={starting ? t('role.starting') : t('role.start')}
+        busy={starting}
+        disabled={!documentId || usedUp}
+        onPress={() => void start()}
+      />
     </Screen>
   );
 }

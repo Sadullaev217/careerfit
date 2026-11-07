@@ -118,6 +118,9 @@ class FakeStore:
             analysis_id, {"user_id": user_id, "provider": provider, "reference": reference}
         )
 
+    def report_reference_used(self, reference: str) -> bool:
+        return any(row["reference"] == reference for row in self.report_purchases.values())
+
     def purchased_report_ids(self, user_id: str) -> set[str]:
         return {key for key, row in self.report_purchases.items() if row["user_id"] == user_id}
 

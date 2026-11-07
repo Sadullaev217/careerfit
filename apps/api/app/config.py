@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     web_url: str = "http://localhost:3000"
 
+    # RevenueCat (phone purchases). The secret key stays on the server; the app has its own public key.
+    revenuecat_secret_key: str = ""
+
     # Sentry
     sentry_dsn: str = ""
 

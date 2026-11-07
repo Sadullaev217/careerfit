@@ -3,10 +3,11 @@ import { supabase } from './supabase';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
-export const api = createApiClient(
-  API_URL,
-  async () => (await supabase?.auth.getSession())?.data.session?.access_token,
-);
+export async function accessToken(): Promise<string | undefined> {
+  return (await supabase?.auth.getSession())?.data.session?.access_token;
+}
+
+export const api = createApiClient(API_URL, accessToken);
 
 /**
  * True when the server never answered. An ApiError with a status means it did answer, with an error.

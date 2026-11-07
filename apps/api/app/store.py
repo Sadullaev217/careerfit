@@ -337,6 +337,16 @@ def record_report_purchase(user_id: str, analysis_id: str, provider: str, refere
     ).raise_for_status()
 
 
+def report_reference_used(reference: str) -> bool:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/report_purchases",
+            params={"provider_reference": f"eq.{reference}", "select": "id"},
+        )
+    )
+    return bool(rows)
+
+
 def purchased_report_ids(user_id: str) -> set[str]:
     rows = _rows(
         _client().get(

@@ -1,11 +1,16 @@
 import { clearLastResult } from './offline';
+import { forgetStoreAccount } from './purchases';
 import { turnOffReportAlerts } from './push';
 import { supabase } from './supabase';
 
-/** Everything this phone keeps about the person goes with them: alerts, the saved result, the session. */
+/**
+ * Everything this phone keeps about the person goes with them: alerts, the saved result, the store
+ * account, the session.
+ */
 export async function signOut(): Promise<void> {
   await turnOffReportAlerts();
   clearLastResult();
+  await forgetStoreAccount();
   await supabase?.auth.signOut();
 }
 
@@ -13,6 +18,7 @@ export async function signOut(): Promise<void> {
 export async function forgetDeletedAccount(): Promise<void> {
   await turnOffReportAlerts();
   clearLastResult();
+  await forgetStoreAccount();
   // The account no longer exists, so only the local session is cleared.
   await supabase?.auth.signOut({ scope: 'local' });
 }

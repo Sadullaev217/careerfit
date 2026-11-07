@@ -83,6 +83,10 @@ export function createTranslator(locale: Locale) {
     money(value: number, currency = 'CAD'): string {
       return new Intl.NumberFormat(formatLocale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
     },
+    /** A price with its cents, unlike money(), which rounds salaries to whole dollars. */
+    price(value: number, currency = 'CAD'): string {
+      return new Intl.NumberFormat(formatLocale, { style: 'currency', currency, minimumFractionDigits: 2 }).format(value);
+    },
     date(value: string): string {
       return new Intl.DateTimeFormat(formatLocale, { year: 'numeric', month: 'short', day: 'numeric' }).format(parseDate(value));
     },
