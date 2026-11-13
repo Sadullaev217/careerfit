@@ -43,7 +43,26 @@ judgements aren't reused for the hosted model.
   request, which adds time that the listed speed doesn't show. Reasoning isn't returned, and the output
   limit is 32,768 tokens so it can't crowd out the answer.
 
+## Measured
+
+On 2026-11-13, with a made-up one-page data analyst resume, the real prompts, Ollama on an RTX 4070
+laptop GPU, and the free tier of OpenRouter:
+
+| | Ollama `qwen3.5:4b` | ERNIE 5.5 Flash Preview |
+|---|---|---|
+| Reading the resume | 20–29 s once loaded (3 runs); 78 s on the first run of the day | 17–35 s (3 runs) |
+| Judging 14 job skills | 12 s (1 run) | 5 s (1 run) |
+| Skills found | 11: the resume's skills line | 19: the same 11, plus 8 shown in the duties (SciPy, Prophet, QGIS, Streamlit, data modeling, data visualization, mentoring, data literacy training) |
+| Judgements that differed | Stakeholder communication: no. Data modeling: partly. Machine learning: no | Stakeholder communication: yes. Data modeling: yes. Machine learning: partly |
+
+ERNIE's judgements match the resume better (it presented findings to a council committee, documented a
+data model and forecast with Prophet). Speed is about the same once Ollama's model is loaded; ERNIE's
+time depends on load at Baidu. Requests went to Baidu with `data_collection: deny`, so the policy
+filter doesn't rule it out.
+
 ## Changing the model
 
-Any OpenRouter model that supports structured outputs works: set `OPENROUTER_MODEL`. Check its provider's
-data policy first, because requests to providers that may collect data are refused.
+Any OpenRouter model whose provider supports structured outputs works: set `OPENROUTER_MODEL`. Gemma 4
+26B (free) doesn't: its only provider takes plain JSON mode, so requests are refused with "No endpoints
+found that can handle the requested parameters". Check the provider's data policy too, because requests
+to providers that may collect data are refused.
