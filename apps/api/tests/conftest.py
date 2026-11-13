@@ -2,8 +2,10 @@ from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
+from limits.storage import MemoryStorage
+from limits.strategies import FixedWindowRateLimiter
 
-from app import auth, tasks
+from app import auth, rate_limit, tasks
 from app.celery_app import celery_app
 from app.config import settings
 from app.main import app
@@ -28,6 +30,10 @@ def isolated_from_local_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[No
     monkeypatch.setattr(settings, "openrouter_url", "http://127.0.0.1:9")
     monkeypatch.setattr(settings, "stripe_secret_key", "")
     monkeypatch.setattr(settings, "stripe_webhook_secret", "")
+    # Fresh request counts for every test, in memory even if .env points them at Redis.
+    storage = MemoryStorage()
+    monkeypatch.setattr(rate_limit, "_storage", storage)
+    monkeypatch.setattr(rate_limit, "_limiter", FixedWindowRateLimiter(storage))
     yield
     celery_app.conf.task_always_eager = previous
 

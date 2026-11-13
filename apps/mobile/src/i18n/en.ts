@@ -334,6 +334,7 @@ export const en = {
     api: {
       limit_reached: "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
       pro_required: 'This is part of CareerFit Pro.',
+      rate_limited: 'Too many requests. Please wait a little and try again.',
       report_not_purchased: 'Buy the detailed report for this result to open it.',
       already_pro: 'You already have Pro.',
       already_purchased: 'You already have this report.',

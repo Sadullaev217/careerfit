@@ -1,4 +1,10 @@
+from typing import Self
+
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Servers that real people use. Each refuses to start with settings that are only safe on a laptop.
+DEPLOYED_ENVIRONMENTS = frozenset({"staging", "production"})
 
 
 class Settings(BaseSettings):
@@ -52,8 +58,43 @@ class Settings(BaseSettings):
     # Sentry
     sentry_dsn: str = ""
 
-    # CORS
+    # CORS: the exact web addresses allowed to call the API from a browser. The phone app isn't a browser.
     allowed_origins: list[str] = ["http://localhost:3000", "http://localhost:8081"]
+
+    # Request limits (app/rate_limit.py). Deployed servers keep counts in Redis, shared by every process.
+    rate_limit_storage: str = "memory://"
+    rate_limits_enabled: bool = True
+
+    @property
+    def deployed(self) -> bool:
+        return self.environment in DEPLOYED_ENVIRONMENTS
+
+    @model_validator(mode="after")
+    def _safe_for_environment(self) -> Self:
+        if "*" in self.allowed_origins:
+            raise ValueError("ALLOWED_ORIGINS must list exact addresses, not *")
+        if not self.deployed:
+            return self
+        problems = []
+        if self.debug:
+            problems.append("DEBUG must be off")
+        if not self.supabase_url.startswith("https://") or not self.supabase_secret_key:
+            problems.append("SUPABASE_URL must be https and SUPABASE_SECRET_KEY set")
+        if not self.web_url.startswith("https://"):
+            problems.append("WEB_URL must be https")
+        if not self.allowed_origins or any(not o.startswith("https://") for o in self.allowed_origins):
+            problems.append("ALLOWED_ORIGINS must be https addresses")
+        if not self.rate_limit_storage.startswith(("redis://", "rediss://")):
+            problems.append("RATE_LIMIT_STORAGE must point at Redis, so every process shares the counts")
+        if not self.rate_limits_enabled:
+            problems.append("RATE_LIMITS_ENABLED must be on")
+        if self.llm_provider == "openrouter" and (
+            not self.openrouter_api_key or not self.openrouter_url.startswith("https://")
+        ):
+            problems.append("OPENROUTER_API_KEY must be set and OPENROUTER_URL https")
+        if problems:
+            raise ValueError(f"Unsafe settings for {self.environment}: " + "; ".join(problems))
+        return self
 
 
 settings = Settings()

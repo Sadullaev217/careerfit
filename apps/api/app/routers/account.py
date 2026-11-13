@@ -7,6 +7,7 @@ from pydantic.alias_generators import to_camel
 
 from app import billing, plans, store
 from app.auth import CurrentUser, delete_auth_user, get_current_user
+from app.rate_limit import per_user
 
 router = APIRouter()
 
@@ -58,7 +59,7 @@ def account_plan(user: User) -> PlanResponse:
     )
 
 
-@router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/account", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("account-delete", "5/hour"))])
 def delete_account(user: User) -> None:
     # Billing goes first, then files: if either fails the account still exists, so the user can retry.
     if (store.get_subscription(user.id) or {}).get("stripe_customer_id"):

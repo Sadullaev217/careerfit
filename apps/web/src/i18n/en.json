@@ -431,6 +431,7 @@
       "role_not_found": "We couldn't recognise this job. Please choose one from the list.",
       "limit_reached": "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
       "pro_required": "This is part of CareerFit Pro.",
+      "rate_limited": "Too many requests. Please wait a little and try again.",
       "report_not_purchased": "Buy the detailed report for this result to download it.",
       "already_pro": "You already have Pro.",
       "already_purchased": "You already have this report.",

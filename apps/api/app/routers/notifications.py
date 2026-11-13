@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from app import store
 from app.auth import CurrentUser, get_current_user
 from app.messages import Language
+from app.rate_limit import per_user
 
 router = APIRouter()
 
@@ -22,12 +23,12 @@ class PushTokenIn(BaseModel):
     language: Language = "en"
 
 
-@router.put("/push-tokens", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/push-tokens", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("push", "30/hour"))])
 def register_push_token(body: PushTokenIn, user: User) -> None:
     store.save_push_token(user.id, body.token, body.platform, body.language)
 
 
-@router.delete("/push-tokens/{token}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/push-tokens/{token}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("push", "30/hour"))])
 def remove_push_token(
     token: Annotated[str, Path(pattern=TOKEN_PATTERN, max_length=MAX_TOKEN_LENGTH)], user: User
 ) -> None:

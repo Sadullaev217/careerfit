@@ -14,6 +14,7 @@ from app import portfolio, store
 from app.auth import CurrentUser, get_current_user
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
 from app.queueing import enqueue
+from app.rate_limit import per_user
 from app.tasks import parse_document
 
 logger = logging.getLogger(__name__)
@@ -137,7 +138,7 @@ def _enqueue(document_id: str, background: BackgroundTasks) -> None:
     enqueue(parse_document, [document_id], background)
 
 
-@router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse)
+@router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse, dependencies=[Depends(per_user("uploads", "20/hour"))])
 def upload_document(
     user: User,
     background: BackgroundTasks,
@@ -178,7 +179,7 @@ def upload_document(
     return _to_response(store.get_document(document_id, user.id) or row)
 
 
-@router.post("/portfolio", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse)
+@router.post("/portfolio", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse, dependencies=[Depends(per_user("uploads", "20/hour"))])
 def add_portfolio_link(
     user: User, body: PortfolioLinkRequest, background: BackgroundTasks
 ) -> DocumentResponse:

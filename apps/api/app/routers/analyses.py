@@ -12,6 +12,7 @@ from app import market_lookup, plans, report_pdf, store, tailoring
 from app.auth import CurrentUser, get_current_user
 from app.llm import LLMUnavailable, get_llm
 from app.queueing import enqueue
+from app.rate_limit import per_user
 from app.recommendations import FullResult
 from app.tailoring import TailoredRewrite
 from app.tasks import run_analysis
@@ -84,7 +85,7 @@ def _to_response(row: dict[str, Any]) -> AnalysisResponse:
     )
 
 
-@router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=AnalysisStarted)
+@router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=AnalysisStarted, dependencies=[Depends(per_user("analyses", "20/hour"))])
 def start_analysis(
     user: User, body: StartAnalysisRequest, background: BackgroundTasks
 ) -> AnalysisStarted:
@@ -214,7 +215,7 @@ def get_analysis(analysis_id: UUID, user: User) -> AnalysisResponse:
     return _to_response(row)
 
 
-@router.get("/{analysis_id}/report.pdf", response_class=Response)
+@router.get("/{analysis_id}/report.pdf", response_class=Response, dependencies=[Depends(per_user("reports", "60/hour"))])
 def detailed_report(
     analysis_id: UUID, user: User, language: Literal["en", "ru"] = "en"
 ) -> Response:
@@ -276,7 +277,7 @@ def get_tailored_rewrites(analysis_id: UUID, user: User) -> TailoredResponse:
     )
 
 
-@router.post("/{analysis_id}/tailored-rewrites", response_model=TailoredResponse)
+@router.post("/{analysis_id}/tailored-rewrites", response_model=TailoredResponse, dependencies=[Depends(per_user("tailoring", "20/hour"))])
 def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
     """Pro: rewrites resume lines for this result's job. Takes up to a minute on the local AI model."""
     row = _finished_analysis(analysis_id, user.id)

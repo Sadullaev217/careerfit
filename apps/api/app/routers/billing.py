@@ -10,6 +10,7 @@ from starlette.concurrency import run_in_threadpool
 
 from app import billing, plans, revenuecat, store
 from app.auth import CurrentUser, get_current_user
+from app.rate_limit import per_user
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def _unavailable() -> HTTPException:
     )
 
 
-@router.post("/checkout", response_model=LinkResponse)
+@router.post("/checkout", response_model=LinkResponse, dependencies=[Depends(per_user("billing", "30/hour"))])
 def checkout(user: User, body: CheckoutRequest, gateway: Gateway) -> LinkResponse:
     try:
         if body.kind == "pro":
@@ -96,7 +97,7 @@ def checkout(user: User, body: CheckoutRequest, gateway: Gateway) -> LinkRespons
         raise _unavailable() from None
 
 
-@router.post("/portal", response_model=LinkResponse)
+@router.post("/portal", response_model=LinkResponse, dependencies=[Depends(per_user("billing", "30/hour"))])
 def portal(user: User, body: PortalRequest, gateway: Gateway) -> LinkResponse:
     try:
         url = billing.portal_url(user.id, body.language, store, gateway)
@@ -127,7 +128,7 @@ class AppStoreReportRequest(CamelModel):
     transaction_id: str = Field(min_length=1, max_length=200)
 
 
-@router.post("/app-store/sync", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/app-store/sync", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("billing", "30/hour"))])
 def sync_app_store(user: User, source: StoreSource) -> None:
     """After a purchase or restore in the app: checks the account with RevenueCat and updates the plan."""
     try:
@@ -136,7 +137,7 @@ def sync_app_store(user: User, source: StoreSource) -> None:
         raise _unavailable() from None
 
 
-@router.post("/app-store/report", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/app-store/report", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("billing", "30/hour"))])
 def claim_app_store_report(user: User, body: AppStoreReportRequest, source: StoreSource) -> None:
     """After buying a report in the app: unlocks it for one result once RevenueCat confirms the purchase."""
     analysis_id = str(body.analysis_id)

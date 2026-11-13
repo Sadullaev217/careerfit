@@ -154,7 +154,7 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
         post<{ analysisId: string }>('/analyses', data),
       get: (id: string) => request<Analysis>(`/analyses/${id}`),
       list: () => request<Analysis[]>('/analyses'),
-      /** Pro. Throws ApiError 402 "pro_required" on the free plan. */
+      /** Each job's score over time, on every plan. */
       progress: () => request<ProgressTrack[]>('/analyses/progress'),
       /** Saved tailored lines; `rewrites` is null if there are none yet. */
       tailored: (id: string) => request<TailoredRewrites>(`/analyses/${id}/tailored-rewrites`),

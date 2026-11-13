@@ -7,6 +7,7 @@ from pydantic.alias_generators import to_camel
 from app import market_lookup, store
 from app.auth import CurrentUser, get_current_user
 from app.localization import saved_names
+from app.rate_limit import per_user
 
 router = APIRouter(prefix="/market")
 
@@ -67,7 +68,7 @@ def _error(status_code: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code, detail={"code": code, "message": message})
 
 
-@router.get("/roles", response_model=list[RoleSuggestion])
+@router.get("/roles", response_model=list[RoleSuggestion], dependencies=[Depends(per_user("market", "120/minute"))])
 def role_suggestions(
     _user: User,
     q: Annotated[str, Query(min_length=1, max_length=100)],
@@ -85,7 +86,7 @@ def role_suggestions(
     ]
 
 
-@router.get("/requirements", response_model=MarketRequirements)
+@router.get("/requirements", response_model=MarketRequirements, dependencies=[Depends(per_user("market", "120/minute"))])
 def market_requirements(
     _user: User,
     role: Annotated[str, Query(min_length=2, max_length=200)],
