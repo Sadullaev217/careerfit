@@ -421,6 +421,7 @@
       "unsupported_word_format": "Old Word files can't be read. Please save it as DOCX or PDF.",
       "unsupported_type": "Only PDF and DOCX files are supported.",
       "unsafe_file": "This file contains content we can't accept. Please save a clean copy and try again.",
+      "scanner_unavailable": "We can't check files for viruses right now. Please try again in a few minutes.",
       "password_protected": "This file is password protected. Please remove the password and try again.",
       "invalid_file": "This file is damaged and can't be read.",
       "invalid_link": "Please enter a full web address starting with https://",

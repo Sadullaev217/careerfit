@@ -7,12 +7,15 @@ from fastapi.responses import JSONResponse
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from app import rate_limit
+from app import privacy_logging, rate_limit
 from app.config import settings
 from app.file_validation import MAX_FILE_BYTES
 from app.routers import account, analyses, billing, documents, health, market, notifications
 
 logger = logging.getLogger(__name__)
+
+privacy_logging.install()
+privacy_logging.init_error_reports()
 
 # Bodies are spooled to disk before auth runs, so the limit has to apply earlier than the routes.
 MAX_REQUEST_BYTES = MAX_FILE_BYTES + 1024 * 1024

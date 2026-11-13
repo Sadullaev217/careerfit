@@ -1,7 +1,25 @@
+import logging
+from typing import Any
+
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import after_setup_logger, after_setup_task_logger
 
+from app import privacy_logging
 from app.config import settings
+
+privacy_logging.init_error_reports()
+
+
+@after_setup_logger.connect  # type: ignore[untyped-decorator]
+@after_setup_task_logger.connect  # type: ignore[untyped-decorator]
+def _keep_personal_data_out_of_worker_logs(
+    logger: logging.Logger, *_args: Any, **_kwargs: Any
+) -> None:
+    for handler in logger.handlers:
+        if not any(isinstance(f, privacy_logging.RedactingFilter) for f in handler.filters):
+            handler.addFilter(privacy_logging.RedactingFilter())
+
 
 celery_app = Celery(
     "careerfit",

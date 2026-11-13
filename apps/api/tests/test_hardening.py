@@ -162,6 +162,7 @@ DEPLOYED_OK = {
     "web_url": "https://careerfit.example",
     "allowed_origins": ["https://careerfit.example"],
     "rate_limit_storage": "rediss://cache.example:6380/0",
+    "malware_scanner": "clamav",
 }
 
 
@@ -184,6 +185,7 @@ def test_safe_deployed_settings_are_accepted() -> None:
         ({"allowed_origins": ["http://careerfit.example"]}, "ALLOWED_ORIGINS"),
         ({"rate_limit_storage": "memory://"}, "RATE_LIMIT_STORAGE"),
         ({"rate_limits_enabled": False}, "RATE_LIMITS_ENABLED"),
+        ({"malware_scanner": "off"}, "MALWARE_SCANNER"),
         ({"llm_provider": "openrouter", "openrouter_api_key": ""}, "OPENROUTER_API_KEY"),
     ],
 )

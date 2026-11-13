@@ -25,5 +25,13 @@ services:
       timeout: 5s
       retries: 10
 
+  # Virus scanning for uploads. Optional locally: docker compose --profile scan up -d clamav, then set
+  # MALWARE_SCANNER=clamav. The first start downloads signatures, which takes a few minutes.
+  clamav:
+    image: clamav/clamav:1.4
+    profiles: ['scan']
+    ports:
+      - '3310:3310'
+
 volumes:
   postgres_data:

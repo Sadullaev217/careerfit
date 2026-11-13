@@ -96,7 +96,8 @@ export const en = {
     typePortfolio: 'Portfolio link',
     deleteNamed: 'Delete {name}',
     deleteTitle: 'Delete {name}?',
-    deleteResumeBody: "This also deletes any scores and reports made from this resume. It can't be undone.",
+    deleteResumeBody:
+      "This also deletes any scores and reports made from this resume. It can't be undone.",
     deleteBody: "This can't be undone.",
     deleteFailed: "We couldn't delete this. Please try again.",
   },
@@ -268,7 +269,8 @@ export const en = {
       "Your account, documents and results will be permanently deleted. This can't be undone. A Pro plan bought on the website is cancelled straight away. One bought in the app is cancelled in your phone's app store.",
     deleteConfirmAction: 'Yes, delete everything',
     deleteFailed: "We couldn't delete your account. Please try again.",
-    deleteBillingFailed: "We couldn't cancel your subscription, so your account wasn't deleted. Please try again.",
+    deleteBillingFailed:
+      "We couldn't cancel your subscription, so your account wasn't deleted. Please try again.",
   },
   billing: {
     usage: {
@@ -302,8 +304,10 @@ export const en = {
       "We reword lines from your resume so this job's skills stand out. Only skills your resume already shows are used.",
     tailorAction: 'Tailor my resume',
     tailorWorking: 'Rewriting your lines. This can take up to a minute…',
-    tailorNone: "We couldn't find lines that show this job's skills. Add more detail to your resume, then try again.",
-    tailorEmpty: 'None of the suggested lines passed our checks, so there is nothing to change yet.',
+    tailorNone:
+      "We couldn't find lines that show this job's skills. Add more detail to your resume, then try again.",
+    tailorEmpty:
+      'None of the suggested lines passed our checks, so there is nothing to change yet.',
     tailorFailed: "We couldn't rewrite your lines. Please try again.",
     before: 'Before',
     after: 'After',
@@ -332,7 +336,8 @@ export const en = {
   },
   errors: {
     api: {
-      limit_reached: "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
+      limit_reached:
+        "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
       pro_required: 'This is part of CareerFit Pro.',
       rate_limited: 'Too many requests. Please wait a little and try again.',
       report_not_purchased: 'Buy the detailed report for this result to open it.',
@@ -340,15 +345,20 @@ export const en = {
       already_purchased: 'You already have this report.',
       analysis_not_finished: "This result isn't finished yet.",
       billing_unavailable: "Payments aren't available right now. Please try again later.",
-      purchase_not_found: "We couldn't confirm this purchase with the store yet. Please try again in a moment.",
+      purchase_not_found:
+        "We couldn't confirm this purchase with the store yet. Please try again in a moment.",
       nothing_to_tailor: "We couldn't find lines in this resume that show the job's skills.",
       ai_unavailable: 'Our AI is busy right now. Please try again in a few minutes.',
       empty_file: 'This file is empty.',
       too_large: 'This file is larger than the 10 MB limit.',
       unsupported_word_format: "Old Word files can't be read. Please save it as DOCX or PDF.",
       unsupported_type: 'Only PDF and DOCX files are supported.',
-      unsafe_file: "This file contains content we can't accept. Please save a clean copy and try again.",
-      password_protected: 'This file is password protected. Please remove the password and try again.',
+      unsafe_file:
+        "This file contains content we can't accept. Please save a clean copy and try again.",
+      scanner_unavailable:
+        "We can't check files for viruses right now. Please try again in a few minutes.",
+      password_protected:
+        'This file is password protected. Please remove the password and try again.',
       invalid_file: "This file is damaged and can't be read.",
       invalid_link: 'Please enter a full web address starting with https://',
       processing_unavailable: "We can't process this right now. Please try again in a few minutes.",

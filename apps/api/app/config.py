@@ -61,6 +61,11 @@ class Settings(BaseSettings):
     # CORS: the exact web addresses allowed to call the API from a browser. The phone app isn't a browser.
     allowed_origins: list[str] = ["http://localhost:3000", "http://localhost:8081"]
 
+    # Virus scanning of uploads (app/malware_scan.py): "off" or "clamav". Deployed servers need clamav.
+    malware_scanner: str = "off"
+    clamav_host: str = "localhost"
+    clamav_port: int = 3310
+
     # Request limits (app/rate_limit.py). Deployed servers keep counts in Redis, shared by every process.
     rate_limit_storage: str = "memory://"
     rate_limits_enabled: bool = True
@@ -86,6 +91,8 @@ class Settings(BaseSettings):
             problems.append("ALLOWED_ORIGINS must be https addresses")
         if not self.rate_limit_storage.startswith(("redis://", "rediss://")):
             problems.append("RATE_LIMIT_STORAGE must point at Redis, so every process shares the counts")
+        if self.malware_scanner != "clamav":
+            problems.append("MALWARE_SCANNER must be clamav")
         if not self.rate_limits_enabled:
             problems.append("RATE_LIMITS_ENABLED must be on")
         if self.llm_provider == "openrouter" and (

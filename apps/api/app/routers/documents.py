@@ -10,7 +10,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from app import portfolio, store
+from app import malware_scan, portfolio, store
 from app.auth import CurrentUser, get_current_user
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
 from app.queueing import enqueue
@@ -148,8 +148,23 @@ def upload_document(
     data = file.file.read(MAX_FILE_BYTES + 1)
     try:
         kind = validate_file(data)
+        malware_scan.scan(data)
     except RejectedFile as exc:
         raise _error(exc.status_code, exc.code, exc.message) from exc
+    except malware_scan.Infected:
+        logger.warning("upload refused: the virus scanner found a known threat")
+        raise _error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "unsafe_file",
+            "Our virus check flagged this file, so we didn't keep it. Scan your device, then try again.",
+        ) from None
+    except malware_scan.ScannerUnavailable as exc:
+        logger.error("virus scanner unavailable: %s", exc)
+        raise _error(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "scanner_unavailable",
+            "We can't check files right now. Please try again in a few minutes.",
+        ) from None
 
     # The path uses only ids, so a crafted file name can't choose where the file lands.
     document_id = str(uuid4())
