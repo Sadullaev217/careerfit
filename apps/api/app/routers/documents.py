@@ -10,7 +10,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from app import consent, malware_scan, portfolio, store
+from app import consent, malware_scan, portfolio, retention, store
 from app.auth import CurrentUser, get_current_user
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
 from app.queueing import enqueue
@@ -64,6 +64,10 @@ class DocumentResponse(BaseModel):
     extraction_error_code: str | None
     extraction_error_message: str | None
     created_at: str
+    # Uploaded files are deleted 90 days after upload unless kept (app/retention.py).
+    keep: bool
+    delete_after: str | None
+    file_deleted_at: str | None
 
 
 class MatchedSkill(BaseModel):
@@ -90,6 +94,10 @@ class PortfolioLinkRequest(BaseModel):
     url: str
 
 
+class DocumentChange(BaseModel):
+    keep: bool
+
+
 def _to_response(row: dict[str, Any]) -> DocumentResponse:
     code = row.get("error_code")
     extraction_code = row.get("extraction_error")
@@ -107,6 +115,9 @@ def _to_response(row: dict[str, Any]) -> DocumentResponse:
             EXTRACTION_ERROR_MESSAGES.get(extraction_code) if extraction_code else None
         ),
         created_at=row["created_at"],
+        keep=bool(row.get("keep")),
+        delete_after=retention.delete_after(row),
+        file_deleted_at=row.get("file_deleted_at"),
     )
 
 
@@ -252,6 +263,18 @@ def document_profile(document_id: UUID, user: User) -> ExtractedProfileResponse:
         truncated=row["truncated"],
         created_at=row["created_at"],
     )
+
+
+@router.patch("/{document_id}", response_model=DocumentResponse)
+def change_document(document_id: UUID, body: DocumentChange, user: User) -> DocumentResponse:
+    """Keeps the file past 90 days, or lets it be deleted then. A deleted file can't come back."""
+    row = _owned_document(document_id, user)
+    if row["type"] == "portfolio_link" or row.get("file_deleted_at"):
+        raise _error(
+            status.HTTP_409_CONFLICT, "nothing_to_keep", "This document has no stored file to keep."
+        )
+    store.set_document_keep(row["id"], user.id, body.keep)
+    return _to_response({**row, "keep": body.keep})
 
 
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)

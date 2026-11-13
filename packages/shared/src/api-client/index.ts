@@ -84,7 +84,12 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
     const res = await fetch(`${baseUrl}${path}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    if (!res.ok) throw new ApiError(res.status, `API error ${res.status}: ${path}`, parseBody(await res.text()));
+    if (!res.ok)
+      throw new ApiError(
+        res.status,
+        `API error ${res.status}: ${path}`,
+        parseBody(await res.text()),
+      );
     return res.blob();
   }
 
@@ -124,6 +129,8 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       /** ApiError 409 "consent_outdated" if the version changed since it was shown. */
       acceptConsent: (version: string) => post<void>('/account/consent', { version }),
       withdrawConsent: () => request<void>('/account/consent', { method: 'DELETE' }),
+      /** A zip of everything stored about the person, with their uploaded files. */
+      exportData: () => download('/account/export'),
     },
     documents: {
       list: () => request<Document[]>('/documents'),
@@ -131,6 +138,9 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
         upload<Document>('/documents', form, onProgress),
       addPortfolioLink: (data: PortfolioLinkInput) => post<Document>('/documents/portfolio', data),
       delete: (id: string) => request<void>(`/documents/${id}`, { method: 'DELETE' }),
+      /** Keeps the stored file past 90 days, or lets it be deleted then. */
+      setKeep: (id: string, keep: boolean) =>
+        request<Document>(`/documents/${id}`, { method: 'PATCH', body: JSON.stringify({ keep }) }),
       status: (id: string) => request<Document>(`/documents/${id}/status`),
       analysis: (id: string) => request<DocumentAnalysis>(`/documents/${id}/profile`),
     },
@@ -155,8 +165,7 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
         occupationCode?: string;
         region?: string;
         language?: 'en' | 'ru';
-      }) =>
-        post<{ analysisId: string }>('/analyses', data),
+      }) => post<{ analysisId: string }>('/analyses', data),
       get: (id: string) => request<Analysis>(`/analyses/${id}`),
       list: () => request<Analysis[]>('/analyses'),
       /** Each job's score over time, on every plan. */
@@ -170,8 +179,10 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
         download(`/analyses/${id}/report.pdf?language=${language}`),
     },
     billing: {
-      checkout: (data: { kind: 'pro' } | { kind: 'report'; analysisId: string }, language: Language = 'en') =>
-        post<CheckoutLink>('/billing/checkout', { ...data, language }),
+      checkout: (
+        data: { kind: 'pro' } | { kind: 'report'; analysisId: string },
+        language: Language = 'en',
+      ) => post<CheckoutLink>('/billing/checkout', { ...data, language }),
       portal: (language: Language = 'en') => post<CheckoutLink>('/billing/portal', { language }),
       /** Phones: after an App Store or Google Play purchase or restore, re-checks the plan with RevenueCat. */
       syncAppStore: () => post<void>('/billing/app-store/sync', {}),

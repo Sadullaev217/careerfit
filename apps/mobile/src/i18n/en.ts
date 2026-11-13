@@ -66,6 +66,11 @@ export const en = {
     newLink: 'Ask for a new link',
   },
   documents: {
+    deleteAfter: 'The file will be deleted on {date}.',
+    kept: 'Kept until you delete it.',
+    fileDeleted: 'The file was deleted on {date}, 90 days after upload. Your results stay.',
+    keepLabel: 'Keep this file',
+    keepFailed: "We couldn't change this. Please try again.",
     title: 'Documents',
     intro: 'Add your resume as a PDF or Word file, or scan a paper copy with the camera.',
     privacy: 'Only you can see your documents, and you can delete them at any time.',
@@ -268,6 +273,13 @@ export const en = {
     howScoreWorks: 'How the score works',
   },
   settings: {
+    exportTitle: 'Your data',
+    exportBody:
+      'Download a zip with everything CareerFit stores about you, including the files you uploaded.',
+    exportAction: 'Download my data',
+    exportFailed: "We couldn't prepare your data. Please try again.",
+    deletePurchaseRecordsFailed:
+      "We couldn't reach our app store partner, so your account wasn't deleted. Please try again.",
     title: 'Settings',
     account: 'Account',
     signedInAs: 'Signed in as {email}',
@@ -376,6 +388,11 @@ export const en = {
       pro_required: 'This is part of CareerFit Pro.',
       consent_required: 'Please read and accept the Privacy Policy and Terms of Service first.',
       consent_outdated: 'The policy changed while this page was open. Please read it again.',
+      nothing_to_keep: 'This document has no stored file to keep.',
+      resume_file_deleted:
+        "This resume's file was deleted 90 days after upload. Upload it again to tailor it.",
+      purchase_records_unavailable:
+        "We couldn't reach our app store partner, so your account wasn't deleted. Please try again.",
       rate_limited: 'Too many requests. Please wait a little and try again.',
       report_not_purchased: 'Buy the detailed report for this result to open it.',
       already_pro: 'You already have Pro.',

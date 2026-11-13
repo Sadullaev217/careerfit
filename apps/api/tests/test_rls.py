@@ -8,6 +8,8 @@ from pathlib import Path
 import psycopg
 import pytest
 
+from app import store
+
 DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not DATABASE_URL, reason="TEST_DATABASE_URL not set")
 
@@ -502,6 +504,40 @@ def test_people_see_only_their_own_consents(conn: psycopg.Connection) -> None:
         conn.execute("select * from public.consents")
 
 
+def _table(name: str) -> str:
+    return name.removeprefix("public.")
+
+
+def test_every_table_with_personal_data_is_exported_and_deleted(conn: psycopg.Connection) -> None:
+    """A new table holding someone's data must be added to store.USER_TABLES and cascade from them."""
+    conn.execute("reset role")
+    with_user_id = {
+        row[0]
+        for row in conn.execute(
+            "select table_name from information_schema.columns "
+            "where table_schema = 'public' and column_name = 'user_id'"
+        )
+    }
+    listed = {table for table, column in store.USER_TABLES.items() if column == "user_id"}
+    assert with_user_id == listed
+
+    to_users = conn.execute(
+        "select conrelid::regclass::text, confdeltype from pg_constraint "
+        "where contype = 'f' and confrelid = 'auth.users'::regclass"
+    ).fetchall()
+    assert {_table(name) for name, _ in to_users} == set(store.USER_TABLES)
+    assert all(action == "c" for _, action in to_users), to_users
+
+    to_documents = {
+        _table(row[0])
+        for row in conn.execute(
+            "select conrelid::regclass::text from pg_constraint "
+            "where contype = 'f' and confrelid = 'public.documents'::regclass and confdeltype = 'c'"
+        )
+    }
+    assert set(store.DOCUMENT_TABLES) <= to_documents
+
+
 def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:
     conn.execute("reset role")
     conn.execute(
@@ -510,7 +546,12 @@ def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:
         (ALICE,),
     )
     add_report_purchase(conn, ALICE, "cs_alice")
+    conn.execute("insert into public.consents (user_id, version) values (%s, 'v1')", (ALICE,))
     conn.execute("delete from auth.users where id = %s", (ALICE,))
+    # Every table the export reads, so nothing the person could download survives deletion.
+    for table, column in store.USER_TABLES.items():
+        left = conn.execute(f"select count(*) from public.{table} where {column} = %s", (ALICE,))
+        assert left.fetchone() == (0,), table
     tokens = conn.execute("select count(*) from public.push_tokens where user_id = %s", (ALICE,))
     assert tokens.fetchone() == (0,)
     purchases = conn.execute(

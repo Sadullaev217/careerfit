@@ -291,6 +291,14 @@ def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
         raise _pro_required()
 
     resume_text = store.get_parsed_text(row["document_id"]) if row.get("document_id") else None
+    if not resume_text and row.get("document_id"):
+        document = store.get_document(row["document_id"], user.id)
+        if document and document.get("file_deleted_at"):
+            raise _error(
+                status.HTTP_409_CONFLICT,
+                "resume_file_deleted",
+                "This resume's file was deleted 90 days after upload. Upload it again to tailor it.",
+            )
     llm = get_llm()
     try:
         rewrites = tailoring.tailor(

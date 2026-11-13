@@ -1021,6 +1021,19 @@ def test_new_tailored_lines_need_the_agreement(
     assert llm.calls == calls
 
 
+def test_tailoring_explains_a_file_deleted_after_ninety_days(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    document_id = store.analyses[analysis_id]["document_id"]
+    store.documents[document_id].update(
+        {"parsed_text": None, "file_deleted_at": "2027-02-01T00:00:00+00:00"}
+    )
+    response = client.post(f"/analyses/{analysis_id}/tailored-rewrites", headers=auth_headers())
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "resume_file_deleted"
+
+
 def test_tailoring_when_the_ai_is_down(
     client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
 ) -> None:

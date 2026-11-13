@@ -61,8 +61,30 @@ export default function SettingsPage() {
       setError(
         apiErrorCode(err) === 'billing_unavailable'
           ? t('settings.deleteBillingFailed')
-          : t('settings.deleteFailed'),
+          : apiErrorCode(err) === 'purchase_records_unavailable'
+            ? t('settings.deletePurchaseRecordsFailed')
+            : t('settings.deleteFailed'),
       );
+    }
+  }
+
+  const [exporting, setExporting] = useState(false);
+
+  async function exportData() {
+    setError(null);
+    setExporting(true);
+    try {
+      const file = await getApi().account.exportData();
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'careerfit-data.zip';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError(t('settings.exportFailed'));
+    } finally {
+      setExporting(false);
     }
   }
 
@@ -167,6 +189,21 @@ export default function SettingsPage() {
             </AlertDialogContent>
           </AlertDialog>
         )}
+      </section>
+
+      <section aria-labelledby="export" className={sectionClass}>
+        <h2 id="export" className="text-xl font-semibold">
+          {t('settings.exportTitle')}
+        </h2>
+        <p className="text-sm text-muted-foreground">{t('settings.exportBody')}</p>
+        <Button
+          variant="outline"
+          className="self-start"
+          disabled={exporting}
+          onClick={() => void exportData()}
+        >
+          {t('settings.exportAction')}
+        </Button>
       </section>
 
       <section aria-labelledby="delete" className={sectionClass}>

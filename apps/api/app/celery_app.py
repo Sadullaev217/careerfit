@@ -40,6 +40,11 @@ celery_app.conf.update(
         "refresh-market-data": {
             "task": "refresh_market_data",
             "schedule": crontab(day_of_week=1, hour=6, minute=0),
-        }
+        },
+        # Uploaded files past their 90 days (app/retention.py).
+        "delete-expired-files": {
+            "task": "delete_expired_files",
+            "schedule": crontab(hour=3, minute=30),
+        },
     },
 )

@@ -10,8 +10,32 @@ from app.config import settings
 
 DOCUMENT_COLUMNS = (
     "id,user_id,type,file_name,file_path,url,status,error_code,"
-    "extraction_status,extraction_error,created_at"
+    "extraction_status,extraction_error,keep,file_deleted_at,created_at"
 )
+
+# Every table holding one person's data, and the column naming them. The export reads all of them, and
+# account deletion relies on each cascading from auth.users. A database test checks this list is complete.
+USER_TABLES: dict[str, str] = {
+    "profiles": "id",
+    "documents": "user_id",
+    "extracted_profiles": "user_id",
+    "profile_skills": "user_id",
+    "target_roles": "user_id",
+    "analyses": "user_id",
+    "recommendations": "user_id",
+    "tailored_rewrites": "user_id",
+    "report_purchases": "user_id",
+    "subscriptions": "user_id",
+    "consents": "user_id",
+    "push_tokens": "user_id",
+}
+# Tables keyed by one of the person's documents rather than by the person.
+DOCUMENT_TABLES: dict[str, str] = {"skill_judgements": "document_id"}
+# The export leaves out search embeddings, which are lists of numbers that mean nothing to a person.
+EXPORT_COLUMNS = {
+    "documents": "id,type,file_name,file_path,url,parsed_text,status,error_code,extraction_status,"
+    "extraction_error,keep,file_deleted_at,created_at",
+}
 ANALYSIS_COLUMNS = (
     "id,user_id,document_id,status,stage,score,result,error_code,created_at,completed_at,"
     "target_roles(title,region)"
@@ -605,6 +629,52 @@ def delete_files(paths: list[str]) -> None:
         "DELETE",
         f"/storage/v1/object/{settings.storage_bucket}",
         json={"prefixes": paths},
+    ).raise_for_status()
+
+
+def export_rows(user_id: str) -> dict[str, list[dict[str, Any]]]:
+    client = _client()
+    tables: dict[str, list[dict[str, Any]]] = {}
+    for table, column in USER_TABLES.items():
+        params = {column: f"eq.{user_id}", "select": EXPORT_COLUMNS.get(table, "*")}
+        tables[table] = _rows(client.get(f"/rest/v1/{table}", params=params))
+    ids = [str(row["id"]) for row in tables["documents"]]
+    for table, column in DOCUMENT_TABLES.items():
+        params = {column: f"in.({','.join(ids)})", "select": "*"}
+        tables[table] = _rows(client.get(f"/rest/v1/{table}", params=params)) if ids else []
+    return tables
+
+
+def set_document_keep(document_id: str, user_id: str, keep: bool) -> None:
+    _client().patch(
+        "/rest/v1/documents",
+        params={"id": f"eq.{document_id}", "user_id": f"eq.{user_id}"},
+        json={"keep": keep},
+    ).raise_for_status()
+
+
+def documents_to_expire(cutoff: datetime, limit: int) -> list[dict[str, Any]]:
+    return _rows(
+        _client().get(
+            "/rest/v1/documents",
+            params={
+                "created_at": f"lt.{cutoff.isoformat()}",
+                "keep": "eq.false",
+                "file_deleted_at": "is.null",
+                "type": "neq.portfolio_link",
+                "select": "id,file_path",
+                "order": "created_at",
+                "limit": str(limit),
+            },
+        )
+    )
+
+
+def expire_document(document_id: str, at: datetime) -> None:
+    _client().patch(
+        "/rest/v1/documents",
+        params={"id": f"eq.{document_id}"},
+        json={"file_path": None, "parsed_text": None, "embedding": None, "file_deleted_at": at.isoformat()},
     ).raise_for_status()
 
 

@@ -70,6 +70,37 @@ function StatusLine({ status }: { status: Status }) {
   );
 }
 
+/** When the stored file goes, and a way to keep it. Links have no stored file. */
+function Retention({ document, onKeep }: { document: Document; onKeep: (keep: boolean) => void }) {
+  const { t, date } = useI18n();
+  if (document.type === 'portfolio_link') return null;
+  if (document.fileDeletedAt) {
+    return (
+      <span className="text-sm text-muted-foreground">
+        {t('documents.fileDeleted', { date: date(document.fileDeletedAt) })}
+      </span>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-1 text-sm">
+      <span className="text-muted-foreground">
+        {document.keep || !document.deleteAfter
+          ? t('documents.kept')
+          : t('documents.deleteAfter', { date: date(document.deleteAfter) })}
+      </span>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          className="size-4 accent-primary"
+          checked={document.keep}
+          onChange={(event) => onKeep(event.target.checked)}
+        />
+        {t('documents.keepLabel')}
+      </label>
+    </div>
+  );
+}
+
 export function DocumentList({
   documents,
   failed,
@@ -82,6 +113,16 @@ export function DocumentList({
   const i18n = useI18n();
   const { t } = i18n;
   const [error, setError] = useState<string | null>(null);
+
+  async function setKeep(document: Document, keep: boolean) {
+    setError(null);
+    try {
+      await getApi().documents.setKeep(document.id, keep);
+      await onChanged();
+    } catch (err) {
+      setError(apiErrorText(i18n, err, 'documents.keepFailed'));
+    }
+  }
 
   async function remove(document: Document) {
     setError(null);
@@ -126,8 +167,11 @@ export function DocumentList({
             <li key={document.id} data-testid="document-row" className="flex items-start gap-3 p-4">
               <div className="flex min-w-0 grow flex-col gap-1">
                 <span className="font-medium break-words">{label}</span>
-                <span className="text-sm text-muted-foreground">{t(TYPE_LABELS[document.type])}</span>
+                <span className="text-sm text-muted-foreground">
+                  {t(TYPE_LABELS[document.type])}
+                </span>
                 <StatusLine status={documentStatus(document, i18n)} />
+                <Retention document={document} onKeep={(keep) => void setKeep(document, keep)} />
                 {document.type === 'resume' && document.extractionStatus === 'ready' && (
                   <details className="mt-1">
                     <summary className="cursor-pointer text-sm font-medium text-primary underline underline-offset-4">
@@ -151,7 +195,9 @@ export function DocumentList({
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>{t('documents.deleteTitle', { name: label })}</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {t('documents.deleteTitle', { name: label })}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
                       {document.type === 'resume'
                         ? t('documents.deleteResumeBody')

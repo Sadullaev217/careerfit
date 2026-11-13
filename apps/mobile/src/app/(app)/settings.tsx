@@ -9,6 +9,7 @@ import { LOCALE_NAMES, LOCALES, useI18n, type Locale, type TextKey } from '@/i18
 import { forgetDeletedAccount, signOut } from '@/lib/account';
 import { api } from '@/lib/api';
 import { refreshStorePlan } from '@/lib/purchases';
+import { shareDataExport } from '@/lib/report';
 import {
   alertsSupported,
   reportAlertsOn,
@@ -37,7 +38,9 @@ export default function SettingsScreen() {
   );
   const [switching, setSwitching] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deleteFailed, setDeleteFailed] = useState<'billing' | 'other' | null>(null);
+  const [deleteFailed, setDeleteFailed] = useState<'billing' | 'records' | 'other' | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportFailed, setExportFailed] = useState(false);
 
   const userId = session?.user.id;
   const loadPlan = useCallback(
@@ -105,6 +108,18 @@ export default function SettingsScreen() {
     ]);
   }
 
+  async function exportData() {
+    setExporting(true);
+    setExportFailed(false);
+    try {
+      await shareDataExport();
+    } catch {
+      setExportFailed(true);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function deleteAccount() {
     setDeleting(true);
     setDeleteFailed(null);
@@ -112,7 +127,14 @@ export default function SettingsScreen() {
       await api.account.delete();
       await forgetDeletedAccount();
     } catch (error) {
-      setDeleteFailed(apiErrorCode(error) === 'billing_unavailable' ? 'billing' : 'other');
+      const code = apiErrorCode(error);
+      setDeleteFailed(
+        code === 'billing_unavailable'
+          ? 'billing'
+          : code === 'purchase_records_unavailable'
+            ? 'records'
+            : 'other',
+      );
       setDeleting(false);
     }
   }
@@ -196,13 +218,27 @@ export default function SettingsScreen() {
       </Card>
 
       <Card>
+        <Heading>{t('settings.exportTitle')}</Heading>
+        <Body>{t('settings.exportBody')}</Body>
+        {exportFailed && <Notice tone="error">{t('settings.exportFailed')}</Notice>}
+        <Button
+          variant="secondary"
+          title={t('settings.exportAction')}
+          busy={exporting}
+          onPress={() => void exportData()}
+        />
+      </Card>
+
+      <Card>
         <Heading>{t('settings.deleteTitle')}</Heading>
         <Body>{t('settings.deleteBody')}</Body>
         {deleteFailed && (
           <Notice tone="error">
             {deleteFailed === 'billing'
               ? t('settings.deleteBillingFailed')
-              : t('settings.deleteFailed')}
+              : deleteFailed === 'records'
+                ? t('settings.deletePurchaseRecordsFailed')
+                : t('settings.deleteFailed')}
           </Notice>
         )}
         <Button

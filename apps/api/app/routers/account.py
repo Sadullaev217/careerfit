@@ -1,18 +1,21 @@
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from app import billing, consent, plans, store
+from app import billing, consent, data_export, plans, revenuecat, store
 from app.auth import CurrentUser, delete_auth_user, get_current_user
+from app.config import settings
 from app.rate_limit import per_user
 
 router = APIRouter()
 
 # Replaced in tests. Raises BillingUnavailable when Stripe isn't set up on this server.
 gateway_factory = billing.default_gateway
+# Replaced in tests. Used only when REVENUECAT_SECRET_KEY is set.
+store_records_factory = revenuecat.default_client
 
 User = Annotated[CurrentUser, Depends(get_current_user)]
 
@@ -128,5 +131,36 @@ def delete_account(user: User) -> None:
                     "Please try again.",
                 },
             ) from None
+    # The phone app signs in to RevenueCat with the account id, so RevenueCat may hold a record even
+    # without a purchase.
+    if settings.revenuecat_secret_key:
+        try:
+            store_records_factory().delete_subscriber(user.id)
+        except revenuecat.RevenueCatUnavailable:
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "purchase_records_unavailable",
+                    "message": "We couldn't reach our app store partner, so your account wasn't "
+                    "deleted. Please try again.",
+                },
+            ) from None
     store.delete_all_user_files(user.id)
     delete_auth_user(user.id)
+
+
+@router.get(
+    "/account/export",
+    response_class=Response,
+    dependencies=[Depends(per_user("export", "5/hour"))],
+)
+def export_account(user: User) -> Response:
+    """A zip of everything stored about the signed-in person, with their uploaded files."""
+    archive = data_export.build_zip(
+        {"id": user.id, "email": user.email}, store.export_rows(user.id), store.download_file
+    )
+    return Response(
+        archive,
+        media_type="application/zip",
+        headers={"Content-Disposition": 'attachment; filename="careerfit-data.zip"'},
+    )

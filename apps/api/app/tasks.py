@@ -6,7 +6,7 @@ import httpx
 from celery.exceptions import SoftTimeLimitExceeded
 from kombu.exceptions import OperationalError
 
-from app import portfolio, push, store
+from app import portfolio, push, retention, store
 from app.analysis import prepare_score_input
 from app.celery_app import celery_app
 from app.embeddings import embed_texts
@@ -105,6 +105,11 @@ def refresh_market_data_task(self: Any) -> None:
         logger.error("market refresh failed: %s", type(exc).__name__)
         raise self.retry(exc=exc, countdown=1800) from None
     logger.info("market refresh: %s", summary)
+
+
+@celery_app.task(name="delete_expired_files")  # type: ignore[untyped-decorator]
+def delete_expired_files_task() -> None:
+    logger.info("file retention: %d files deleted", retention.delete_expired_files(store))
 
 
 @celery_app.task(  # type: ignore[untyped-decorator]

@@ -148,7 +148,12 @@
     "deleteTitle": "Delete {name}?",
     "deleteResumeBody": "This also deletes any scores and reports made from this resume. It can't be undone.",
     "deleteBody": "This can't be undone.",
-    "deleteFailed": "We couldn't delete this. Please try again."
+    "deleteFailed": "We couldn't delete this. Please try again.",
+    "deleteAfter": "The file will be deleted on {date}.",
+    "kept": "Kept until you delete it.",
+    "fileDeleted": "The file was deleted on {date}, 90 days after upload. Your results stay.",
+    "keepLabel": "Keep this file",
+    "keepFailed": "We couldn't change this. Please try again."
   },
   "found": {
     "note": "This was read by AI, so it can make mistakes. If something important is missing, make it clearer on your resume.",
@@ -392,7 +397,12 @@
     "withdrawConfirmTitle": "Withdraw your agreement?",
     "withdrawConfirmBody": "CareerFit will stop reading new resumes and running analyses for you. Your saved results and files stay until you delete them or your account.",
     "withdrawConfirmAction": "Withdraw",
-    "withdrawFailed": "We couldn't withdraw your agreement. Please try again."
+    "withdrawFailed": "We couldn't withdraw your agreement. Please try again.",
+    "exportTitle": "Your data",
+    "exportBody": "Download a zip with everything CareerFit stores about you, including the files you uploaded.",
+    "exportAction": "Download my data",
+    "exportFailed": "We couldn't prepare your data. Please try again.",
+    "deletePurchaseRecordsFailed": "We couldn't reach our app store partner, so your account wasn't deleted. Please try again."
   },
   "market": {
     "title": "Job market",
@@ -470,7 +480,10 @@
       "nothing_to_tailor": "We couldn't find lines in this resume that show the job's skills.",
       "ai_unavailable": "Our AI is busy right now. Please try again in a few minutes.",
       "consent_required": "Please read and accept the Privacy Policy and Terms of Service first.",
-      "consent_outdated": "The policy changed while this page was open. Please read it again."
+      "consent_outdated": "The policy changed while this page was open. Please read it again.",
+      "nothing_to_keep": "This document has no stored file to keep.",
+      "resume_file_deleted": "This resume's file was deleted 90 days after upload. Upload it again to tailor it.",
+      "purchase_records_unavailable": "We couldn't reach our app store partner, so your account wasn't deleted. Please try again."
     },
     "document": {
       "no_text": "We couldn't find any text in this file.",

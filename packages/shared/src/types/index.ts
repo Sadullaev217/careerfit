@@ -95,6 +95,11 @@ export interface Document {
   extractionErrorCode: string | null;
   extractionErrorMessage: string | null;
   createdAt: string;
+  /** Uploaded files are deleted 90 days after upload unless kept. */
+  keep: boolean;
+  /** When the file will be deleted, or null if it won't be (kept, already deleted, or a link). */
+  deleteAfter: string | null;
+  fileDeletedAt: string | null;
 }
 
 export interface ExtractedProfile {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { CameraView } from 'expo-camera';
@@ -25,7 +25,7 @@ type Upload = { uri: string; name: string; mimeType: string; size?: number };
 
 export default function DocumentsScreen() {
   const i18n = useI18n();
-  const { t } = i18n;
+  const { t, date } = i18n;
   const [documents, setDocuments] = useState<Document[] | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
@@ -132,6 +132,20 @@ export default function DocumentsScreen() {
     }
   }
 
+  function setKeep(document: Document, keep: boolean) {
+    api.documents
+      .setKeep(document.id, keep)
+      .then(load)
+      .catch((error: unknown) => Alert.alert(i18n.errorText(error, 'documents.keepFailed')));
+  }
+
+  function retentionText(document: Document): string {
+    if (document.fileDeletedAt)
+      return t('documents.fileDeleted', { date: date(document.fileDeletedAt) });
+    if (document.keep || !document.deleteAfter) return t('documents.kept');
+    return t('documents.deleteAfter', { date: date(document.deleteAfter) });
+  }
+
   function confirmDelete(document: Document) {
     const name = document.fileName ?? document.url ?? '';
     Alert.alert(
@@ -206,6 +220,19 @@ export default function DocumentsScreen() {
                 </Text>
                 <Muted>{t(TYPE_LABEL[document.type])}</Muted>
                 <Badge label={state.label} tone={state.tone} />
+                {document.type !== 'portfolio_link' && <Muted>{retentionText(document)}</Muted>}
+                {document.type !== 'portfolio_link' && !document.fileDeletedAt && (
+                  <View style={styles.keepRow}>
+                    <Switch
+                      accessibilityLabel={`${t('documents.keepLabel')}: ${name}`}
+                      value={document.keep}
+                      onValueChange={(keep) => setKeep(document, keep)}
+                      trackColor={{ true: colors.primary, false: colors.border }}
+                      thumbColor={colors.card}
+                    />
+                    <Body>{t('documents.keepLabel')}</Body>
+                  </View>
+                )}
               </View>
               <Pressable
                 accessibilityRole="button"
@@ -245,6 +272,7 @@ export default function DocumentsScreen() {
 }
 
 const styles = StyleSheet.create({
+  keepRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   progress: { gap: space.xs },
   track: { height: 8, borderRadius: 4, backgroundColor: colors.secondary },
   fill: { height: 8, borderRadius: 4, backgroundColor: colors.primary },

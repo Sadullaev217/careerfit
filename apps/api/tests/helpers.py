@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
@@ -227,6 +228,40 @@ class FakeStore:
     def delete_files(self, paths: list[str]) -> None:
         for path in paths:
             self.files.pop(path, None)
+
+    def set_document_keep(self, document_id: str, user_id: str, keep: bool) -> None:
+        row = self.documents.get(document_id)
+        if row and row["user_id"] == user_id:
+            row["keep"] = keep
+
+    def documents_to_expire(self, cutoff: datetime, limit: int) -> list[dict[str, Any]]:
+        rows = [
+            row
+            for row in self.documents.values()
+            if datetime.fromisoformat(row["created_at"]) < cutoff
+            and not row.get("keep")
+            and not row.get("file_deleted_at")
+            and row["type"] != "portfolio_link"
+        ]
+        return [{"id": row["id"], "file_path": row.get("file_path")} for row in rows[:limit]]
+
+    def expire_document(self, document_id: str, at: datetime) -> None:
+        self.documents[document_id].update(
+            {"file_path": None, "parsed_text": None, "file_deleted_at": at.isoformat()}
+        )
+
+    def export_rows(self, user_id: str) -> dict[str, list[dict[str, Any]]]:
+        documents = [dict(row) for row in self.documents.values() if row["user_id"] == user_id]
+        consents = [
+            {"version": version, **row}
+            for (owner, version), row in self.consents.items()
+            if owner == user_id
+        ]
+        return {
+            "documents": documents,
+            "consents": consents,
+            "subscriptions": [self.get_subscription(user_id) or {}],
+        }
 
     def delete_all_user_files(self, user_id: str) -> None:
         self.calls.append(f"delete_all_user_files:{user_id}")

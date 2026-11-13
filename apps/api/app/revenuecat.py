@@ -34,6 +34,8 @@ class PurchaseNotFound(Exception):
 class SubscriberSource(Protocol):
     def subscriber(self, app_user_id: str) -> dict[str, Any]: ...
 
+    def delete_subscriber(self, app_user_id: str) -> None: ...
+
 
 class Store(Protocol):
     def get_subscription(self, user_id: str) -> dict[str, Any] | None: ...
@@ -65,6 +67,21 @@ class RevenueCatClient:
             raise RevenueCatUnavailable from exc
         subscriber: dict[str, Any] = response.json().get("subscriber") or {}
         return subscriber
+
+
+    def delete_subscriber(self, app_user_id: str) -> None:
+        """Removes RevenueCat's record of this person and their purchase history. Store subscriptions
+        themselves are cancelled in the App Store or Google Play."""
+        try:
+            response = self._http.delete(
+                f"{API_URL}/subscribers/{quote(app_user_id, safe='')}",
+                headers={**self._headers, "Content-Type": "application/json"},
+            )
+            if response.status_code != 404:
+                response.raise_for_status()
+        except httpx.HTTPError as exc:
+            logger.warning("RevenueCat delete failed: %s", type(exc).__name__)
+            raise RevenueCatUnavailable from exc
 
 
 def default_client() -> SubscriberSource:

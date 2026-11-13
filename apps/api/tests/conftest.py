@@ -30,6 +30,8 @@ def isolated_from_local_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[No
     monkeypatch.setattr(settings, "openrouter_url", "http://127.0.0.1:9")
     monkeypatch.setattr(settings, "stripe_secret_key", "")
     monkeypatch.setattr(settings, "stripe_webhook_secret", "")
+    monkeypatch.setattr(settings, "revenuecat_secret_key", "")
+    monkeypatch.setattr(settings, "malware_scanner", "off")
     # Fresh request counts for every test, in memory even if .env points them at Redis.
     storage = MemoryStorage()
     monkeypatch.setattr(rate_limit, "_storage", storage)
