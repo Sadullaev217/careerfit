@@ -70,7 +70,7 @@ export default function PricingPage() {
             {plan && !isPro && <Badge variant="secondary">{t('pricing.current')}</Badge>}
           </div>
           <p className="text-2xl font-semibold">{t('pricing.freePrice')}</p>
-          <Features items={['pricing.freeItem1', 'pricing.freeItem2', 'pricing.freeItem3']} />
+          <Features items={['pricing.freeItem1', 'pricing.freeItem2', 'pricing.freeItem3', 'pricing.freeItem4']} />
         </section>
 
         <section aria-labelledby="plan-pro" className={`${card} border-primary`} data-testid="plan-pro">
@@ -83,7 +83,7 @@ export default function PricingPage() {
           <p className="text-2xl font-semibold">
             {t('pricing.proPrice', { price: price(PRICES.proMonthly, PRICES.currency) })}
           </p>
-          <Features items={['pricing.proItem1', 'pricing.proItem2', 'pricing.proItem3']} />
+          <Features items={['pricing.proItem1', 'pricing.proItem2']} />
           <div className="mt-auto">
             {!plan ? (
               <Skeleton className="h-9 w-40" />

@@ -342,9 +342,7 @@
     "onePoint": "After you update your resume, run this again to see your progress here.",
     "allTitle": "All analyses",
     "working": "In progress",
-    "failed": "Didn't finish",
-    "proTitle": "Track your progress",
-    "proBody": "See how your score for a job changes as you improve your resume. Part of Pro."
+    "failed": "Didn't finish"
   },
   "settings": {
     "title": "Settings",
@@ -505,11 +503,11 @@
     "freeItem1": "One analysis a month",
     "freeItem2": "Your full report and 30, 60 and 90 day plan",
     "freeItem3": "All your past results",
+    "freeItem4": "Your progress over time",
     "pro": "Pro",
     "proPrice": "{price} a month",
     "proItem1": "Unlimited analyses",
     "proItem2": "Your resume rewritten for each job",
-    "proItem3": "Your progress over time",
     "report": "Detailed report",
     "reportPrice": "{price} per result",
     "reportBody": "A polished PDF of one result to keep, print or share. Buy it from any result.",

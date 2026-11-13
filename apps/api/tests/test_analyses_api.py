@@ -939,7 +939,7 @@ def test_a_failed_analysis_sends_no_alert(
     assert sent == []
 
 
-# --- Pro: progress over time ---
+# --- Progress over time ---
 
 
 def finished(client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, **changes: Any) -> str:
@@ -947,13 +947,14 @@ def finished(client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, **c
     return run(store, queue)
 
 
-def test_progress_is_part_of_pro(
+def test_free_accounts_see_their_progress(
     client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
 ) -> None:
+    finished(client, store, queue)
     store.update_subscription(USER_ID, {"plan": "free"})
     response = client.get("/analyses/progress", headers=auth_headers())
-    assert response.status_code == 402
-    assert response.json()["detail"]["code"] == "pro_required"
+    assert response.status_code == 200
+    assert len(response.json()) == 1
 
 
 def test_progress_follows_one_job_over_time(

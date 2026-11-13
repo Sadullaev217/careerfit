@@ -175,13 +175,11 @@ def _pro_required() -> HTTPException:
 
 @router.get("/progress", response_model=list[ProgressTrack])
 def progress(user: User) -> list[ProgressTrack]:
-    """Pro: each job's score over time, oldest first, most recently checked job first.
+    """Each job's score over time, oldest first, most recently checked job first. Free on every plan.
 
     Runs group by occupation, like the web chart, so the same job checked in English and in Russian is
     one line. The region is shown only when every run used the same one.
     """
-    if not plans.entitlements(store.get_subscription(user.id)).is_pro:
-        raise _pro_required()
     tracks: dict[str, list[tuple[ProgressPoint, str, str | None]]] = {}
     for row in sorted(store.list_analyses(user.id), key=lambda r: str(r["created_at"])):
         result = row.get("result") or {}
