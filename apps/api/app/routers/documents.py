@@ -10,7 +10,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from app import malware_scan, portfolio, store
+from app import consent, malware_scan, portfolio, store
 from app.auth import CurrentUser, get_current_user
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
 from app.queueing import enqueue
@@ -145,6 +145,7 @@ def upload_document(
     type: Annotated[Literal["resume", "cover_letter"], Form()],
     file: UploadFile,
 ) -> DocumentResponse:
+    consent.require(store, user.id)
     data = file.file.read(MAX_FILE_BYTES + 1)
     try:
         kind = validate_file(data)
@@ -198,6 +199,7 @@ def upload_document(
 def add_portfolio_link(
     user: User, body: PortfolioLinkRequest, background: BackgroundTasks
 ) -> DocumentResponse:
+    consent.require(store, user.id)
     try:
         url = portfolio.normalize_link(body.url)
     except portfolio.RejectedLink as exc:

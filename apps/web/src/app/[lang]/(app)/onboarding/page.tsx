@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check } from 'lucide-react';
+import { ConsentGate } from '@/components/consent-gate';
 import { DocumentList } from '@/components/document-list';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { ResumeUploader } from '@/components/resume-uploader';
@@ -27,7 +28,10 @@ export default function OnboardingPage() {
         <p className="text-muted-foreground">{t('onboarding.intro')}</p>
       </div>
 
-      <ol className="flex flex-col gap-2 sm:flex-row sm:gap-6" aria-label={t('onboarding.progress')}>
+      <ol
+        className="flex flex-col gap-2 sm:flex-row sm:gap-6"
+        aria-label={t('onboarding.progress')}
+      >
         {steps.map((label, index) => {
           const number = index + 1;
           const done = number < step;
@@ -55,40 +59,42 @@ export default function OnboardingPage() {
         })}
       </ol>
 
-      <section className="flex flex-col gap-4 rounded-lg border bg-card p-5">
-        {step === 1 && (
-          <>
-            <h2 className="text-xl font-semibold">{t('onboarding.resumeTitle')}</h2>
-            <p className="text-sm text-muted-foreground">{t('onboarding.resumePrivacy')}</p>
-            <ResumeUploader
-              onUploaded={async () => {
-                await refresh();
-                setChosenStep(2);
-              }}
-            />
-          </>
-        )}
-        {step === 2 && (
-          <>
-            <h2 className="text-xl font-semibold">{t('onboarding.portfolioTitle')}</h2>
-            <p className="text-sm text-muted-foreground">{t('onboarding.portfolioBody')}</p>
-            <PortfolioForm onAdded={refresh} />
-            <DocumentList documents={documents} failed={failed} onChanged={refresh} />
-            <Button size="lg" className="self-start" onClick={() => setChosenStep(3)}>
-              {t('common.continue')}
-            </Button>
-          </>
-        )}
-        {step === 3 && (
-          <>
-            <h2 className="text-xl font-semibold">{t('onboarding.roleTitle')}</h2>
-            <RoleForm documents={documents} />
-            <Button variant="link" className="self-start p-0" onClick={() => setChosenStep(2)}>
-              {t('common.back')}
-            </Button>
-          </>
-        )}
-      </section>
+      <ConsentGate>
+        <section className="flex flex-col gap-4 rounded-lg border bg-card p-5">
+          {step === 1 && (
+            <>
+              <h2 className="text-xl font-semibold">{t('onboarding.resumeTitle')}</h2>
+              <p className="text-sm text-muted-foreground">{t('onboarding.resumePrivacy')}</p>
+              <ResumeUploader
+                onUploaded={async () => {
+                  await refresh();
+                  setChosenStep(2);
+                }}
+              />
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <h2 className="text-xl font-semibold">{t('onboarding.portfolioTitle')}</h2>
+              <p className="text-sm text-muted-foreground">{t('onboarding.portfolioBody')}</p>
+              <PortfolioForm onAdded={refresh} />
+              <DocumentList documents={documents} failed={failed} onChanged={refresh} />
+              <Button size="lg" className="self-start" onClick={() => setChosenStep(3)}>
+                {t('common.continue')}
+              </Button>
+            </>
+          )}
+          {step === 3 && (
+            <>
+              <h2 className="text-xl font-semibold">{t('onboarding.roleTitle')}</h2>
+              <RoleForm documents={documents} />
+              <Button variant="link" className="self-start p-0" onClick={() => setChosenStep(2)}>
+                {t('common.back')}
+              </Button>
+            </>
+          )}
+        </section>
+      </ConsentGate>
     </div>
   );
 }

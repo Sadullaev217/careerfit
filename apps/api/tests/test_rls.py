@@ -151,6 +151,10 @@ def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> N
         "insert into public.skills (name) values ('Fake')",
         "insert into public.documents (type, file_name) values ('resume', 'x.pdf')",
         "delete from public.documents",
+        # Agreements are recorded by the API, with the version it showed.
+        "insert into public.consents (user_id, version) values (auth.uid(), 'any')",
+        "update public.consents set withdrawn_at = null",
+        "delete from public.consents",
     ],
 )
 def test_user_cannot_write_server_owned_data(conn: psycopg.Connection, statement: str) -> None:
@@ -483,6 +487,19 @@ def test_the_limit_function_stops_at_the_monthly_limit(conn: psycopg.Connection)
     conn.execute("update public.analyses set status = 'failed' where user_id = %s", (BOB,))
     assert start_within_limit(conn, BOB, 1) is not None
     assert start_within_limit(conn, BOB, None) is not None
+
+
+def test_people_see_only_their_own_consents(conn: psycopg.Connection) -> None:
+    conn.execute("reset role")
+    conn.execute(
+        "insert into public.consents (user_id, version) values (%s, 'v1'), (%s, 'v1')", (ALICE, BOB)
+    )
+    act_as(conn, ALICE)
+    rows = conn.execute("select user_id from public.consents").fetchall()
+    assert [str(row[0]) for row in rows] == [ALICE]
+    act_as(conn, None)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        conn.execute("select * from public.consents")
 
 
 def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:

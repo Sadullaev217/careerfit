@@ -2,10 +2,10 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from app import billing, plans, store
+from app import billing, consent, plans, store
 from app.auth import CurrentUser, delete_auth_user, get_current_user
 from app.rate_limit import per_user
 
@@ -36,6 +36,22 @@ class PlanResponse(BaseModel):
     purchased_reports: list[str]
 
 
+class ConsentResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    version: str
+    accepted: bool
+    accepted_at: str | None
+    # Where resumes are read, so the agreement screen can say so.
+    ai_processing: consent.AiProcessing
+
+
+class AcceptConsentRequest(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    version: str = Field(min_length=1, max_length=40)
+
+
 @router.get("/me", response_model=MeResponse)
 def me(user: User) -> MeResponse:
     return MeResponse(id=user.id, email=user.email)
@@ -57,6 +73,44 @@ def account_plan(user: User) -> PlanResponse:
         limit_resets_at=plans.next_month_start(now).date().isoformat(),
         purchased_reports=sorted(store.purchased_report_ids(user.id)),
     )
+
+
+@router.get("/account/consent", response_model=ConsentResponse)
+def get_consent(user: User) -> ConsentResponse:
+    row = consent.current(store, user.id)
+    return ConsentResponse(
+        version=consent.current_version(),
+        accepted=row is not None,
+        accepted_at=str(row["accepted_at"]) if row else None,
+        ai_processing=consent.ai_processing(),
+    )
+
+
+@router.post(
+    "/account/consent",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(per_user("consent", "30/hour"))],
+)
+def accept_consent(user: User, body: AcceptConsentRequest) -> None:
+    # The screen sends the version it showed, so nobody accepts a version they didn't see.
+    if body.version != consent.current_version():
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            detail={
+                "code": "consent_outdated",
+                "message": "The policy changed while this page was open. Please review it again.",
+            },
+        )
+    store.accept_consent(user.id, body.version)
+
+
+@router.delete(
+    "/account/consent",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(per_user("consent", "30/hour"))],
+)
+def withdraw_consent(user: User) -> None:
+    store.withdraw_consent(user.id, consent.current_version())
 
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("account-delete", "5/hour"))])

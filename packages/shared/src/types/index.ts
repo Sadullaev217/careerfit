@@ -13,6 +13,16 @@ export interface Me {
   email: string | null;
 }
 
+/** The agreement accepted before CareerFit reads a resume. */
+export interface ConsentStatus {
+  /** The version to show and send back when accepting. */
+  version: string;
+  accepted: boolean;
+  acceptedAt: string | null;
+  /** Where resumes are read: CareerFit's own server, or a hosted model through OpenRouter. */
+  aiProcessing: 'self_hosted' | 'openrouter';
+}
+
 export interface PlanInfo {
   plan: SubscriptionPlan;
   /** Stripe's status. "past_due" means a payment failed and Stripe is retrying; Pro continues meanwhile. */

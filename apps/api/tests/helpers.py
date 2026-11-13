@@ -78,6 +78,28 @@ class FakeStore:
         self.subscriptions: dict[str, dict[str, Any]] = {}
         self.stripe_events: dict[str, str] = {}
         self.report_purchases: dict[str, dict[str, Any]] = {}  # keyed by analysis id
+        # Accounts have accepted the current agreement unless a test says otherwise.
+        self.consents: dict[tuple[str, str], dict[str, Any]] = {}
+        self.consent_missing: set[str] = set()
+
+    def get_consent(self, user_id: str, version: str) -> dict[str, Any] | None:
+        if (user_id, version) in self.consents:
+            return dict(self.consents[user_id, version])
+        if user_id in self.consent_missing:
+            return None
+        return {"version": version, "accepted_at": "2026-11-13T00:00:00+00:00", "withdrawn_at": None}
+
+    def accept_consent(self, user_id: str, version: str) -> None:
+        self.consents[user_id, version] = {
+            "version": version,
+            "accepted_at": "2026-11-14T00:00:00+00:00",
+            "withdrawn_at": None,
+        }
+
+    def withdraw_consent(self, user_id: str, version: str) -> None:
+        row = self.get_consent(user_id, version)
+        if row and not row["withdrawn_at"]:
+            self.consents[user_id, version] = {**row, "withdrawn_at": "2026-11-15T00:00:00+00:00"}
 
     def get_subscription(self, user_id: str) -> dict[str, Any] | None:
         row = self.subscriptions.setdefault(

@@ -8,7 +8,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from app import market_lookup, plans, report_pdf, store, tailoring
+from app import consent, market_lookup, plans, report_pdf, store, tailoring
 from app.auth import CurrentUser, get_current_user
 from app.llm import LLMUnavailable, get_llm
 from app.queueing import enqueue
@@ -89,6 +89,7 @@ def _to_response(row: dict[str, Any]) -> AnalysisResponse:
 def start_analysis(
     user: User, body: StartAnalysisRequest, background: BackgroundTasks
 ) -> AnalysisStarted:
+    consent.require(store, user.id)
     document_id = str(body.document_id)
     document = store.get_document(document_id, user.id)
     if document is None or document["type"] != "resume":
@@ -285,6 +286,7 @@ def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
     saved = store.get_tailored_rewrites(row["id"], user.id)
     if saved is not None:
         return TailoredResponse(job=job, rewrites=[TailoredRewrite.model_validate(i) for i in saved])
+    consent.require(store, user.id)
     if not plans.entitlements(store.get_subscription(user.id)).is_pro:
         raise _pro_required()
 

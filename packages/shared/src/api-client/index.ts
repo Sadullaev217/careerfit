@@ -7,6 +7,7 @@ import type {
   Analysis,
   Me,
   PlanInfo,
+  ConsentStatus,
   RoleSuggestion,
   CheckoutLink,
   TailoredRewrites,
@@ -119,6 +120,10 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       me: () => request<Me>('/me'),
       plan: () => request<PlanInfo>('/account/plan'),
       delete: () => request<void>('/account', { method: 'DELETE' }),
+      consent: () => request<ConsentStatus>('/account/consent'),
+      /** ApiError 409 "consent_outdated" if the version changed since it was shown. */
+      acceptConsent: (version: string) => post<void>('/account/consent', { version }),
+      withdrawConsent: () => request<void>('/account/consent', { method: 'DELETE' }),
     },
     documents: {
       list: () => request<Document[]>('/documents'),

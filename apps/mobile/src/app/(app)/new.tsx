@@ -10,6 +10,7 @@ import {
   type Region,
   type RoleSuggestion,
 } from '@careerfit/shared';
+import { ConsentGate } from '@/components/Consent';
 import { Choice } from '@/components/Choice';
 import { Body, Button, Card, Field, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { useI18n } from '@/i18n';
@@ -30,7 +31,12 @@ function isRegion(value: string | undefined): value is Region {
 export default function NewAnalysisScreen() {
   const i18n = useI18n();
   const { t, locale } = i18n;
-  const params = useLocalSearchParams<{ role?: string; occupationCode?: string; region?: string; documentId?: string }>();
+  const params = useLocalSearchParams<{
+    role?: string;
+    occupationCode?: string;
+    region?: string;
+    documentId?: string;
+  }>();
   const [documents, setDocuments] = useState<Document[] | null>(null);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -70,7 +76,14 @@ export default function NewAnalysisScreen() {
   }, [params.documentId]);
 
   // The plan is read again on each visit: an analysis or an upgrade elsewhere changes what's left.
-  const loadPlan = useCallback(() => api.account.plan().then(setPlan).catch(() => undefined), []);
+  const loadPlan = useCallback(
+    () =>
+      api.account
+        .plan()
+        .then(setPlan)
+        .catch(() => undefined),
+    [],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -138,7 +151,9 @@ export default function NewAnalysisScreen() {
         <Card>
           <Heading>{t('role.title')}</Heading>
           <Body>{resumes.length ? t('role.stillReading') : t('role.needResume')}</Body>
-          {!resumes.length && <Button title={t('role.uploadResume')} onPress={() => router.push('/documents')} />}
+          {!resumes.length && (
+            <Button title={t('role.uploadResume')} onPress={() => router.push('/documents')} />
+          )}
         </Card>
       </Screen>
     );
@@ -146,98 +161,119 @@ export default function NewAnalysisScreen() {
 
   return (
     <Screen>
-      {!documents && <ActivityIndicator color={colors.primary} />}
-      {ready.length > 1 && (
+      <ConsentGate>
+        {!documents && <ActivityIndicator color={colors.primary} />}
+        {ready.length > 1 && (
+          <Card>
+            <Heading>{t('role.resume')}</Heading>
+            <Choice
+              label={t('role.resume')}
+              value={documentId}
+              onChange={setDocumentId}
+              options={ready.map((document) => ({
+                value: document.id,
+                label: document.fileName ?? document.id,
+              }))}
+            />
+          </Card>
+        )}
+
         <Card>
-          <Heading>{t('role.resume')}</Heading>
+          <Heading>{t('role.job')}</Heading>
+          {chosen ? (
+            <View style={styles.chosen}>
+              <Muted>{t('role.chosen')}</Muted>
+              <Text style={[type.body, styles.bold]}>{chosen.title}</Text>
+              <Button
+                variant="link"
+                title={t('role.change')}
+                onPress={() => {
+                  setChosen(null);
+                  setQuery('');
+                }}
+              />
+            </View>
+          ) : (
+            <>
+              <Field
+                label={t('role.job')}
+                placeholder={t('role.searchPlaceholder')}
+                value={query}
+                onChangeText={setQuery}
+                autoCorrect={false}
+                returnKeyType="search"
+              />
+              <View accessibilityLiveRegion="polite">
+                {shown.state === 'idle' && text.length > 0 && <Muted>{t('role.typeMore')}</Muted>}
+                {shown.state === 'searching' && <Muted>{t('role.searching')}</Muted>}
+                {shown.state === 'failed' && <Notice tone="error">{t('role.searchFailed')}</Notice>}
+                {shown.state === 'done' && shown.results.length === 0 && (
+                  <Muted>{t('role.noMatches')}</Muted>
+                )}
+              </View>
+              {shown.results.map((suggestion) => (
+                <Pressable
+                  key={`${suggestion.occupationCode}-${suggestion.title}`}
+                  accessibilityRole="button"
+                  onPress={() => {
+                    setChosen({
+                      title: suggestion.title,
+                      occupationCode: suggestion.occupationCode,
+                    });
+                    setError(null);
+                  }}
+                  style={({ pressed }) => [styles.suggestion, pressed && styles.pressed]}
+                >
+                  <Text style={[type.body, styles.bold]}>{suggestion.title}</Text>
+                  {suggestion.occupationName !== suggestion.title && (
+                    <Muted>{suggestion.occupationName}</Muted>
+                  )}
+                </Pressable>
+              ))}
+            </>
+          )}
+        </Card>
+
+        <Card>
+          <Heading>{t('role.where')}</Heading>
           <Choice
-            label={t('role.resume')}
-            value={documentId}
-            onChange={setDocumentId}
-            options={ready.map((document) => ({ value: document.id, label: document.fileName ?? document.id }))}
+            label={t('role.where')}
+            value={region}
+            onChange={setRegion}
+            options={REGIONS.map((value) => ({
+              value,
+              label: i18n.maybe(`regions.${value}`) ?? value,
+            }))}
           />
         </Card>
-      )}
 
-      <Card>
-        <Heading>{t('role.job')}</Heading>
-        {chosen ? (
-          <View style={styles.chosen}>
-            <Muted>{t('role.chosen')}</Muted>
-            <Text style={[type.body, styles.bold]}>{chosen.title}</Text>
+        {usedUp && plan ? (
+          <Card>
+            <Heading>{t('billing.limitTitle')}</Heading>
+            <Body>{t('billing.limitBody', { date: i18n.date(plan.limitResetsAt) })}</Body>
             <Button
-              variant="link"
-              title={t('role.change')}
-              onPress={() => {
-                setChosen(null);
-                setQuery('');
-              }}
+              variant="secondary"
+              title={t('billing.seePro')}
+              onPress={() => router.push('/settings')}
             />
-          </View>
+          </Card>
         ) : (
           <>
-            <Field
-              label={t('role.job')}
-              placeholder={t('role.searchPlaceholder')}
-              value={query}
-              onChangeText={setQuery}
-              autoCorrect={false}
-              returnKeyType="search"
-            />
-            <View accessibilityLiveRegion="polite">
-              {shown.state === 'idle' && text.length > 0 && <Muted>{t('role.typeMore')}</Muted>}
-              {shown.state === 'searching' && <Muted>{t('role.searching')}</Muted>}
-              {shown.state === 'failed' && <Notice tone="error">{t('role.searchFailed')}</Notice>}
-              {shown.state === 'done' && shown.results.length === 0 && <Muted>{t('role.noMatches')}</Muted>}
-            </View>
-            {shown.results.map((suggestion) => (
-              <Pressable
-                key={`${suggestion.occupationCode}-${suggestion.title}`}
-                accessibilityRole="button"
-                onPress={() => {
-                  setChosen({ title: suggestion.title, occupationCode: suggestion.occupationCode });
-                  setError(null);
-                }}
-                style={({ pressed }) => [styles.suggestion, pressed && styles.pressed]}
-              >
-                <Text style={[type.body, styles.bold]}>{suggestion.title}</Text>
-                {suggestion.occupationName !== suggestion.title && <Muted>{suggestion.occupationName}</Muted>}
-              </Pressable>
-            ))}
+            {error && <Notice tone="error">{error}</Notice>}
+            {plan && limit !== null && (
+              <Muted>
+                {i18n.plural('billing.usage', limit, { count: plan.analysesUsed, limit })}
+              </Muted>
+            )}
           </>
         )}
-      </Card>
-
-      <Card>
-        <Heading>{t('role.where')}</Heading>
-        <Choice
-          label={t('role.where')}
-          value={region}
-          onChange={setRegion}
-          options={REGIONS.map((value) => ({ value, label: i18n.maybe(`regions.${value}`) ?? value }))}
+        <Button
+          title={starting ? t('role.starting') : t('role.start')}
+          busy={starting}
+          disabled={!documentId || usedUp}
+          onPress={() => void start()}
         />
-      </Card>
-
-      {usedUp && plan ? (
-        <Card>
-          <Heading>{t('billing.limitTitle')}</Heading>
-          <Body>{t('billing.limitBody', { date: i18n.date(plan.limitResetsAt) })}</Body>
-          <Button variant="secondary" title={t('billing.seePro')} onPress={() => router.push('/settings')} />
-        </Card>
-      ) : (
-        <>
-          {error && <Notice tone="error">{error}</Notice>}
-          {plan && limit !== null && (
-            <Muted>{i18n.plural('billing.usage', limit, { count: plan.analysesUsed, limit })}</Muted>
-          )}
-        </>
-      )}
-      <Button
-        title={starting ? t('role.starting') : t('role.start')}
-        busy={starting}
-        disabled={!documentId || usedUp}
-        onPress={() => void start()}
-      />
+      </ConsentGate>
     </Screen>
   );
 }

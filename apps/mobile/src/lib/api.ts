@@ -2,6 +2,8 @@ import { ApiError, createApiClient } from '@careerfit/shared';
 import { supabase } from './supabase';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
+// The website, for the privacy policy, terms and how the score works.
+export const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000';
 
 export async function accessToken(): Promise<string | undefined> {
   return (await supabase?.auth.getSession())?.data.session?.access_token;

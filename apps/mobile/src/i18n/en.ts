@@ -241,6 +241,32 @@ export const en = {
     savedTitle: 'Saved on this phone',
     openResult: 'Open {role}, {score} out of 100',
   },
+  consent: {
+    title: 'Before we read your resume',
+    intro:
+      'CareerFit reads your resume to estimate how well it fits a job. Here is what that involves.',
+    aiSelfHosted:
+      "An AI model on CareerFit's own server reads your resume. It isn't sent to an outside AI company.",
+    aiHosted:
+      'An AI model from Baidu, reached through OpenRouter, reads your resume. Neither uses it to train AI models. Baidu may keep it for a while, on servers in China.',
+    personalDetails:
+      "We remove your name, contact details and details like age or nationality before the AI sees your resume. Unusual layouts can slip through, so leave out anything you don't want read.",
+    retention:
+      'Uploaded files are deleted after 90 days unless you choose to keep them. Your results stay until you delete them.',
+    rights: 'You can download or delete all your data at any time in Settings.',
+    estimate: 'The score is an estimate to help you prepare, not a hiring decision.',
+    agreeTerms: 'I have read and agree to the Privacy Policy and the Terms of Service.',
+    agreeAi: "I agree that CareerFit's AI reads my resume to score it.",
+    accept: 'Agree and continue',
+    saveFailed: "We couldn't save your answer. Please try again.",
+    outdated: 'The policy changed while this page was open. Please read it again.',
+    changeLater: 'You can withdraw this later in Settings.',
+  },
+  legal: {
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Service',
+    howScoreWorks: 'How the score works',
+  },
   settings: {
     title: 'Settings',
     account: 'Account',
@@ -260,6 +286,15 @@ export const en = {
     privacy: 'Privacy',
     privacyNote:
       'Your last result is kept on this phone so you can see it offline. Logging out or deleting your account removes it.',
+    privacyAccepted: 'You agreed to the Privacy Policy and Terms of Service on {date}.',
+    privacyMissing:
+      "You haven't agreed to the current Privacy Policy and Terms of Service, so CareerFit won't read new resumes.",
+    withdrawAction: 'Withdraw my agreement',
+    withdrawConfirmTitle: 'Withdraw your agreement?',
+    withdrawConfirmBody:
+      'CareerFit will stop reading new resumes and running analyses for you. Your saved results and files stay until you delete them or your account.',
+    withdrawConfirmAction: 'Withdraw',
+    withdrawFailed: "We couldn't withdraw your agreement. Please try again.",
     logOut: 'Log out',
     deleteTitle: 'Delete your account',
     deleteBody: 'This permanently deletes your account, documents and results.',
@@ -339,6 +374,8 @@ export const en = {
       limit_reached:
         "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
       pro_required: 'This is part of CareerFit Pro.',
+      consent_required: 'Please read and accept the Privacy Policy and Terms of Service first.',
+      consent_outdated: 'The policy changed while this page was open. Please read it again.',
       rate_limited: 'Too many requests. Please wait a little and try again.',
       report_not_purchased: 'Buy the detailed report for this result to open it.',
       already_pro: 'You already have Pro.',

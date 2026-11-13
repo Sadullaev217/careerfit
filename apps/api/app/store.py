@@ -278,6 +278,42 @@ SUBSCRIPTION_COLUMNS = (
 )
 
 
+CONSENT_COLUMNS = "version,accepted_at,withdrawn_at"
+
+
+def get_consent(user_id: str, version: str) -> dict[str, Any] | None:
+    rows = _rows(
+        _client().get(
+            "/rest/v1/consents",
+            params={"user_id": f"eq.{user_id}", "version": f"eq.{version}", "select": CONSENT_COLUMNS},
+        )
+    )
+    return rows[0] if rows else None
+
+
+def accept_consent(user_id: str, version: str) -> None:
+    """Records acceptance now, clearing an earlier withdrawal of the same version."""
+    _client().post(
+        "/rest/v1/consents",
+        params={"on_conflict": "user_id,version"},
+        headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+        json={
+            "user_id": user_id,
+            "version": version,
+            "accepted_at": datetime.now(UTC).isoformat(),
+            "withdrawn_at": None,
+        },
+    ).raise_for_status()
+
+
+def withdraw_consent(user_id: str, version: str) -> None:
+    _client().patch(
+        "/rest/v1/consents",
+        params={"user_id": f"eq.{user_id}", "version": f"eq.{version}", "withdrawn_at": "is.null"},
+        json={"withdrawn_at": datetime.now(UTC).isoformat()},
+    ).raise_for_status()
+
+
 def get_subscription(user_id: str) -> dict[str, Any] | None:
     rows = _rows(
         _client().get(

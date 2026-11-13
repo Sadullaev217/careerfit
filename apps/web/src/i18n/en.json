@@ -344,6 +344,26 @@
     "working": "In progress",
     "failed": "Didn't finish"
   },
+  "consent": {
+    "title": "Before we read your resume",
+    "intro": "CareerFit reads your resume to estimate how well it fits a job. Here is what that involves.",
+    "aiSelfHosted": "An AI model on CareerFit's own server reads your resume. It isn't sent to an outside AI company.",
+    "aiHosted": "An AI model from Baidu, reached through OpenRouter, reads your resume. Neither uses it to train AI models. Baidu may keep it for a while, on servers in China.",
+    "personalDetails": "We remove your name, contact details and details like age or nationality before the AI sees your resume. Unusual layouts can slip through, so leave out anything you don't want read.",
+    "retention": "Uploaded files are deleted after 90 days unless you choose to keep them. Your results stay until you delete them.",
+    "rights": "You can download or delete all your data at any time in Settings.",
+    "estimate": "The score is an estimate to help you prepare, not a hiring decision.",
+    "agreeTerms": "I have read and agree to the Privacy Policy and the Terms of Service.",
+    "agreeAi": "I agree that CareerFit's AI reads my resume to score it.",
+    "accept": "Agree and continue",
+    "saveFailed": "We couldn't save your answer. Please try again.",
+    "outdated": "The policy changed while this page was open. Please read it again."
+  },
+  "legal": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "howScoreWorks": "How the score works"
+  },
   "settings": {
     "title": "Settings",
     "loadFailed": "We couldn't load your account details. Please refresh the page.",
@@ -364,7 +384,15 @@
     "deleteConfirmBody": "Your account, documents and results will be permanently deleted. This can't be undone. A Pro subscription is cancelled straight away, with no further charges.",
     "deleteConfirmAction": "Yes, delete everything",
     "deleteFailed": "We couldn't delete your account. Please try again.",
-    "deleteBillingFailed": "We couldn't cancel your subscription, so your account wasn't deleted. Please try again."
+    "deleteBillingFailed": "We couldn't cancel your subscription, so your account wasn't deleted. Please try again.",
+    "privacyTitle": "Privacy",
+    "privacyAccepted": "You agreed to the Privacy Policy and Terms of Service on {date}.",
+    "privacyMissing": "You haven't agreed to the current Privacy Policy and Terms of Service, so CareerFit won't read new resumes.",
+    "withdrawAction": "Withdraw my agreement",
+    "withdrawConfirmTitle": "Withdraw your agreement?",
+    "withdrawConfirmBody": "CareerFit will stop reading new resumes and running analyses for you. Your saved results and files stay until you delete them or your account.",
+    "withdrawConfirmAction": "Withdraw",
+    "withdrawFailed": "We couldn't withdraw your agreement. Please try again."
   },
   "market": {
     "title": "Job market",
@@ -440,7 +468,9 @@
       "billing_unavailable": "Payments aren't available right now. Please try again later.",
       "no_billing_account": "There are no payments to manage yet.",
       "nothing_to_tailor": "We couldn't find lines in this resume that show the job's skills.",
-      "ai_unavailable": "Our AI is busy right now. Please try again in a few minutes."
+      "ai_unavailable": "Our AI is busy right now. Please try again in a few minutes.",
+      "consent_required": "Please read and accept the Privacy Policy and Terms of Service first.",
+      "consent_outdated": "The policy changed while this page was open. Please read it again."
     },
     "document": {
       "no_text": "We couldn't find any text in this file.",

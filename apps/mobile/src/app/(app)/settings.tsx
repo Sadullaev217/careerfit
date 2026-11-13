@@ -2,13 +2,20 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
 import { apiErrorCode, type PlanInfo } from '@careerfit/shared';
 import { Choice } from '@/components/Choice';
+import { openLegalPage, useConsent } from '@/components/Consent';
 import { PlanCard } from '@/components/PlanCard';
 import { Body, Button, Card, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { LOCALE_NAMES, LOCALES, useI18n, type Locale, type TextKey } from '@/i18n';
 import { forgetDeletedAccount, signOut } from '@/lib/account';
 import { api } from '@/lib/api';
 import { refreshStorePlan } from '@/lib/purchases';
-import { alertsSupported, reportAlertsOn, turnOffReportAlerts, turnOnReportAlerts, type AlertsState } from '@/lib/push';
+import {
+  alertsSupported,
+  reportAlertsOn,
+  turnOffReportAlerts,
+  turnOnReportAlerts,
+  type AlertsState,
+} from '@/lib/push';
 import { useSession } from '@/lib/session';
 import { colors, space } from '@/theme';
 
@@ -19,22 +26,35 @@ const ALERT_PROBLEM: Partial<Record<AlertsState, TextKey>> = {
 };
 
 export default function SettingsScreen() {
-  const { t, locale, setLocale } = useI18n();
+  const { t, date, locale, setLocale } = useI18n();
+  const { consent, reload: reloadConsent } = useConsent();
+  const [withdrawFailed, setWithdrawFailed] = useState(false);
   const { session } = useSession();
   const [plan, setPlan] = useState<PlanInfo | null>(null);
   const [alertsOn, setAlertsOn] = useState(false);
-  const [alertsProblem, setAlertsProblem] = useState<TextKey | null>(alertsSupported() ? null : 'settings.notificationsUnavailable');
+  const [alertsProblem, setAlertsProblem] = useState<TextKey | null>(
+    alertsSupported() ? null : 'settings.notificationsUnavailable',
+  );
   const [switching, setSwitching] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState<'billing' | 'other' | null>(null);
 
   const userId = session?.user.id;
-  const loadPlan = useCallback(() => api.account.plan().then(setPlan).catch(() => undefined), []);
+  const loadPlan = useCallback(
+    () =>
+      api.account
+        .plan()
+        .then(setPlan)
+        .catch(() => undefined),
+    [],
+  );
 
   useEffect(() => {
     // A store subscription can end without the API hearing about it, so it's checked before showing the plan.
     (userId ? refreshStorePlan(userId) : Promise.resolve()).finally(() => void loadPlan());
-    reportAlertsOn().then(setAlertsOn).catch(() => undefined);
+    reportAlertsOn()
+      .then(setAlertsOn)
+      .catch(() => undefined);
   }, [userId, loadPlan]);
 
   async function setAlerts(on: boolean) {
@@ -57,10 +77,31 @@ export default function SettingsScreen() {
     if (alertsOn) void turnOnReportAlerts(next);
   }
 
+  function confirmWithdraw() {
+    Alert.alert(t('settings.withdrawConfirmTitle'), t('settings.withdrawConfirmBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('settings.withdrawConfirmAction'),
+        style: 'destructive',
+        onPress: () => {
+          setWithdrawFailed(false);
+          api.account
+            .withdrawConsent()
+            .then(reloadConsent)
+            .catch(() => setWithdrawFailed(true));
+        },
+      },
+    ]);
+  }
+
   function confirmDelete() {
     Alert.alert(t('settings.deleteConfirmTitle'), t('settings.deleteConfirmBody'), [
       { text: t('common.cancel'), style: 'cancel' },
-      { text: t('settings.deleteConfirmAction'), style: 'destructive', onPress: () => void deleteAccount() },
+      {
+        text: t('settings.deleteConfirmAction'),
+        style: 'destructive',
+        onPress: () => void deleteAccount(),
+      },
     ]);
   }
 
@@ -80,7 +121,9 @@ export default function SettingsScreen() {
     <Screen>
       <Card>
         <Heading>{t('settings.account')}</Heading>
-        {session?.user.email && <Body>{t('settings.signedInAs', { email: session.user.email })}</Body>}
+        {session?.user.email && (
+          <Body>{t('settings.signedInAs', { email: session.user.email })}</Body>
+        )}
         <Button variant="secondary" title={t('settings.logOut')} onPress={() => void signOut()} />
       </Card>
 
@@ -117,7 +160,39 @@ export default function SettingsScreen() {
 
       <Card>
         <Heading>{t('settings.privacy')}</Heading>
+        {consent && (
+          <Body>
+            {consent.accepted && consent.acceptedAt
+              ? t('settings.privacyAccepted', { date: date(consent.acceptedAt) })
+              : t('settings.privacyMissing')}
+          </Body>
+        )}
+        <View style={styles.links}>
+          <Button
+            variant="link"
+            title={t('legal.privacy')}
+            onPress={() => openLegalPage(locale, 'privacy')}
+          />
+          <Button
+            variant="link"
+            title={t('legal.terms')}
+            onPress={() => openLegalPage(locale, 'terms')}
+          />
+          <Button
+            variant="link"
+            title={t('legal.howScoreWorks')}
+            onPress={() => openLegalPage(locale, 'how-scoring-works')}
+          />
+        </View>
         <Muted>{t('settings.privacyNote')}</Muted>
+        {withdrawFailed && <Notice tone="error">{t('settings.withdrawFailed')}</Notice>}
+        {consent?.accepted && (
+          <Button
+            variant="secondary"
+            title={t('settings.withdrawAction')}
+            onPress={confirmWithdraw}
+          />
+        )}
       </Card>
 
       <Card>
@@ -125,16 +200,24 @@ export default function SettingsScreen() {
         <Body>{t('settings.deleteBody')}</Body>
         {deleteFailed && (
           <Notice tone="error">
-            {deleteFailed === 'billing' ? t('settings.deleteBillingFailed') : t('settings.deleteFailed')}
+            {deleteFailed === 'billing'
+              ? t('settings.deleteBillingFailed')
+              : t('settings.deleteFailed')}
           </Notice>
         )}
-        <Button variant="destructive" title={t('settings.deleteAction')} busy={deleting} onPress={confirmDelete} />
+        <Button
+          variant="destructive"
+          title={t('settings.deleteAction')}
+          busy={deleting}
+          onPress={confirmDelete}
+        />
       </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  links: { flexDirection: 'row', flexWrap: 'wrap', columnGap: space.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   flex: { flex: 1, gap: space.xs },
 });

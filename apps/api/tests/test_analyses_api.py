@@ -1009,6 +1009,18 @@ def test_tailored_lines_are_made_once_and_kept(
     assert llm.calls == calls + 1
 
 
+def test_new_tailored_lines_need_the_agreement(
+    client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
+) -> None:
+    analysis_id = finished(client, store, queue)
+    calls = llm.calls
+    store.consent_missing.add(USER_ID)
+    response = client.post(f"/analyses/{analysis_id}/tailored-rewrites", headers=auth_headers())
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "consent_required"
+    assert llm.calls == calls
+
+
 def test_tailoring_when_the_ai_is_down(
     client: TestClient, store: AnalysisFakeStore, queue: FakeQueue, llm: FakeLLM
 ) -> None:

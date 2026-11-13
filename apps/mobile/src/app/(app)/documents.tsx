@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { CameraView } from 'expo-camera';
 import { MAX_UPLOAD_BYTES, PortfolioLinkSchema, type Document } from '@careerfit/shared';
+import { ConsentGate } from '@/components/Consent';
 import { Badge, Body, Button, Card, Field, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { useI18n, type TextKey } from '@/i18n';
 import { api } from '@/lib/api';
@@ -85,10 +86,18 @@ export default function DocumentsScreen() {
   }
 
   async function chooseFile() {
-    const picked = await DocumentPicker.getDocumentAsync({ type: [PDF, DOCX], copyToCacheDirectory: true });
+    const picked = await DocumentPicker.getDocumentAsync({
+      type: [PDF, DOCX],
+      copyToCacheDirectory: true,
+    });
     const file = picked.assets?.[0];
     if (picked.canceled || !file) return;
-    await upload({ uri: file.uri, name: file.name, mimeType: file.mimeType ?? PDF, size: file.size });
+    await upload({
+      uri: file.uri,
+      name: file.name,
+      mimeType: file.mimeType ?? PDF,
+      size: file.size,
+    });
   }
 
   async function scan() {
@@ -148,28 +157,39 @@ export default function DocumentsScreen() {
 
   return (
     <Screen onRefresh={() => void refresh()} refreshing={refreshing}>
-      <Card>
-        <Heading>{t('documents.title')}</Heading>
-        <Body>{t('documents.intro')}</Body>
-        <Button title={t('documents.chooseFile')} disabled={uploading} onPress={() => void chooseFile()} />
-        <Button variant="secondary" title={t('documents.scan')} disabled={uploading} onPress={() => void scan()} />
-        <Muted>{t('documents.fileHint')}</Muted>
-        {uploading && (
-          <View
-            accessibilityRole="progressbar"
-            accessibilityValue={{ min: 0, max: 100, now: Math.round(progress * 100) }}
-            style={styles.progress}
-          >
-            <Muted>{t('documents.uploading', { percent: Math.round(progress * 100) })}</Muted>
-            <View style={styles.track}>
-              <View style={[styles.fill, { width: `${Math.round(progress * 100)}%` }]} />
+      <ConsentGate>
+        <Card>
+          <Heading>{t('documents.title')}</Heading>
+          <Body>{t('documents.intro')}</Body>
+          <Button
+            title={t('documents.chooseFile')}
+            disabled={uploading}
+            onPress={() => void chooseFile()}
+          />
+          <Button
+            variant="secondary"
+            title={t('documents.scan')}
+            disabled={uploading}
+            onPress={() => void scan()}
+          />
+          <Muted>{t('documents.fileHint')}</Muted>
+          {uploading && (
+            <View
+              accessibilityRole="progressbar"
+              accessibilityValue={{ min: 0, max: 100, now: Math.round(progress * 100) }}
+              style={styles.progress}
+            >
+              <Muted>{t('documents.uploading', { percent: Math.round(progress * 100) })}</Muted>
+              <View style={styles.track}>
+                <View style={[styles.fill, { width: `${Math.round(progress * 100)}%` }]} />
+              </View>
             </View>
-          </View>
-        )}
-        {uploadMessage && <Notice>{uploadMessage}</Notice>}
-        {uploadError && <Notice tone="error">{uploadError}</Notice>}
-        <Muted>{t('documents.privacy')}</Muted>
-      </Card>
+          )}
+          {uploadMessage && <Notice>{uploadMessage}</Notice>}
+          {uploadError && <Notice tone="error">{uploadError}</Notice>}
+          <Muted>{t('documents.privacy')}</Muted>
+        </Card>
+      </ConsentGate>
 
       <Card>
         <Heading>{t('documents.addedTitle')}</Heading>
@@ -213,7 +233,12 @@ export default function DocumentsScreen() {
           autoCorrect={false}
           keyboardType="url"
         />
-        <Button variant="secondary" title={t('documents.addLink')} disabled={!link.trim()} onPress={() => void addLink()} />
+        <Button
+          variant="secondary"
+          title={t('documents.addLink')}
+          disabled={!link.trim()}
+          onPress={() => void addLink()}
+        />
       </Card>
     </Screen>
   );
