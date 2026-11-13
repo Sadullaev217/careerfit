@@ -281,7 +281,7 @@ export const en = {
     ends: 'Pro ends on {date}. You keep it until then.',
     pastDue: "Your last payment didn't go through. Please update your payment details to keep Pro.",
     upgrade: 'Upgrade to Pro for {price} a month',
-    proIncludes: 'Pro: unlimited analyses, your resume rewritten for each job, and your progress over time.',
+    proIncludes: 'Pro: unlimited analyses and your resume rewritten for each job.',
     restore: 'Restore purchases',
     restored: 'Your purchases are restored.',
     nothingToRestore: 'We found no earlier purchases for this account.',

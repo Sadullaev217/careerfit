@@ -1,8 +1,8 @@
 """What each plan allows. Payments decide the plan; these rules decide what the plan means.
 
-Free: one analysis a calendar month (UTC), plus the history list and the three general resume
-rewordings every report already has. Pro: unlimited analyses, rewriting the resume for a chosen job,
-and the progress view. A detailed PDF report is a separate one-time purchase for one analysis, on any plan.
+Free: one analysis a calendar month (UTC), plus the history list, the progress view and the three
+general resume rewordings every report already has. Pro: unlimited analyses and rewriting the resume for
+a chosen job. A detailed PDF report is a separate one-time purchase for one analysis, on any plan.
 """
 
 from dataclasses import dataclass
