@@ -87,9 +87,11 @@ Without Docker, set `CELERY_TASK_ALWAYS_EAGER=true` in `apps/api/.env` to parse 
 
 Scanned PDFs need [Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) with the English and Russian language data on the PATH of whichever process does the parsing. Without it, scans fail with a clear message and other files still work.
 
-## AI (local)
+## AI
 
-Resumes are read by a model running on your own machine through [Ollama](https://ollama.com), so resume text doesn't leave it.
+By default, resumes are read by a model running on your own machine through [Ollama](https://ollama.com), so resume text doesn't leave it.
+
+A hosted model through OpenRouter can be used instead, with Ollama as the fallback. Resume text then goes to OpenRouter and the model's provider. See [docs/ai-providers.md](docs/ai-providers.md).
 
 ```bash
 ollama pull qwen3.5:4b

@@ -40,7 +40,10 @@ def _judgements(
         "relevant_job_indexes": judged.relevant_job_indexes,
         "relevant_credential_indexes": judged.relevant_credential_indexes,
     }
-    store.save_skill_judgement(document_id, key, result)
+    # Saved under the model that actually answered: after a fallback to the local model, the hosted
+    # model's next run shouldn't reuse the local model's judgement.
+    answered = judgement_key(profile, occupation_name, required, preferred, llm.model)
+    store.save_skill_judgement(document_id, answered, result)
     return result
 
 

@@ -273,8 +273,6 @@ def test_ollama_failures_become_unavailable(failure: str) -> None:
 
 
 def test_unknown_provider_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
-    get_llm.cache_clear()
     monkeypatch.setattr(llm_module.settings, "llm_provider", "something-else")
     with pytest.raises(ValueError):
         get_llm()
-    get_llm.cache_clear()

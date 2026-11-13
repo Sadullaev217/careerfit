@@ -23,6 +23,9 @@ def isolated_from_local_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[No
     celery_app.conf.task_always_eager = False
     # Nor may a test reach a real AI model or Stripe by accident: these addresses go nowhere.
     monkeypatch.setattr(settings, "ollama_url", "http://127.0.0.1:9")
+    monkeypatch.setattr(settings, "llm_provider", "ollama")
+    monkeypatch.setattr(settings, "openrouter_api_key", "")
+    monkeypatch.setattr(settings, "openrouter_url", "http://127.0.0.1:9")
     monkeypatch.setattr(settings, "stripe_secret_key", "")
     monkeypatch.setattr(settings, "stripe_webhook_secret", "")
     yield

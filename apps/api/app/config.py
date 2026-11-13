@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     llm_model: str = "qwen3.5:4b"
     llm_timeout_seconds: float = 300
     ollama_url: str = "http://localhost:11434"
+    # LLM_PROVIDER=openrouter sends resume text to a hosted model instead (see docs/ai-providers.md).
+    openrouter_api_key: str = ""
+    openrouter_model: str = "baidu/ernie-5.5-flash-preview:free"
+    openrouter_url: str = "https://openrouter.ai/api/v1"
+    # Use the local model when the hosted one fails, for example after its daily free limit.
+    ollama_fallback: bool = True
 
     # Push notifications. The token is only needed if push security is turned on at expo.dev.
     expo_push_url: str = "https://exp.host/--/api/v2/push/send"

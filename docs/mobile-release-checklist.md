@@ -64,7 +64,10 @@ Answers for App Store Connect's "App Privacy" section, based on what the app doe
 
 Other answers:
 - No data is used for tracking, and there's no advertising.
-- Resume text is read by an AI model that CareerFit runs itself. It isn't sent to an outside AI company.
+- Resume text is read by an AI model that CareerFit runs itself (Ollama), unless the API is set to use a
+  hosted model through OpenRouter. Then it goes to OpenRouter and the model's provider, which act as
+  service providers and, by OpenRouter's records, don't train on it. Check which one production uses
+  before answering, and name the provider in the privacy policy (see [ai-providers.md](ai-providers.md)).
 - Notifications carry fixed text and a report id, never anything from a resume, because they pass through
   Apple's and Google's servers and show on lock screens.
 - Export compliance: `ITSAppUsesNonExemptEncryption` is `false`, because only standard HTTPS is used.
