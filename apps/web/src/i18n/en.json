@@ -367,7 +367,8 @@
   "legal": {
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "howScoreWorks": "How the score works"
+    "howScoreWorks": "How the score works",
+    "nav": "Policies"
   },
   "settings": {
     "title": "Settings",

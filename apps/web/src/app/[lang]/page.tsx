@@ -79,7 +79,9 @@ export default async function LandingPage({ params }: PageProps<'/[lang]'>) {
             <ol className="mt-6 grid gap-6 md:grid-cols-3">
               {steps.map((step, index) => (
                 <li key={step.title} className="flex gap-3">
-                  <span className="font-mono text-lg font-medium text-primary tabular-nums">{index + 1}</span>
+                  <span className="font-mono text-lg font-medium text-primary tabular-nums">
+                    {index + 1}
+                  </span>
                   <div>
                     <h3 className="font-medium">{step.title}</h3>
                     <p className="mt-1 text-muted-foreground">{step.body}</p>
@@ -106,9 +108,20 @@ export default async function LandingPage({ params }: PageProps<'/[lang]'>) {
       </main>
 
       <footer className="border-t">
-        <p className="mx-auto w-full max-w-5xl px-4 py-5 text-sm text-muted-foreground sm:px-6">
-          {t('landing.footer')}
-        </p>
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 px-4 py-5 text-sm sm:px-6">
+          <nav aria-label={t('legal.nav')} className="flex flex-wrap gap-x-5 gap-y-1">
+            <Link href={path('/privacy')} className="underline underline-offset-4">
+              {t('legal.privacy')}
+            </Link>
+            <Link href={path('/terms')} className="underline underline-offset-4">
+              {t('legal.terms')}
+            </Link>
+            <Link href={path('/how-scoring-works')} className="underline underline-offset-4">
+              {t('legal.howScoreWorks')}
+            </Link>
+          </nav>
+          <p className="text-muted-foreground">{t('landing.footer')}</p>
+        </div>
       </footer>
     </div>
   );
