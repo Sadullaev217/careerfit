@@ -34,7 +34,7 @@ jobs:
           SUPABASE_DB_URL: ${{ secrets[format('{0}_SUPABASE_DB_URL', env.PREFIX)] }}
         run: |
           [ -n "$SUPABASE_DB_URL" ] || { echo "Set ${PREFIX}_SUPABASE_DB_URL first (docs/deployment.md)"; exit 1; }
-          supabase db push --db-url "$SUPABASE_DB_URL" --yes
+          supabase db push --remote="$SUPABASE_DB_URL" --yes
 
   api:
     name: API and workers on Render

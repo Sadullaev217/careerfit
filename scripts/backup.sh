@@ -17,9 +17,12 @@ work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$out" "$work/backup/files"
 
-supabase db dump --db-url "$SUPABASE_DB_URL" -f "$work/backup/roles.sql" --role-only
-supabase db dump --db-url "$SUPABASE_DB_URL" -f "$work/backup/schema.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" -f "$work/backup/data.sql" --use-copy --data-only
+# Storage's own bookkeeping and features CareerFit doesn't use belong to Supabase's storage role, which a
+# restore can't write; a new project already has them. The files' rows (storage.objects) are kept.
+internal=storage.migrations,storage.buckets_vectors,storage.vector_indexes,storage.buckets_analytics
+supabase db dump --remote="$SUPABASE_DB_URL" -f "$work/backup/roles.sql" --role-only
+supabase db dump --remote="$SUPABASE_DB_URL" -f "$work/backup/schema.sql"
+supabase db dump --remote="$SUPABASE_DB_URL" -f "$work/backup/data.sql" --use-copy --data-only -x "$internal"
 (cd "$root/apps/api" && uv run --python 3.12 python -m scripts.storage_backup backup "$work/backup/files")
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$work/backup/created_at.txt"
