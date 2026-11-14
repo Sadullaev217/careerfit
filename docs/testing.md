@@ -36,6 +36,19 @@ so a signing key has to exist first. It is git-ignored; never commit it:
 
 ```
 supabase gen signing-key --algorithm ES256 2>/dev/null | jq -s . > supabase/signing_keys.json
+# then uncomment signing_keys_path in supabase/config.toml (don't commit that change)
 supabase start
 supabase status -o env
 ```
+
+## Mobile end-to-end tests
+
+The Maestro flows in `apps/mobile/.maestro` check the login screen, and that a signed-in account sees the
+agreement before it can upload. The second flow needs a confirmed test account that hasn't agreed yet;
+pass its details as `-e E2E_EMAIL=... -e E2E_PASSWORD=...` and never commit them.
+
+- On your own emulator, with a development or preview build installed and
+  [Maestro](https://docs.maestro.dev) set up: `maestro test apps/mobile/.maestro`
+- On EAS, which builds the preview APK and runs the flows on its emulator:
+  `npx eas-cli@latest workflow:run .eas/workflows/e2e-android.yml` from `apps/mobile`. Maestro jobs on
+  EAS are in alpha and use the account's build minutes.

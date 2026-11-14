@@ -1,0 +1,4 @@
+# Maestro runs every flow in this folder: maestro test .maestro
+flows:
+  - '*.yaml'
+excludeFilters: []

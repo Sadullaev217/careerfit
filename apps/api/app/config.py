@@ -58,6 +58,14 @@ class Settings(BaseSettings):
     # Sentry
     sentry_dsn: str = ""
 
+    # PostHog product analytics (app/analytics.py). The project token is public; events carry no resume text.
+    posthog_project_token: str = ""
+    posthog_host: str = "https://eu.i.posthog.com"
+
+    # AI spending alerts (app/llm_costs.py), in US dollars per day.
+    llm_daily_budget_usd: float = 5.0
+    llm_user_daily_budget_usd: float = 0.5
+
     # CORS: the exact web addresses allowed to call the API from a browser. The phone app isn't a browser.
     allowed_origins: list[str] = ["http://localhost:3000", "http://localhost:8081"]
 

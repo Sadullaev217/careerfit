@@ -8,7 +8,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
-from app import consent, market_lookup, plans, report_pdf, store, tailoring
+from app import consent, llm_costs, market_lookup, plans, report_pdf, store, tailoring
 from app.auth import CurrentUser, get_current_user
 from app.llm import LLMUnavailable, get_llm
 from app.queueing import enqueue
@@ -314,9 +314,10 @@ def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
     try:
         # The prompt gets the matched occupation, not the title as typed, which is untrusted text.
         occupation = str(row["result"].get("occupation_name") or job)
-        rewrites = tailoring.tailor(
-            resume_text or "", occupation, tailoring.shown_skills(row["result"]), llm
-        )
+        with llm_costs.metering(user.id, "tailoring", store):
+            rewrites = tailoring.tailor(
+                resume_text or "", occupation, tailoring.shown_skills(row["result"]), llm
+            )
     except tailoring.NothingToTailor:
         raise _error(
             status.HTTP_422_UNPROCESSABLE_CONTENT,

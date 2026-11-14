@@ -46,5 +46,10 @@ celery_app.conf.update(
             "task": "delete_expired_files",
             "schedule": crontab(hour=3, minute=30),
         },
+        # AI spending against the daily budgets (app/llm_costs.py).
+        "check-llm-budgets": {
+            "task": "check_llm_budgets",
+            "schedule": crontab(minute=5),
+        },
     },
 )

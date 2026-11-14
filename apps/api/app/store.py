@@ -28,6 +28,7 @@ USER_TABLES: dict[str, str] = {
     "subscriptions": "user_id",
     "consents": "user_id",
     "push_tokens": "user_id",
+    "llm_usage": "user_id",
 }
 # Tables keyed by one of the person's documents rather than by the person.
 DOCUMENT_TABLES: dict[str, str] = {"skill_judgements": "document_id"}
@@ -726,3 +727,31 @@ def forget_push_tokens(tokens: list[str]) -> None:
     """For tokens the push service says no longer reach a phone."""
     quoted = ",".join(f'"{token}"' for token in tokens)
     _client().delete("/rest/v1/push_tokens", params={"token": f"in.({quoted})"}).raise_for_status()
+
+
+def record_llm_usage(rows: list[dict[str, Any]]) -> None:
+    _client().post(
+        "/rest/v1/llm_usage", json=rows, headers={"Prefer": "return=minimal"}
+    ).raise_for_status()
+
+
+def llm_costs_since(start: datetime) -> list[dict[str, Any]]:
+    """Each AI job's cost since `start`: user_id and cost_usd only."""
+    rows: list[dict[str, Any]] = []
+    for page in range(_MAX_LIST_PAGES):
+        first = page * _LIST_PAGE_SIZE
+        batch = _rows(
+            _client().get(
+                "/rest/v1/llm_usage",
+                params={
+                    "select": "user_id,cost_usd",
+                    "created_at": f"gte.{start.isoformat()}",
+                    "order": "id",
+                },
+                headers={"Range": f"{first}-{first + _LIST_PAGE_SIZE - 1}"},
+            )
+        )
+        rows.extend(batch)
+        if len(batch) < _LIST_PAGE_SIZE:
+            break
+    return rows

@@ -71,6 +71,7 @@ class FakeStore:
         self.download_error: Exception | None = None
         self.download_calls = 0
         self.saved_extractions: dict[str, dict[str, Any]] = {}
+        self.llm_usage: list[dict[str, Any]] = []
         self.profile_skills: list[dict[str, Any]] = []
         self.skill_matches: dict[str, dict[str, Any] | None] = {}
         # Keyed by token, like the real table.
@@ -101,6 +102,12 @@ class FakeStore:
         row = self.get_consent(user_id, version)
         if row and not row["withdrawn_at"]:
             self.consents[user_id, version] = {**row, "withdrawn_at": "2026-11-15T00:00:00+00:00"}
+
+    def record_llm_usage(self, rows: list[dict[str, Any]]) -> None:
+        self.llm_usage.extend(rows)
+
+    def llm_costs_since(self, start: Any) -> list[dict[str, Any]]:
+        return [{"user_id": r["user_id"], "cost_usd": r["cost_usd"]} for r in self.llm_usage]
 
     def get_subscription(self, user_id: str) -> dict[str, Any] | None:
         row = self.subscriptions.setdefault(

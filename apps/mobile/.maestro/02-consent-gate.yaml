@@ -1,0 +1,25 @@
+# A signed-in account without the agreement sees it before uploading anything.
+# Needs a confirmed test account in the API's Supabase project that hasn't agreed yet:
+#   maestro test -e E2E_EMAIL=... -e E2E_PASSWORD=... .maestro
+# Never commit its password.
+appId: com.sadullaev.careerfit
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Log in to CareerFit'
+    timeout: 30000
+- tapOn:
+    id: 'email-input'
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: 'password-input'
+- inputText: ${E2E_PASSWORD}
+- hideKeyboard
+- tapOn: 'Log in'
+- extendedWaitUntil:
+    visible: 'Documents'
+    timeout: 30000
+- tapOn: 'Documents'
+- assertVisible: 'Before we read your resume'
+- assertVisible: 'Agree and continue'

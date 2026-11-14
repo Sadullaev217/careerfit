@@ -10,7 +10,7 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from app import consent, malware_scan, portfolio, retention, store
+from app import analytics, consent, malware_scan, portfolio, retention, store
 from app.auth import CurrentUser, get_current_user
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
 from app.queueing import enqueue
@@ -195,6 +195,7 @@ def upload_document(
     except Exception:
         store.delete_files([path])
         raise
+    analytics.capture(user.id, "document_uploaded", {"type": type, "format": kind.content_type})
 
     try:
         _enqueue(document_id, background)

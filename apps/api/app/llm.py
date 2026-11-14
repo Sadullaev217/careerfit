@@ -7,6 +7,7 @@ from typing import Any, Protocol
 
 import httpx
 
+from app import llm_costs
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -74,7 +75,10 @@ class OllamaClient:
             response.raise_for_status()
         except httpx.HTTPError as exc:
             raise LLMUnavailable(type(exc).__name__) from exc
-        content: str = response.json()["message"]["content"]
+        body = response.json()
+        # Self-hosted, so the calls cost nothing per token; the counts still show who uses the most.
+        llm_costs.record(self._model, body.get("prompt_eval_count", 0), body.get("eval_count", 0))
+        content: str = body["message"]["content"]
         return content
 
 
@@ -126,6 +130,14 @@ class OpenRouterClient:
         if "error" in body or not body.get("choices"):
             code = (body.get("error") or {}).get("code", "no_choices")
             raise LLMUnavailable(f"openrouter_{code}")
+        # OpenRouter reports each answer's cost in credits, which are bought at one US dollar each.
+        usage = body.get("usage") or {}
+        llm_costs.record(
+            self._model,
+            usage.get("prompt_tokens", 0),
+            usage.get("completion_tokens", 0),
+            usage.get("cost", 0),
+        )
         # An answer cut off by the limit comes back empty or partial; callers treat it as invalid.
         content: str = body["choices"][0]["message"].get("content") or ""
         return content
@@ -216,6 +228,7 @@ class DemoClient:
     def complete_json(
         self, system: str, user: str, schema: dict[str, Any], attempt: int = 0
     ) -> str:
+        llm_costs.record(self.model, 0, 0)
         if "work_history" in schema.get("properties", {}):
             return json.dumps(DEMO_PROFILE)
         return json.dumps(_smallest_answer(schema))

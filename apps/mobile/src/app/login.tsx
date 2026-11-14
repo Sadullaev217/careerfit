@@ -193,6 +193,7 @@ export default function LoginScreen() {
         <Field
           ref={emailInput}
           label={t('login.email')}
+          testID="email-input"
           value={email}
           onChangeText={setEmail}
           error={emailError}
@@ -207,6 +208,7 @@ export default function LoginScreen() {
           <View style={styles.passwordBlock}>
             <Field
               label={t('login.password')}
+              testID="password-input"
               value={password}
               onChangeText={setPassword}
               error={passwordError}

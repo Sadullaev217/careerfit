@@ -1,0 +1,12 @@
+# Signed out, the app opens on the login screen and can switch to sign-up and back.
+appId: com.sadullaev.careerfit
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Log in to CareerFit'
+    timeout: 30000
+- tapOn: 'Need an account? Sign up'
+- assertVisible: 'Create your account'
+- tapOn: 'Have an account? Log in'
+- assertVisible: 'Log in to CareerFit'

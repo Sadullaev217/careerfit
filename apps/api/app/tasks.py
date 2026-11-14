@@ -3,12 +3,15 @@ from datetime import UTC, datetime
 from typing import Any
 
 import httpx
+import redis
+import sentry_sdk
 from celery.exceptions import SoftTimeLimitExceeded
 from kombu.exceptions import OperationalError
 
-from app import portfolio, push, retention, store
+from app import analytics, llm_costs, portfolio, push, retention, store
 from app.analysis import prepare_score_input
 from app.celery_app import celery_app
+from app.config import settings
 from app.embeddings import embed_texts
 from app.extraction import ExtractionFailed, extract_profile
 from app.job_sources import JobBankProvider
@@ -107,6 +110,19 @@ def refresh_market_data_task(self: Any) -> None:
     logger.info("market refresh: %s", summary)
 
 
+@celery_app.task(name="check_llm_budgets")  # type: ignore[untyped-decorator]
+def check_llm_budgets_task() -> None:
+    def first_time(key: str) -> bool:
+        # Kept two days, so each budget alerts at most once a day.
+        return bool(redis.Redis.from_url(settings.redis_url).set(key, 1, nx=True, ex=172_800))
+
+    def send(message: str) -> None:
+        logger.warning("Budget alert: %s", message)
+        sentry_sdk.capture_message(message, level="warning")
+
+    llm_costs.check_budgets(store, first_time, send)
+
+
 @celery_app.task(name="delete_expired_files")  # type: ignore[untyped-decorator]
 def delete_expired_files_task() -> None:
     logger.info("file retention: %d files deleted", retention.delete_expired_files(store))
@@ -127,7 +143,8 @@ def extract_resume(self: Any, document_id: str) -> None:
     store.update_document(document_id, {"extraction_status": "running", "extraction_error": None})
 
     try:
-        result = extract_profile(text, get_llm())
+        with llm_costs.metering(document["user_id"], "extraction", store):
+            result = extract_profile(text, get_llm())
         skills = profile_skills(result.profile, document["user_id"], document_id, store)
         store.save_extraction(
             document_id,
@@ -182,6 +199,11 @@ def _finish_analysis(
             "error_code": None,
             "completed_at": finished_at.isoformat(),
         },
+    )
+    analytics.capture(
+        user_id,
+        "analysis_completed",
+        {"with_report": report is not None, "report_error": report_error or "none"},
     )
     # A report takes a couple of minutes, so people put the phone down and need telling.
     push.send_report_ready(user_id, analysis_id, push_store=store)
@@ -240,44 +262,45 @@ def run_analysis(
         "llm": get_llm(),
         "embed": embed_texts,
     }
-    try:
-        data = prepare_score_input(
-            occupation_code=occupation_code,
-            occupation_name=occupation_name,
-            language=language,
-            **context,
-        )
-        original = score_profile(data)
-        scored = localized_score(original, language, context["llm"], store)
-        # Recommendations take another minute or so, and the score shouldn't have to wait for them.
-        store.update_analysis(
-            analysis_id,
-            {"stage": "planning", "score": scored.score, "result": scored.model_dump()},
-        )
-        report = build_report(
-            data=data,
-            result=original,
-            resume_text=store.get_parsed_text(row["document_id"]),
-            on_stage=lambda stage: store.update_analysis(analysis_id, {"stage": stage}),
-            **context,
-        )
-    except SkillJudgementFailed:
-        _end_analysis_early(analysis_id, user_id, scored, now,"invalid_model_output")
-        return
-    except NothingToScore:
-        _end_analysis_early(analysis_id, user_id, scored, now,"not_enough_market_data")
-        return
-    except SoftTimeLimitExceeded:
-        _end_analysis_early(analysis_id, user_id, scored, now,"timeout")
-        return
-    except (LLMUnavailable, httpx.HTTPError) as exc:
-        if self.request.retries < MAX_RETRIES:
-            raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
-        _end_analysis_early(analysis_id, user_id, scored, now,"ai_unavailable")
-        return
-    except Exception as exc:
-        logger.error("analysis %s failed: %s", analysis_id, type(exc).__name__)
-        _end_analysis_early(analysis_id, user_id, scored, now,"analysis_error")
-        return
+    with llm_costs.metering(user_id, "analysis", store):
+        try:
+            data = prepare_score_input(
+                occupation_code=occupation_code,
+                occupation_name=occupation_name,
+                language=language,
+                **context,
+            )
+            original = score_profile(data)
+            scored = localized_score(original, language, context["llm"], store)
+            # Recommendations take another minute or so, and the score shouldn't have to wait for them.
+            store.update_analysis(
+                analysis_id,
+                {"stage": "planning", "score": scored.score, "result": scored.model_dump()},
+            )
+            report = build_report(
+                data=data,
+                result=original,
+                resume_text=store.get_parsed_text(row["document_id"]),
+                on_stage=lambda stage: store.update_analysis(analysis_id, {"stage": stage}),
+                **context,
+            )
+        except SkillJudgementFailed:
+            _end_analysis_early(analysis_id, user_id, scored, now,"invalid_model_output")
+            return
+        except NothingToScore:
+            _end_analysis_early(analysis_id, user_id, scored, now,"not_enough_market_data")
+            return
+        except SoftTimeLimitExceeded:
+            _end_analysis_early(analysis_id, user_id, scored, now,"timeout")
+            return
+        except (LLMUnavailable, httpx.HTTPError) as exc:
+            if self.request.retries < MAX_RETRIES:
+                raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
+            _end_analysis_early(analysis_id, user_id, scored, now,"ai_unavailable")
+            return
+        except Exception as exc:
+            logger.error("analysis %s failed: %s", analysis_id, type(exc).__name__)
+            _end_analysis_early(analysis_id, user_id, scored, now,"analysis_error")
+            return
 
     _finish_analysis(analysis_id, user_id, scored, now, report=report)

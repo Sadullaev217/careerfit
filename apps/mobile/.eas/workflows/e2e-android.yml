@@ -1,0 +1,25 @@
+# Builds the Android preview app on EAS and runs the Maestro flows in .maestro on an emulator.
+# Start it by hand: npx eas-cli@latest workflow:run .eas/workflows/e2e-android.yml
+# The consent flow needs E2E_EMAIL and E2E_PASSWORD as secret variables in the preview environment.
+name: Android end-to-end
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build_android:
+    name: Build the preview APK
+    type: build
+    params:
+      platform: android
+      profile: preview
+
+  maestro:
+    name: Run Maestro flows
+    type: maestro
+    needs: [build_android]
+    environment: preview
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path: ./.maestro

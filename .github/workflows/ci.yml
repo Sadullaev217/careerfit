@@ -80,6 +80,7 @@ jobs:
       - name: Start a local Supabase with the migrations and seed
         run: |
           supabase gen signing-key --algorithm ES256 2>/dev/null | jq -s . > supabase/signing_keys.json
+          sed -i 's|^# signing_keys_path = |signing_keys_path = |' supabase/config.toml
           supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
           supabase status -o json > "$RUNNER_TEMP/supabase.json"
           node -e "console.log('status keys:', Object.keys(require(process.argv[1])).join(', '))" "$RUNNER_TEMP/supabase.json"
@@ -87,6 +88,21 @@ jobs:
             echo "E2E_SUPABASE_SECRET_KEY=$(node -p "const s=require(process.argv[1]); s.SECRET_KEY || s.SERVICE_ROLE_KEY" "$RUNNER_TEMP/supabase.json")"
             echo "E2E_SUPABASE_PUBLISHABLE_KEY=$(node -p "const s=require(process.argv[1]); s.PUBLISHABLE_KEY || s.ANON_KEY" "$RUNNER_TEMP/supabase.json")"
           } >> "$GITHUB_ENV"
+      - name: Local sign-ins use the signing key the API accepts
+        run: |
+          curl -s "$E2E_SUPABASE_URL/auth/v1/.well-known/jwks.json" | jq -c '[.keys[] | {kty, alg}]'
+          node -e "
+            const s = require(process.argv[1]);
+            fetch(process.env.E2E_SUPABASE_URL + '/auth/v1/signup', {
+              method: 'POST',
+              headers: { apikey: s.PUBLISHABLE_KEY || s.ANON_KEY, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: 'jwt-check@example.com', password: 'jwt-check-local-only' }),
+            }).then((r) => r.json()).then((b) => {
+              const [h, p] = b.access_token.split('.').slice(0, 2).map((x) => JSON.parse(Buffer.from(x, 'base64url')));
+              console.log('alg', h.alg, 'iss', p.iss);
+              if (h.alg !== 'ES256') process.exit(1);
+            });
+          " "$RUNNER_TEMP/supabase.json"
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @careerfit/shared build
       - name: Start the API with the demo model

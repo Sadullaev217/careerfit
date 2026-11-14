@@ -157,6 +157,10 @@ def test_user_cannot_insert_rows_for_another_user(conn: psycopg.Connection) -> N
         "insert into public.consents (user_id, version) values (auth.uid(), 'any')",
         "update public.consents set withdrawn_at = null",
         "delete from public.consents",
+        # What AI cost is the API's record, not something a person reads or edits directly.
+        "select * from public.llm_usage",
+        "insert into public.llm_usage (user_id, job, model, calls) values (auth.uid(), 'x', 'm', 1)",
+        "delete from public.llm_usage",
     ],
 )
 def test_user_cannot_write_server_owned_data(conn: psycopg.Connection, statement: str) -> None:
@@ -547,6 +551,11 @@ def test_deleting_user_removes_all_their_data(conn: psycopg.Connection) -> None:
     )
     add_report_purchase(conn, ALICE, "cs_alice")
     conn.execute("insert into public.consents (user_id, version) values (%s, 'v1')", (ALICE,))
+    conn.execute(
+        "insert into public.llm_usage (user_id, job, model, calls, cost_usd) "
+        "values (%s, 'analysis', 'm', 3, 0.01)",
+        (ALICE,),
+    )
     conn.execute("delete from auth.users where id = %s", (ALICE,))
     # Every table the export reads, so nothing the person could download survives deletion.
     for table, column in store.USER_TABLES.items():
