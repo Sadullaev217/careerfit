@@ -8,7 +8,13 @@ import type { Locale } from '@/i18n/config';
  * apps/api/app/consent.py, which asks everyone to agree again.
  */
 
-export type LegalSection = { heading: string; paragraphs?: string[]; items?: string[] };
+/** Rendered in order: paragraphs, then items, then a note. */
+export type LegalSection = {
+  heading: string;
+  paragraphs?: string[];
+  items?: string[];
+  note?: string;
+};
 export type LegalDoc = {
   title: string;
   updated: string;
@@ -47,9 +53,7 @@ const privacyEn: LegalDoc = {
         'Notifications: if you turn them on, your phone’s notification token and app language.',
         'Technical records: request logs with shortened IP addresses and no resume content, and, if enabled, error reports without request contents, personal details or error messages.',
       ],
-      paragraphs: [
-        'We don’t ask for your age, gender, ethnicity, religion, health, disability or similar details, and we remove them from resumes before any AI reads them (see below). There is no advertising and no tracking for advertising.',
-      ],
+      note: 'We don’t ask for your age, gender, ethnicity, religion, health, disability or similar details, and we remove them from resumes before any AI reads them (see below). There is no advertising and no tracking for advertising.',
     },
     {
       heading: 'How we use it',
@@ -162,9 +166,7 @@ const privacyRu: LegalDoc = {
         'Уведомления: если вы их включили, токен уведомлений телефона и язык приложения.',
         'Технические записи: журналы запросов с сокращёнными IP-адресами и без содержимого резюме, а также, если включены, отчёты об ошибках без содержимого запросов, личных данных и текстов ошибок.',
       ],
-      paragraphs: [
-        'Мы не спрашиваем ваш возраст, пол, национальность, религию, здоровье, инвалидность и подобные сведения и убираем их из резюме до того, как его прочитает ИИ (см. ниже). Рекламы и рекламного отслеживания нет.',
-      ],
+      note: 'Мы не спрашиваем ваш возраст, пол, национальность, религию, здоровье, инвалидность и подобные сведения и убираем их из резюме до того, как его прочитает ИИ (см. ниже). Рекламы и рекламного отслеживания нет.',
     },
     {
       heading: 'Как мы их используем',

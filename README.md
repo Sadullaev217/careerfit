@@ -2,12 +2,12 @@
 
 Upload a resume and see how competitive you are for a role and region.
 
-| Path              | What it is                               |
-| ----------------- | ---------------------------------------- |
-| `apps/web`        | Next.js web app                          |
-| `apps/mobile`     | Expo mobile app                          |
-| `apps/api`        | FastAPI backend                          |
-| `packages/shared` | Shared types, API client, Zod schemas    |
+| Path              | What it is                            |
+| ----------------- | ------------------------------------- |
+| `apps/web`        | Next.js web app                       |
+| `apps/mobile`     | Expo mobile app                       |
+| `apps/api`        | FastAPI backend                       |
+| `packages/shared` | Shared types, API client, Zod schemas |
 
 ## Prerequisites
 
@@ -161,6 +161,31 @@ ESCO has no Russian, so official skill and occupation names are translated by th
 ```bash
 cd apps/api
 uv run --extra dev python -m scripts.seed_translations --language ru
+```
+
+## Security and privacy
+
+What is protected, how, and what is left is in [docs/security-checklist.md](docs/security-checklist.md).
+
+- **Agreement first.** The API reads no resume until the person accepts the current privacy policy, terms and AI processing (`app/consent.py`). Changing what they agree to means changing `POLICY_DATE` there.
+- **Limits and checks.** Requests are rate-limited (`app/rate_limit.py`), uploads are scanned by ClamAV when `MALWARE_SCANNER=clamav` (`docker compose --profile scan up -d clamav` locally), and logs and Sentry reports have personal data removed (`app/privacy_logging.py`).
+- **Deployed servers.** With `ENVIRONMENT=staging` or `production` the API refuses to start without https addresses, Redis-backed limits, virus scanning and DEBUG off.
+- **Retention.** Uploaded files are deleted 90 days after upload unless kept, by the daily `delete_expired_files` job in `pnpm --filter api beat`.
+- **Export and deletion.** Settings has both. To check them against the real project with a throwaway account (it needs the AI model, and prints counts only):
+
+```bash
+cd apps/api
+uv run --extra dev python -m scripts.check_data_rights
+```
+
+The bias audit and the prompt injection check run the real model on made-up resumes and fail if a score moves:
+
+```bash
+uv run --extra dev python -m eval.run_fairness_eval
+```
+
+```bash
+uv run --extra dev python -m eval.run_injection_eval
 ```
 
 ## Checks

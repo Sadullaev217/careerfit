@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      - run: bash scripts/check-secrets.sh
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @careerfit/shared build
       - run: pnpm --filter "!api" -r --if-present typecheck

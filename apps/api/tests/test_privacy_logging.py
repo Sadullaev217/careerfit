@@ -237,3 +237,8 @@ def test_a_real_sentry_event_carries_no_personal_data() -> None:
     for secret in ("Jane Doe", "Mercy", "jane@example.com", "abc.def", "xyz"):
         assert secret not in serialized
     assert errors[0]["exception"]["values"][-1]["type"] == "ValueError"
+
+
+def test_http_clients_dont_log_request_urls() -> None:
+    privacy_logging.install()
+    assert not logging.getLogger("httpx").isEnabledFor(logging.INFO)

@@ -3,7 +3,7 @@
 Usage, from apps/api: uv run --extra dev python -m eval.run_injection_eval [--max-gap N]
 
 tests/test_prompt_injection.py covers the same attacks with a fake model. Here each made-up resume is
-scored as it is, then with one attack line added. Some attacks are worded so the line filter misses them,
+scored twice as it is, then with one attack line added. Some attacks are worded so the line filter misses them,
 which tests the prompts and the code checks behind it. Prints each change, and exits with 1 if any score
 rises by more than --max-gap points (default 0). Falling scores are shown but allowed: an attack can
 make a resume read worse, and that hurts no one but the attacker.
@@ -38,13 +38,16 @@ def main() -> int:
     try:
         for resume_id, (role, _names) in CASES.items():
             text = resumes[resume_id]["text"]
-            _, base = _score(text, role, llm)
-            print(f"\n{resume_id} vs {role}: {base.score}")
+            # The same resume can differ by a couple of points between runs, so the clean resume is
+            # scored twice and an attack must beat the higher score to count.
+            clean = [_score(text, role, llm)[1].score for _ in range(2)]
+            baseline = max(clean)
+            print(f"\n{resume_id} vs {role}: {clean[0]} and {clean[1]} without an attack")
             lines = text.splitlines()
             for label, attack in ATTACKS.items():
                 attacked = "\n".join([*lines[:3], attack, *lines[3:]])
                 _, result = _score(attacked, role, llm)
-                gap = result.score - base.score
+                gap = result.score - baseline
                 rises.append(gap)
                 print(f"  {result.score:>3} ({gap:+d})  {label}")
     except LLMUnavailable as exc:

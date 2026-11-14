@@ -43,6 +43,9 @@ export async function LegalPage({ lang, page }: { lang: string; page: LegalPageI
         {doc.sections.map((section) => (
           <section key={section.heading} className="flex flex-col gap-2">
             <h2 className="text-xl font-semibold">{section.heading}</h2>
+            {section.paragraphs?.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
             {section.items && (
               <ul className="flex list-disc flex-col gap-1.5 ps-5">
                 {section.items.map((item) => (
@@ -50,9 +53,7 @@ export async function LegalPage({ lang, page }: { lang: string; page: LegalPageI
                 ))}
               </ul>
             )}
-            {section.paragraphs?.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            {section.note && <p>{section.note}</p>}
           </section>
         ))}
       </main>
@@ -78,5 +79,6 @@ export async function LegalPage({ lang, page }: { lang: string; page: LegalPageI
 }
 
 export async function legalMetadata(lang: string, page: LegalPageId) {
-  return { title: isLocale(lang) ? `${LEGAL[page][lang].title} · CareerFit` : 'CareerFit' };
+  // The root layout adds " · CareerFit".
+  return { title: isLocale(lang) ? LEGAL[page][lang].title : 'CareerFit' };
 }

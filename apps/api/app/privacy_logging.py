@@ -104,6 +104,9 @@ def install() -> None:
         stream.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
         root.addHandler(stream)
         root.setLevel(logging.INFO)
+    # HTTP clients log every request URL at INFO, and Supabase URLs carry account ids and filters.
+    for noisy in ("httpx", "httpcore"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
     for name in _LOGGERS:
         for handler in logging.getLogger(name).handlers:
             if not any(isinstance(f, RedactingFilter) for f in handler.filters):
