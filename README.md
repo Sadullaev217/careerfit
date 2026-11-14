@@ -197,3 +197,16 @@ pnpm test
 ```
 
 Pre-commit hooks: `uvx pre-commit install`.
+
+End-to-end tests: `pnpm --filter web e2e` (web, Playwright) and the Maestro flows in
+`apps/mobile/.maestro` (phone). See [docs/testing.md](docs/testing.md).
+
+## Production
+
+Staging gets every commit on `main` that passes CI; production gets one when you run the Deploy workflow
+by hand. The API and workers run on Render from [render.yaml](render.yaml) and `apps/api/Dockerfile`,
+the web app on Vercel, the database and files on Supabase, errors go to Sentry and product analytics to
+PostHog.
+
+- [docs/deployment.md](docs/deployment.md): the pipeline, monthly cost and one-time setup
+- [docs/runbook.md](docs/runbook.md): dashboards, alerts, incidents, backups and restoring

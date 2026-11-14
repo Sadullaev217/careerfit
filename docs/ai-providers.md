@@ -3,10 +3,10 @@
 The API reads resumes, judges skills, translates terms and writes plans with a language model. All of it
 goes through `apps/api/app/llm.py`, and one setting picks the model.
 
-| `LLM_PROVIDER` | Where the model runs | Resume text goes to |
-|---|---|---|
-| `ollama` (default) | This machine, through Ollama (`LLM_MODEL`, default `qwen3.5:4b`) | Nowhere else |
-| `openrouter` | OpenRouter's providers (`OPENROUTER_MODEL`, default `baidu/ernie-5.5-flash-preview:free`) | OpenRouter and the model's provider |
+| `LLM_PROVIDER`     | Where the model runs                                                                      | Resume text goes to                 |
+| ------------------ | ----------------------------------------------------------------------------------------- | ----------------------------------- |
+| `ollama` (default) | This machine, through Ollama (`LLM_MODEL`, default `qwen3.5:4b`)                          | Nowhere else                        |
+| `openrouter`       | OpenRouter's providers (`OPENROUTER_MODEL`, default `baidu/ernie-5.5-flash-preview:free`) | OpenRouter and the model's provider |
 
 With `openrouter`, Ollama answers whenever OpenRouter fails, for example after the free daily limit
 (`OLLAMA_FALLBACK=true`, the default). A job that used Ollama is recorded as Ollama's, so its saved skill
@@ -48,12 +48,12 @@ judgements aren't reused for the hosted model.
 On 2026-11-13, with a made-up one-page data analyst resume, the real prompts, Ollama on an RTX 4070
 laptop GPU, and the free tier of OpenRouter:
 
-| | Ollama `qwen3.5:4b` | ERNIE 5.5 Flash Preview |
-|---|---|---|
-| Reading the resume | 20–29 s once loaded (3 runs); 78 s on the first run of the day | 17–35 s (3 runs) |
-| Judging 14 job skills | 12 s (1 run) | 5 s (1 run) |
-| Skills found | 11: the resume's skills line | 19: the same 11, plus 8 shown in the duties (SciPy, Prophet, QGIS, Streamlit, data modeling, data visualization, mentoring, data literacy training) |
-| Judgements that differed | Stakeholder communication: no. Data modeling: partly. Machine learning: no | Stakeholder communication: yes. Data modeling: yes. Machine learning: partly |
+|                          | Ollama `qwen3.5:4b`                                                        | ERNIE 5.5 Flash Preview                                                                                                                             |
+| ------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Reading the resume       | 20–29 s once loaded (3 runs); 78 s on the first run of the day             | 17–35 s (3 runs)                                                                                                                                    |
+| Judging 14 job skills    | 12 s (1 run)                                                               | 5 s (1 run)                                                                                                                                         |
+| Skills found             | 11: the resume's skills line                                               | 19: the same 11, plus 8 shown in the duties (SciPy, Prophet, QGIS, Streamlit, data modeling, data visualization, mentoring, data literacy training) |
+| Judgements that differed | Stakeholder communication: no. Data modeling: partly. Machine learning: no | Stakeholder communication: yes. Data modeling: yes. Machine learning: partly                                                                        |
 
 ERNIE's judgements match the resume better (it presented findings to a council committee, documented a
 data model and forecast with Prophet). Speed is about the same once Ollama's model is loaded; ERNIE's

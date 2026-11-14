@@ -150,3 +150,18 @@ jobs:
           docker run -d --name api -p 8000:8000 careerfit-api
           for i in $(seq 1 30); do curl -sf http://localhost:8000/health && exit 0; sleep 2; done
           docker logs api; exit 1
+
+  # Backs up a local Supabase, rebuilds it empty and restores it (scripts/backup-drill.sh).
+  backup-drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.1.0
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Start a local Supabase
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+      - run: bash scripts/backup-drill.sh

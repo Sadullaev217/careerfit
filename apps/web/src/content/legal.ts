@@ -106,6 +106,7 @@ const privacyEn: LegalDoc = {
         'Agreement and purchase records: as long as your account exists, and purchase records as long as tax law requires.',
         'Request logs and error reports: [period set by the hosting and error reporting providers].',
         'When you delete your account, we delete your data from our database and file storage straight away, and ask RevenueCat and Stripe to delete their records of you, except what the law makes us keep.',
+        'Encrypted nightly backups, kept to recover from an outage, still hold deleted data for up to 14 days and are then deleted. They are only read to restore the service.',
       ],
     },
     {
@@ -222,6 +223,7 @@ const privacyRu: LegalDoc = {
         'Записи о согласии и покупках хранятся, пока существует аккаунт, а записи о покупках — столько, сколько требует налоговое законодательство.',
         'Журналы запросов и отчёты об ошибках: [срок хранения у хостинга и сервиса отчётов об ошибках].',
         'При удалении аккаунта мы сразу удаляем ваши данные из базы данных и хранилища файлов и просим RevenueCat и Stripe удалить их записи о вас, кроме того, что мы обязаны хранить по закону.',
+        'В зашифрованных ночных резервных копиях, которые нужны для восстановления после сбоя, удалённые данные остаются до 14 дней, затем копии удаляются. Их открывают только для восстановления сервиса.',
       ],
     },
     {

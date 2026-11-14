@@ -755,3 +755,8 @@ def llm_costs_since(start: datetime) -> list[dict[str, Any]]:
         if len(batch) < _LIST_PAGE_SIZE:
             break
     return rows
+
+
+def ping() -> None:
+    """Raises when the database can't be reached. Reads one row id from a small table."""
+    _client().get("/rest/v1/consents", params={"select": "version", "limit": "1"}).raise_for_status()

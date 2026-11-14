@@ -2,11 +2,11 @@
 
 CareerFit has two plans and one extra:
 
-| | Price (CAD) | Includes |
-|---|---|---|
-| Free | — | One analysis a calendar month (UTC), the full report and plan, all past results |
-| Pro | 4.99 a month | Unlimited analyses, resume lines rewritten for each job, the progress view |
-| Detailed report | 2.99 per result | A PDF of one finished result, on any plan |
+|                 | Price (CAD)     | Includes                                                                        |
+| --------------- | --------------- | ------------------------------------------------------------------------------- |
+| Free            | —               | One analysis a calendar month (UTC), the full report and plan, all past results |
+| Pro             | 4.99 a month    | Unlimited analyses, resume lines rewritten for each job, the progress view      |
+| Detailed report | 2.99 per result | A PDF of one finished result, on any plan                                       |
 
 Prices live in Stripe and RevenueCat; `PRICES` in `packages/shared` only shows them before checkout.
 
@@ -27,11 +27,11 @@ Everything is decided on the server. Apps only show what the API says.
 
 People pay on Stripe's own pages, so card details never reach CareerFit.
 
-| Step | How |
-|---|---|
+| Step                | How                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Buy Pro or a report | `POST /billing/checkout` creates a Stripe Checkout session (subscription or one-time payment) for the person's Stripe customer, created once and reused |
-| Manage or cancel | `POST /billing/portal` opens Stripe's customer portal: change card, invoices, cancel at the end of the period |
-| Keep plans in step | `POST /billing/stripe-webhook` |
+| Manage or cancel    | `POST /billing/portal` opens Stripe's customer portal: change card, invoices, cancel at the end of the period                                           |
+| Keep plans in step  | `POST /billing/stripe-webhook`                                                                                                                          |
 
 The webhook:
 
@@ -59,13 +59,13 @@ sells Pro and reports through the stores and never links to Stripe.
 
 **Approach chosen: RevenueCat** (`react-native-purchases`), rather than StoreKit and Play Billing directly.
 
-| | RevenueCat | Native StoreKit 2 + Play Billing |
-|---|---|---|
-| Code | One library for both stores, with an Expo-compatible module | Two store APIs, plus our own receipt checks for each |
-| Server check | One REST call per account | Apple's App Store Server API and Google's Play Developer API, each with its own keys |
-| Renewals, refunds, grace periods | Normalised into one entitlement | Our code, per store |
-| Testing | Test Store: test purchases without App Store or Play accounts | Sandbox accounts on both stores, which need the paid developer accounts |
-| Cost | Free for small apps, then a share of revenue (see revenuecat.com/pricing) | No fee |
+|                                  | RevenueCat                                                                | Native StoreKit 2 + Play Billing                                                     |
+| -------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Code                             | One library for both stores, with an Expo-compatible module               | Two store APIs, plus our own receipt checks for each                                 |
+| Server check                     | One REST call per account                                                 | Apple's App Store Server API and Google's Play Developer API, each with its own keys |
+| Renewals, refunds, grace periods | Normalised into one entitlement                                           | Our code, per store                                                                  |
+| Testing                          | Test Store: test purchases without App Store or Play accounts             | Sandbox accounts on both stores, which need the paid developer accounts              |
+| Cost                             | Free for small apps, then a share of revenue (see revenuecat.com/pricing) | No fee                                                                               |
 
 For a small team that still has no store accounts, RevenueCat is the clear fit; moving to native later
 only changes `apps/mobile/src/lib/purchases.ts` and `apps/api/app/revenuecat.py`.
@@ -89,17 +89,17 @@ a store check, and a store plan never by a Stripe event.
 
 API (`apps/api/.env`):
 
-| Variable | What |
-|---|---|
-| `STRIPE_SECRET_KEY` | Stripe test-mode secret key. Then run `uv run --extra dev python -m scripts.stripe_setup` once to create the products, prices and portal settings |
-| `STRIPE_WEBHOOK_SECRET` | From `stripe listen --forward-to localhost:8000/billing/stripe-webhook` locally, or the webhook endpoint in the Stripe dashboard |
-| `WEB_URL` | Where Stripe sends people back to |
-| `REVENUECAT_SECRET_KEY` | RevenueCat secret API key |
+| Variable                | What                                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STRIPE_SECRET_KEY`     | Stripe test-mode secret key. Then run `uv run --extra dev python -m scripts.stripe_setup` once to create the products, prices and portal settings |
+| `STRIPE_WEBHOOK_SECRET` | From `stripe listen --forward-to localhost:8000/billing/stripe-webhook` locally, or the webhook endpoint in the Stripe dashboard                  |
+| `WEB_URL`               | Where Stripe sends people back to                                                                                                                 |
+| `REVENUECAT_SECRET_KEY` | RevenueCat secret API key                                                                                                                         |
 
 App (`apps/mobile/.env`, and the EAS environment for builds):
 
-| Variable | What |
-|---|---|
+| Variable                         | What                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------- |
 | `EXPO_PUBLIC_REVENUECAT_API_KEY` | RevenueCat public app key. A Test Store key works only in development builds |
 
 RevenueCat project: entitlement `pro`; products `careerfit_pro_monthly` (monthly subscription, attached to
