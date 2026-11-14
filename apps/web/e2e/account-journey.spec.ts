@@ -10,7 +10,7 @@ import {
   type TestAccount,
 } from './accounts';
 
-const RESUME = path.join(__dirname, '..', '..', '..', 'test-resumes', '1-english-engineer.pdf');
+const RESUME = path.join(__dirname, 'fixtures', 'made-up-resume.pdf');
 
 test.describe('an account from sign-in to deletion', () => {
   // Needs E2E_SUPABASE_URL and E2E_SUPABASE_SECRET_KEY for a local or test project (docs/testing.md).

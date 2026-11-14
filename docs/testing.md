@@ -12,7 +12,7 @@
 ## Web end-to-end tests
 
 The tests in `public-pages.spec.ts` need only the web app. `account-journey.spec.ts` signs in a throwaway
-account, accepts the agreement, uploads `test-resumes/1-english-engineer.pdf`, downloads the data export
+account, accepts the agreement, uploads a made-up resume (`e2e/fixtures/made-up-resume.pdf`), downloads the data export
 and deletes the account. It creates the account through Supabase's admin API, so it needs:
 
 - `E2E_SUPABASE_URL`: the Supabase project the web app and API use
