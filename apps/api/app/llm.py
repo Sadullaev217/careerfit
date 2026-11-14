@@ -1,5 +1,6 @@
 """The only module that talks to an AI provider. A new provider is one more class here."""
 
+import json
 import logging
 from functools import lru_cache
 from typing import Any, Protocol
@@ -162,6 +163,64 @@ class FallbackClient:
         return self._fallback.complete_json(system, user, schema, attempt)
 
 
+DEMO_PROFILE: dict[str, Any] = {
+    "skills": [
+        {"name": "Python", "name_en": "Python", "level": "advanced", "years": 4, "confidence": 1},
+        {"name": "SQL", "name_en": "SQL", "level": "intermediate", "years": 3, "confidence": 1},
+    ],
+    "work_history": [
+        {
+            "title": "Software Developer",
+            "title_en": "Software Developer",
+            "employer": "Example Co",
+            "start_date": "2021-01",
+            "end_date": None,
+            "is_current": True,
+            "confidence": 1,
+        }
+    ],
+    "education": [],
+    "certifications": [],
+    "languages": [{"name_en": "English", "level": "native", "confidence": 1}],
+    "projects": [],
+    "industry_en": "Software",
+    "industry_confidence": 1,
+    "seniority": "mid",
+    "seniority_confidence": 1,
+    "flags": [],
+}
+
+
+def _smallest_answer(schema: dict[str, Any]) -> Any:
+    kind = schema.get("type")
+    if isinstance(kind, list):
+        if "null" in kind:
+            return None
+        kind = kind[0]
+    if "enum" in schema:
+        return schema["enum"][0]
+    if kind == "object":
+        properties = schema.get("properties", {})
+        return {key: _smallest_answer(properties[key]) for key in schema.get("required", [])}
+    return {"array": [], "string": "", "integer": 0, "number": 0, "boolean": False}.get(
+        str(kind)
+    )
+
+
+class DemoClient:
+    """Fixed answers without any model, for the end-to-end tests and for trying the app without
+    Ollama. Every resume reads as the same made-up developer. Deployed servers refuse it."""
+
+    model = "demo"
+
+    def complete_json(
+        self, system: str, user: str, schema: dict[str, Any], attempt: int = 0
+    ) -> str:
+        if "work_history" in schema.get("properties", {}):
+            return json.dumps(DEMO_PROFILE)
+        return json.dumps(_smallest_answer(schema))
+
+
 @lru_cache(maxsize=1)
 def _ollama() -> OllamaClient:
     return OllamaClient(settings.ollama_url, settings.llm_model, settings.llm_timeout_seconds)
@@ -187,4 +246,6 @@ def get_llm() -> LLMClient:
         if settings.ollama_fallback:
             return FallbackClient(_openrouter(), _ollama())
         return _openrouter()
+    if settings.llm_provider == "demo":
+        return DemoClient()
     raise ValueError(f"Unknown LLM provider: {settings.llm_provider}")

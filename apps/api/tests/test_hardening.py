@@ -187,6 +187,7 @@ def test_safe_deployed_settings_are_accepted() -> None:
         ({"rate_limits_enabled": False}, "RATE_LIMITS_ENABLED"),
         ({"malware_scanner": "off"}, "MALWARE_SCANNER"),
         ({"llm_provider": "openrouter", "openrouter_api_key": ""}, "OPENROUTER_API_KEY"),
+        ({"llm_provider": "demo"}, "LLM_PROVIDER=demo"),
     ],
 )
 def test_deployed_servers_refuse_unsafe_settings(changes: dict[str, object], named: str) -> None:

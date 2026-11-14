@@ -198,3 +198,31 @@ def test_a_judgement_is_saved_under_the_model_that_answered(
     analysis._judgements(args[0], "doc-1", *args[1:], Store(), llm, lambda texts: [])  # type: ignore[arg-type]
     assert list(saved) == [judgement_key(*args, "local")]
     assert judgement_key(*args, "hosted") not in saved
+
+
+def test_the_demo_model_reads_every_resume_as_the_same_made_up_developer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.extraction import extract_profile
+
+    monkeypatch.setattr(settings, "llm_provider", "demo")
+    result = extract_profile("Any resume text at all, long enough to read.", get_llm())
+    assert [skill.name_en for skill in result.profile.skills] == ["Python", "SQL"]
+
+
+def test_the_demo_model_gives_the_smallest_valid_answer_to_other_questions() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "rows": {"type": "array"},
+            "level": {"type": "string", "enum": ["yes", "no"]},
+            "note": {"type": ["string", "null"]},
+            "extra": {"type": "string"},
+        },
+        "required": ["rows", "level", "note"],
+    }
+    assert json.loads(llm_module.DemoClient().complete_json("", "", schema)) == {
+        "rows": [],
+        "level": "yes",
+        "note": None,
+    }

@@ -59,3 +59,78 @@ jobs:
       - run: uv run --python 3.12 --extra dev ruff check .
       - run: uv run --python 3.12 --extra dev mypy app
       - run: uv run --python 3.12 --extra dev pytest -rs
+
+  # The web app, the API and a local Supabase together, driven by Playwright (apps/web/e2e).
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E_SUPABASE_URL: http://127.0.0.1:54321
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.1.0
+      - name: Start a local Supabase with the migrations and seed
+        run: |
+          supabase gen signing-key --algorithm ES256 2>/dev/null | jq -s . > supabase/signing_keys.json
+          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+          supabase status -o json > "$RUNNER_TEMP/supabase.json"
+          node -e "console.log('status keys:', Object.keys(require(process.argv[1])).join(', '))" "$RUNNER_TEMP/supabase.json"
+          {
+            echo "E2E_SUPABASE_SECRET_KEY=$(node -p "const s=require(process.argv[1]); s.SECRET_KEY || s.SERVICE_ROLE_KEY" "$RUNNER_TEMP/supabase.json")"
+            echo "E2E_SUPABASE_PUBLISHABLE_KEY=$(node -p "const s=require(process.argv[1]); s.PUBLISHABLE_KEY || s.ANON_KEY" "$RUNNER_TEMP/supabase.json")"
+          } >> "$GITHUB_ENV"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @careerfit/shared build
+      - name: Start the API with the demo model
+        working-directory: apps/api
+        env:
+          SUPABASE_URL: http://127.0.0.1:54321
+          LLM_PROVIDER: demo
+          CELERY_TASK_ALWAYS_EAGER: 'true'
+          WEB_URL: http://localhost:3000
+          ALLOWED_ORIGINS: '["http://localhost:3000"]'
+        run: |
+          SUPABASE_SECRET_KEY="$E2E_SUPABASE_SECRET_KEY" nohup uv run --python 3.12 uvicorn app.main:app --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:8000/health && exit 0; sleep 2; done
+          cat "$RUNNER_TEMP/api.log"; exit 1
+      - name: Build and start the web app
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+        run: |
+          export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$E2E_SUPABASE_PUBLISHABLE_KEY"
+          pnpm --filter web build
+          nohup pnpm --filter web start > "$RUNNER_TEMP/web.log" 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/en > /dev/null && exit 0; sleep 2; done
+          cat "$RUNNER_TEMP/web.log"; exit 1
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm --filter web e2e
+      - name: Server logs
+        if: failure()
+        run: tail -n 100 "$RUNNER_TEMP/api.log" "$RUNNER_TEMP/web.log"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the API and worker image
+        run: docker build -t careerfit-api apps/api
+      - name: The image starts and answers health checks
+        run: |
+          docker run -d --name api -p 8000:8000 careerfit-api
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/health && exit 0; sleep 2; done
+          docker logs api; exit 1

@@ -95,6 +95,8 @@ class Settings(BaseSettings):
             problems.append("MALWARE_SCANNER must be clamav")
         if not self.rate_limits_enabled:
             problems.append("RATE_LIMITS_ENABLED must be on")
+        if self.llm_provider == "demo":
+            problems.append("LLM_PROVIDER=demo gives fixed answers and is for tests only")
         if self.llm_provider == "openrouter" and (
             not self.openrouter_api_key or not self.openrouter_url.startswith("https://")
         ):
