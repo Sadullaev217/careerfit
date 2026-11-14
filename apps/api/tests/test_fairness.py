@@ -66,11 +66,23 @@ PROTECTED_LINES = [
     "Национальность: таджик",
     "Семейное положение: замужем",
     "Вероисповедание: ислам",
+    "Pronouns: she/her",
+    "Disability: hearing impaired",
+    "Ethnicity: Black",
+    "Indigenous status: First Nations",
+    "Sexual orientation: gay",
+    "Place of birth: Lagos",
+    "Pregnancy: due in March",
+    "Health: type 1 diabetes",
+    "Инвалидность: II группа",
+    "Место рождения: Душанбе",
 ]
 PREJUDICE_TRIGGERS = re.compile(
     r"birth|dob\b|\bage\b|gender|\bsex\b|female|\bmale\b|nationality|nigerian|citizenship|pakistani"
     r"|marital|married|children|religion|muslim|рожден|возраст|\bпол\b|женщин|гражданство|узбекистан"
-    r"|национальность|таджик|семейное|замужем|вероисповедание|ислам",
+    r"|национальность|таджик|семейное|замужем|вероисповедание|ислам"
+    r"|pronoun|she/her|disabilit|hearing|ethnicity|black|indigenous|first nations|orientation|gay"
+    r"|place of birth|lagos|pregnan|diabetes|инвалидност|душанбе",
     re.IGNORECASE,
 )
 

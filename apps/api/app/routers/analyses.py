@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from kombu.exceptions import OperationalError
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
 from app import consent, market_lookup, plans, report_pdf, store, tailoring
@@ -35,6 +35,17 @@ class StartAnalysisRequest(CamelModel):
     occupation_code: str | None = Field(default=None, max_length=10)
     region: str | None = Field(default=None, max_length=60)
     language: Literal["en", "ru"] = "en"
+
+    @field_validator("role", "region")
+    @classmethod
+    def _one_plain_line(cls, value: str | None) -> str | None:
+        # Typed text that reaches an AI prompt can't add lines or hidden characters to it.
+        if value is not None and any(
+            ord(char) < 32 or 0x7F <= ord(char) < 0xA0 or 0x200B <= ord(char) <= 0x206F
+            for char in value
+        ):
+            raise ValueError("must be a single line of plain text")
+        return value
 
 
 class AnalysisStarted(CamelModel):
@@ -301,8 +312,10 @@ def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
             )
     llm = get_llm()
     try:
+        # The prompt gets the matched occupation, not the title as typed, which is untrusted text.
+        occupation = str(row["result"].get("occupation_name") or job)
         rewrites = tailoring.tailor(
-            resume_text or "", job, tailoring.shown_skills(row["result"]), llm
+            resume_text or "", occupation, tailoring.shown_skills(row["result"]), llm
         )
     except tailoring.NothingToTailor:
         raise _error(

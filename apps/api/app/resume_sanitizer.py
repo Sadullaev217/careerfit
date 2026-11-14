@@ -14,6 +14,10 @@ _INSTRUCTION = re.compile(
     | \b(instruction|instructions|note|message|prompt)\s+(to|for)\s+(the\s+)?
       ((ai|llm|chatbot|gpt|claude)\b | (assistant|model)(?=\s*([:.,;]|$)))
     | \bsystem\s+prompt\s*[:=\]>]
+    | <\|?\s*(im_start|im_end|system|user|assistant|endoftext)\s*\|?>
+    | \[/?inst\] | <</?sys>>
+    | ^\s*\#{2,}\s*(system|instructions?|assistant|response)\b
+    | ^\s*(system|assistant)\s*:
     | \b(print|reveal|show|repeat|output|ignore|disregard|override|forget|replace|bypass)\s+
       (the\s+|your\s+|this\s+|my\s+)?(\w+\s+)?system\s+prompt\b
     | \byou\s+are\s+(now\s+)?(an?\s+|the\s+)?(ai|assistant|language\s+model)\b
@@ -43,6 +47,9 @@ _PERSONAL = re.compile(
     | ^\s*(пол|возраст)\s*[:\-–—]
     | ^\s*(женщина|мужчина)\s*([.,;:]|$)
     | ^\s*(full\s+)?name\s*[:\-–—]
+    | ^\s*(pronouns?|disabilit(y|ies)|ethnicity|race|indigenous\s+status|sexual\s+orientation
+          |place\s+of\s+birth|pregnan\w*|health(\s+status)?)\s*[:\-–—]
+    | ^\s*(инвалидность|этническая\s+принадлежность|ориентация|место\s+рождения|беременн\w*)\s*[:\-–—]
     | ^\s*(фио|имя)\s*[:\-–—]
     """,
     re.IGNORECASE | re.VERBOSE | re.MULTILINE,
@@ -234,8 +241,13 @@ def _without_contact_details(lines: list[str]) -> list[str]:
     return cleaned
 
 
+# Zero-width and direction-changing characters are invisible to a reader but can split a trigger phrase so
+# the patterns above miss it. Nothing in a resume needs them.
+_INVISIBLE = re.compile("[\u00ad\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]")
+
+
 def sanitize_resume(text: str) -> SanitizedResume:
-    lines = _without_contact_details(text.splitlines())
+    lines = _without_contact_details(_INVISIBLE.sub("", text).splitlines())
     kept: list[str] = []
     personal = instruction = 0
     index = 0
