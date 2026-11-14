@@ -48,3 +48,6 @@ pnpm-debug.log*
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# Local Claude Code settings, such as dev server paths for this machine
+.claude/
