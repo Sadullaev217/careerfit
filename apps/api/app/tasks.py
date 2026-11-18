@@ -8,7 +8,7 @@ import sentry_sdk
 from celery.exceptions import SoftTimeLimitExceeded
 from kombu.exceptions import OperationalError
 
-from app import analytics, llm_costs, portfolio, push, retention, store
+from app import analytics, demo, llm_costs, portfolio, push, retention, store
 from app.analysis import prepare_score_input
 from app.celery_app import celery_app
 from app.config import settings
@@ -108,6 +108,14 @@ def refresh_market_data_task(self: Any) -> None:
         logger.error("market refresh failed: %s", type(exc).__name__)
         raise self.retry(exc=exc, countdown=1800) from None
     logger.info("market refresh: %s", summary)
+
+
+@celery_app.task(name="delete_expired_demo_accounts")  # type: ignore[untyped-decorator]
+def delete_expired_demo_accounts_task() -> None:
+    # Imported here: the account routes aren't needed by any other task.
+    from app.routers.account import erase_account
+
+    logger.info("demo accounts deleted: %d", demo.delete_expired_accounts(store, erase_account))
 
 
 @celery_app.task(name="check_llm_budgets")  # type: ignore[untyped-decorator]
@@ -285,22 +293,22 @@ def run_analysis(
                 **context,
             )
         except SkillJudgementFailed:
-            _end_analysis_early(analysis_id, user_id, scored, now,"invalid_model_output")
+            _end_analysis_early(analysis_id, user_id, scored, now, "invalid_model_output")
             return
         except NothingToScore:
-            _end_analysis_early(analysis_id, user_id, scored, now,"not_enough_market_data")
+            _end_analysis_early(analysis_id, user_id, scored, now, "not_enough_market_data")
             return
         except SoftTimeLimitExceeded:
-            _end_analysis_early(analysis_id, user_id, scored, now,"timeout")
+            _end_analysis_early(analysis_id, user_id, scored, now, "timeout")
             return
         except (LLMUnavailable, httpx.HTTPError) as exc:
             if self.request.retries < MAX_RETRIES:
                 raise self.retry(exc=exc, countdown=2**self.request.retries * 15) from None
-            _end_analysis_early(analysis_id, user_id, scored, now,"ai_unavailable")
+            _end_analysis_early(analysis_id, user_id, scored, now, "ai_unavailable")
             return
         except Exception as exc:
             logger.error("analysis %s failed: %s", analysis_id, type(exc).__name__)
-            _end_analysis_early(analysis_id, user_id, scored, now,"analysis_error")
+            _end_analysis_early(analysis_id, user_id, scored, now, "analysis_error")
             return
 
     _finish_analysis(analysis_id, user_id, scored, now, report=report)

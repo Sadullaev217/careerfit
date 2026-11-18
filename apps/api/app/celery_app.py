@@ -46,6 +46,11 @@ celery_app.conf.update(
             "task": "delete_expired_files",
             "schedule": crontab(hour=3, minute=30),
         },
+        # Demo accounts past DEMO_ACCOUNT_DAYS (app/demo.py). Does nothing when that is 0.
+        "delete-expired-demo-accounts": {
+            "task": "delete_expired_demo_accounts",
+            "schedule": crontab(hour=4, minute=0),
+        },
         # AI spending against the daily budgets (app/llm_costs.py).
         "check-llm-budgets": {
             "task": "check_llm_budgets",

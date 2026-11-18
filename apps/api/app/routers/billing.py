@@ -8,8 +8,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from starlette.concurrency import run_in_threadpool
 
-from app import billing, plans, revenuecat, store
+from app import billing, demo, plans, revenuecat, store
 from app.auth import CurrentUser, get_current_user
+from app.config import settings
 from app.rate_limit import per_user
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,12 @@ class LinkResponse(BaseModel):
     url: str
 
 
+def _payments_on() -> None:
+    # The public demo gives everyone Pro and every report, so nothing can be bought there.
+    if settings.demo_mode:
+        raise demo.payments_off()
+
+
 def _error(status_code: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code, detail={"code": code, "message": message})
 
@@ -59,7 +66,11 @@ def _unavailable() -> HTTPException:
     )
 
 
-@router.post("/checkout", response_model=LinkResponse, dependencies=[Depends(per_user("billing", "30/hour"))])
+@router.post(
+    "/checkout",
+    response_model=LinkResponse,
+    dependencies=[Depends(_payments_on), Depends(per_user("billing", "30/hour"))],
+)
 def checkout(user: User, body: CheckoutRequest, gateway: Gateway) -> LinkResponse:
     try:
         if body.kind == "pro":
@@ -97,7 +108,11 @@ def checkout(user: User, body: CheckoutRequest, gateway: Gateway) -> LinkRespons
         raise _unavailable() from None
 
 
-@router.post("/portal", response_model=LinkResponse, dependencies=[Depends(per_user("billing", "30/hour"))])
+@router.post(
+    "/portal",
+    response_model=LinkResponse,
+    dependencies=[Depends(_payments_on), Depends(per_user("billing", "30/hour"))],
+)
 def portal(user: User, body: PortalRequest, gateway: Gateway) -> LinkResponse:
     try:
         url = billing.portal_url(user.id, body.language, store, gateway)
@@ -128,7 +143,11 @@ class AppStoreReportRequest(CamelModel):
     transaction_id: str = Field(min_length=1, max_length=200)
 
 
-@router.post("/app-store/sync", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("billing", "30/hour"))])
+@router.post(
+    "/app-store/sync",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(_payments_on), Depends(per_user("billing", "30/hour"))],
+)
 def sync_app_store(user: User, source: StoreSource) -> None:
     """After a purchase or restore in the app: checks the account with RevenueCat and updates the plan."""
     try:
@@ -137,7 +156,11 @@ def sync_app_store(user: User, source: StoreSource) -> None:
         raise _unavailable() from None
 
 
-@router.post("/app-store/report", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("billing", "30/hour"))])
+@router.post(
+    "/app-store/report",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(_payments_on), Depends(per_user("billing", "30/hour"))],
+)
 def claim_app_store_report(user: User, body: AppStoreReportRequest, source: StoreSource) -> None:
     """After buying a report in the app: unlocks it for one result once RevenueCat confirms the purchase."""
     analysis_id = str(body.analysis_id)
@@ -164,7 +187,9 @@ async def stripe_webhook(request: Request, gateway: Gateway) -> dict[str, bool]:
     try:
         event = gateway.construct_event(payload, request.headers.get("stripe-signature"))
     except billing.InvalidEvent:
-        raise _error(status.HTTP_400_BAD_REQUEST, "invalid_event", "Not a valid Stripe event.") from None
+        raise _error(
+            status.HTTP_400_BAD_REQUEST, "invalid_event", "Not a valid Stripe event."
+        ) from None
     # The store and Stripe calls block, so they run off the event loop. An error here returns 500, and
     # Stripe sends the event again later.
     await run_in_threadpool(billing.handle_event, event, store, gateway)

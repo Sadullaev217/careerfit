@@ -8,8 +8,9 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
-from app import consent, llm_costs, market_lookup, plans, report_pdf, store, tailoring
+from app import consent, demo, llm_costs, market_lookup, plans, report_pdf, store, tailoring
 from app.auth import CurrentUser, get_current_user
+from app.config import settings
 from app.llm import LLMUnavailable, get_llm
 from app.queueing import enqueue
 from app.rate_limit import per_user
@@ -96,7 +97,12 @@ def _to_response(row: dict[str, Any]) -> AnalysisResponse:
     )
 
 
-@router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=AnalysisStarted, dependencies=[Depends(per_user("analyses", "20/hour"))])
+@router.post(
+    "",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=AnalysisStarted,
+    dependencies=[Depends(per_user("analyses", "20/hour"))],
+)
 def start_analysis(
     user: User, body: StartAnalysisRequest, background: BackgroundTasks
 ) -> AnalysisStarted:
@@ -112,6 +118,7 @@ def start_analysis(
             "We haven't finished reading this resume yet. Please try again shortly.",
         )
 
+    demo.check_daily_limit(store)
     # A quick check before any matching work. The database checks again, atomically, when saving.
     limit = plans.entitlements(store.get_subscription(user.id)).analyses_limit
     period_start = plans.month_start(datetime.now(UTC))
@@ -150,7 +157,13 @@ def start_analysis(
     try:
         enqueue(
             run_analysis,
-            [row["id"], match["occupation_code"], match["occupation_name"], province, body.language],
+            [
+                row["id"],
+                match["occupation_code"],
+                match["occupation_name"],
+                province,
+                body.language,
+            ],
             background,
         )
     except OperationalError as exc:
@@ -183,7 +196,9 @@ class ProgressTrack(CamelModel):
 
 
 def _pro_required() -> HTTPException:
-    return _error(status.HTTP_402_PAYMENT_REQUIRED, "pro_required", "This is part of CareerFit Pro.")
+    return _error(
+        status.HTTP_402_PAYMENT_REQUIRED, "pro_required", "This is part of CareerFit Pro."
+    )
 
 
 @router.get("/progress", response_model=list[ProgressTrack])
@@ -200,7 +215,9 @@ def progress(user: User) -> list[ProgressTrack]:
         name = result.get("occupation_name") or target.get("title")
         if row["status"] != "completed" or row["score"] is None or not name:
             continue
-        point = ProgressPoint(analysis_id=row["id"], date=row["created_at"], score=round(row["score"]))
+        point = ProgressPoint(
+            analysis_id=row["id"], date=row["created_at"], score=round(row["score"])
+        )
         key = str(result.get("occupation_code") or name)
         tracks.setdefault(key, []).append((point, str(name), target.get("region")))
     ordered = sorted(tracks.values(), key=lambda runs: runs[-1][0].date, reverse=True)
@@ -227,13 +244,17 @@ def get_analysis(analysis_id: UUID, user: User) -> AnalysisResponse:
     return _to_response(row)
 
 
-@router.get("/{analysis_id}/report.pdf", response_class=Response, dependencies=[Depends(per_user("reports", "60/hour"))])
+@router.get(
+    "/{analysis_id}/report.pdf",
+    response_class=Response,
+    dependencies=[Depends(per_user("reports", "60/hour"))],
+)
 def detailed_report(
     analysis_id: UUID, user: User, language: Literal["en", "ru"] = "en"
 ) -> Response:
     """The one-time purchase: this result as a PDF. Only for people who bought it for this analysis."""
     row = _finished_analysis(analysis_id, user.id)
-    if row["id"] not in store.purchased_report_ids(user.id):
+    if not settings.demo_mode and row["id"] not in store.purchased_report_ids(user.id):
         raise _error(
             status.HTTP_402_PAYMENT_REQUIRED,
             "report_not_purchased",
@@ -251,7 +272,10 @@ def detailed_report(
     return Response(
         content=pdf,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{name}"', "Cache-Control": "no-store"},
+        headers={
+            "Content-Disposition": f'attachment; filename="{name}"',
+            "Cache-Control": "no-store",
+        },
     )
 
 
@@ -289,14 +313,20 @@ def get_tailored_rewrites(analysis_id: UUID, user: User) -> TailoredResponse:
     )
 
 
-@router.post("/{analysis_id}/tailored-rewrites", response_model=TailoredResponse, dependencies=[Depends(per_user("tailoring", "20/hour"))])
+@router.post(
+    "/{analysis_id}/tailored-rewrites",
+    response_model=TailoredResponse,
+    dependencies=[Depends(per_user("tailoring", "20/hour"))],
+)
 def tailor_resume(analysis_id: UUID, user: User) -> TailoredResponse:
     """Pro: rewrites resume lines for this result's job. Takes up to a minute on the local AI model."""
     row = _finished_analysis(analysis_id, user.id)
     job = _job_title(row)
     saved = store.get_tailored_rewrites(row["id"], user.id)
     if saved is not None:
-        return TailoredResponse(job=job, rewrites=[TailoredRewrite.model_validate(i) for i in saved])
+        return TailoredResponse(
+            job=job, rewrites=[TailoredRewrite.model_validate(i) for i in saved]
+        )
     consent.require(store, user.id)
     if not plans.entitlements(store.get_subscription(user.id)).is_pro:
         raise _pro_required()

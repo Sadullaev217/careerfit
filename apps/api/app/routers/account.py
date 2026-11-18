@@ -37,6 +37,8 @@ class PlanResponse(BaseModel):
     analyses_limit: int | None
     limit_resets_at: str
     purchased_reports: list[str]
+    # The public demo: everything is unlocked and nothing can be bought, so apps hide payments.
+    demo: bool
 
 
 class ConsentResponse(BaseModel):
@@ -75,6 +77,7 @@ def account_plan(user: User) -> PlanResponse:
         # A plain date: the limit resets at midnight UTC, and apps show this as that calendar day.
         limit_resets_at=plans.next_month_start(now).date().isoformat(),
         purchased_reports=sorted(store.purchased_report_ids(user.id)),
+        demo=settings.demo_mode,
     )
 
 
@@ -116,12 +119,21 @@ def withdraw_consent(user: User) -> None:
     store.withdraw_consent(user.id, consent.current_version())
 
 
-@router.delete("/account", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(per_user("account-delete", "5/hour"))])
+@router.delete(
+    "/account",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(per_user("account-delete", "5/hour"))],
+)
 def delete_account(user: User) -> None:
+    erase_account(user.id)
+
+
+def erase_account(user_id: str) -> None:
+    """Deletes an account and everything in it. Also used for expired demo accounts."""
     # Billing goes first, then files: if either fails the account still exists, so the user can retry.
-    if (store.get_subscription(user.id) or {}).get("stripe_customer_id"):
+    if (store.get_subscription(user_id) or {}).get("stripe_customer_id"):
         try:
-            billing.forget_customer(user.id, store, gateway_factory())
+            billing.forget_customer(user_id, store, gateway_factory())
         except billing.BillingUnavailable:
             raise HTTPException(
                 status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -135,7 +147,7 @@ def delete_account(user: User) -> None:
     # without a purchase.
     if settings.revenuecat_secret_key:
         try:
-            store_records_factory().delete_subscriber(user.id)
+            store_records_factory().delete_subscriber(user_id)
         except revenuecat.RevenueCatUnavailable:
             raise HTTPException(
                 status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -145,8 +157,8 @@ def delete_account(user: User) -> None:
                     "deleted. Please try again.",
                 },
             ) from None
-    store.delete_all_user_files(user.id)
-    delete_auth_user(user.id)
+    store.delete_all_user_files(user_id)
+    delete_auth_user(user_id)
 
 
 @router.get(

@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Literal
 
+from app.config import settings
+
 FREE_ANALYSES_PER_MONTH = 1
 
 # Stripe keeps a subscription "past_due" while it retries a failed payment. Access continues during those
@@ -44,7 +46,8 @@ def entitlements(subscription: dict[str, Any] | None, now: datetime | None = Non
     """Reads the stored subscription row. A missing row is a free account."""
     row = subscription or {}
     status = str(row.get("status") or "active")
-    is_pro = (
+    # The public demo shows everything, so every account counts as Pro there.
+    is_pro = settings.demo_mode or (
         row.get("plan") == "pro"
         and status in PRO_STATUSES
         and not _expired(row, now or datetime.now(UTC))
@@ -65,4 +68,8 @@ def month_start(now: datetime) -> datetime:
 
 def next_month_start(now: datetime) -> datetime:
     start = month_start(now)
-    return start.replace(year=start.year + 1, month=1) if start.month == 12 else start.replace(month=start.month + 1)
+    return (
+        start.replace(year=start.year + 1, month=1)
+        if start.month == 12
+        else start.replace(month=start.month + 1)
+    )

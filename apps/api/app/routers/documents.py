@@ -10,8 +10,9 @@ from kombu.exceptions import OperationalError
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from app import analytics, consent, malware_scan, portfolio, retention, store
+from app import analytics, consent, demo, malware_scan, portfolio, retention, store
 from app.auth import CurrentUser, get_current_user
+from app.config import settings
 from app.file_validation import MAX_FILE_BYTES, RejectedFile, validate_file
 from app.queueing import enqueue
 from app.rate_limit import per_user
@@ -149,7 +150,12 @@ def _enqueue(document_id: str, background: BackgroundTasks) -> None:
     enqueue(parse_document, [document_id], background)
 
 
-@router.post("", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse, dependencies=[Depends(per_user("uploads", "20/hour"))])
+@router.post(
+    "",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=DocumentResponse,
+    dependencies=[Depends(per_user("uploads", "20/hour"))],
+)
 def upload_document(
     user: User,
     background: BackgroundTasks,
@@ -157,6 +163,7 @@ def upload_document(
     file: UploadFile,
 ) -> DocumentResponse:
     consent.require(store, user.id)
+    demo.check_daily_limit(store)
     data = file.file.read(MAX_FILE_BYTES + 1)
     try:
         kind = validate_file(data)
@@ -178,24 +185,65 @@ def upload_document(
             "We can't check files right now. Please try again in a few minutes.",
         ) from None
 
+    row = _store_document(
+        user.id,
+        type,
+        _display_name(file.filename),
+        data,
+        kind.extension,
+        kind.content_type,
+        background,
+    )
+    analytics.capture(user.id, "document_uploaded", {"type": type, "format": kind.content_type})
+    return row
+
+
+@router.post(
+    "/sample",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=DocumentResponse,
+    dependencies=[Depends(per_user("uploads", "20/hour"))],
+)
+def add_sample_resume(user: User, background: BackgroundTasks) -> DocumentResponse:
+    """Adds the demo's made-up resume, so a visitor can see a result without uploading their own."""
+    if not settings.demo_mode:
+        raise _error(status.HTTP_404_NOT_FOUND, "not_found", "Not found.")
+    consent.require(store, user.id)
+    demo.check_daily_limit(store)
+    data = demo.SAMPLE_RESUME_PATH.read_bytes()
+    row = _store_document(
+        user.id, "resume", demo.SAMPLE_RESUME_NAME, data, "pdf", "application/pdf", background
+    )
+    analytics.capture(user.id, "sample_resume_added")
+    return row
+
+
+def _store_document(
+    user_id: str,
+    type: str,
+    file_name: str,
+    data: bytes,
+    extension: str,
+    content_type: str,
+    background: BackgroundTasks,
+) -> DocumentResponse:
     # The path uses only ids, so a crafted file name can't choose where the file lands.
     document_id = str(uuid4())
-    path = f"{user.id}/{document_id}.{kind.extension}"
-    store.upload_file(path, data, kind.content_type)
+    path = f"{user_id}/{document_id}.{extension}"
+    store.upload_file(path, data, content_type)
     try:
         row = store.insert_document(
             {
                 "id": document_id,
-                "user_id": user.id,
+                "user_id": user_id,
                 "type": type,
-                "file_name": _display_name(file.filename),
+                "file_name": file_name,
                 "file_path": path,
             }
         )
     except Exception:
         store.delete_files([path])
         raise
-    analytics.capture(user.id, "document_uploaded", {"type": type, "format": kind.content_type})
 
     try:
         _enqueue(document_id, background)
@@ -204,10 +252,15 @@ def upload_document(
         store.delete_document(document_id)
         store.delete_files([path])
         raise _queue_unavailable() from exc
-    return _to_response(store.get_document(document_id, user.id) or row)
+    return _to_response(store.get_document(document_id, user_id) or row)
 
 
-@router.post("/portfolio", status_code=status.HTTP_202_ACCEPTED, response_model=DocumentResponse, dependencies=[Depends(per_user("uploads", "20/hour"))])
+@router.post(
+    "/portfolio",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=DocumentResponse,
+    dependencies=[Depends(per_user("uploads", "20/hour"))],
+)
 def add_portfolio_link(
     user: User, body: PortfolioLinkRequest, background: BackgroundTasks
 ) -> DocumentResponse:

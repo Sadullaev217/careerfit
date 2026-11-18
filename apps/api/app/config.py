@@ -64,6 +64,11 @@ class Settings(BaseSettings):
     posthog_project_token: str = ""
     posthog_host: str = "https://eu.i.posthog.com"
 
+    # Public demo (app/demo.py). All off by default.
+    demo_mode: bool = False
+    demo_daily_ai_jobs: int = 0
+    demo_account_days: int = 0
+
     # AI spending alerts (app/llm_costs.py), in US dollars per day.
     llm_daily_budget_usd: float = 5.0
     llm_user_daily_budget_usd: float = 0.5
@@ -97,10 +102,14 @@ class Settings(BaseSettings):
             problems.append("SUPABASE_URL must be https and SUPABASE_SECRET_KEY set")
         if not self.web_url.startswith("https://"):
             problems.append("WEB_URL must be https")
-        if not self.allowed_origins or any(not o.startswith("https://") for o in self.allowed_origins):
+        if not self.allowed_origins or any(
+            not o.startswith("https://") for o in self.allowed_origins
+        ):
             problems.append("ALLOWED_ORIGINS must be https addresses")
         if not self.rate_limit_storage.startswith(("redis://", "rediss://")):
-            problems.append("RATE_LIMIT_STORAGE must point at Redis, so every process shares the counts")
+            problems.append(
+                "RATE_LIMIT_STORAGE must point at Redis, so every process shares the counts"
+            )
         if self.malware_scanner != "clamav":
             problems.append("MALWARE_SCANNER must be clamav")
         if not self.rate_limits_enabled:

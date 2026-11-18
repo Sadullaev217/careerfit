@@ -103,9 +103,7 @@ def get_parsed_text(document_id: str) -> str | None:
 
 
 def match_skill(embedding: list[float]) -> dict[str, Any] | None:
-    rows = _rows(
-        _client().post("/rest/v1/rpc/match_skill", json={"query_embedding": embedding})
-    )
+    rows = _rows(_client().post("/rest/v1/rpc/match_skill", json={"query_embedding": embedding}))
     return rows[0] if rows else None
 
 
@@ -263,7 +261,9 @@ def search_occupation_titles(query: str, count: int) -> list[dict[str, Any]]:
 
 
 def list_occupations() -> list[dict[str, Any]]:
-    return _rows(_client().get("/rest/v1/occupations", params={"select": "code,name", "order": "code"}))
+    return _rows(
+        _client().get("/rest/v1/occupations", params={"select": "code,name", "order": "code"})
+    )
 
 
 def get_translations(terms: list[str], language: str) -> dict[str, str]:
@@ -271,7 +271,9 @@ def get_translations(terms: list[str], language: str) -> dict[str, str]:
     for start in range(0, len(terms), _TRANSLATIONS_PER_REQUEST):
         batch = terms[start : start + _TRANSLATIONS_PER_REQUEST]
         # Names contain commas and brackets, which would otherwise end the list early.
-        quoted = ",".join('"' + term.replace("\\", "\\\\").replace('"', '\\"') + '"' for term in batch)
+        quoted = ",".join(
+            '"' + term.replace("\\", "\\\\").replace('"', '\\"') + '"' for term in batch
+        )
         rows = _rows(
             _client().get(
                 "/rest/v1/term_translations",
@@ -310,7 +312,11 @@ def get_consent(user_id: str, version: str) -> dict[str, Any] | None:
     rows = _rows(
         _client().get(
             "/rest/v1/consents",
-            params={"user_id": f"eq.{user_id}", "version": f"eq.{version}", "select": CONSENT_COLUMNS},
+            params={
+                "user_id": f"eq.{user_id}",
+                "version": f"eq.{version}",
+                "select": CONSENT_COLUMNS,
+            },
         )
     )
     return rows[0] if rows else None
@@ -675,7 +681,12 @@ def expire_document(document_id: str, at: datetime) -> None:
     _client().patch(
         "/rest/v1/documents",
         params={"id": f"eq.{document_id}"},
-        json={"file_path": None, "parsed_text": None, "embedding": None, "file_deleted_at": at.isoformat()},
+        json={
+            "file_path": None,
+            "parsed_text": None,
+            "embedding": None,
+            "file_deleted_at": at.isoformat(),
+        },
     ).raise_for_status()
 
 
@@ -759,4 +770,42 @@ def llm_costs_since(start: datetime) -> list[dict[str, Any]]:
 
 def ping() -> None:
     """Raises when the database can't be reached. Reads one row id from a small table."""
-    _client().get("/rest/v1/consents", params={"select": "version", "limit": "1"}).raise_for_status()
+    _client().get(
+        "/rest/v1/consents", params={"select": "version", "limit": "1"}
+    ).raise_for_status()
+
+
+def _count(table: str, params: dict[str, str]) -> int:
+    response = _client().get(
+        f"/rest/v1/{table}",
+        params={**params, "select": "id", "limit": "1"},
+        headers={"Prefer": "count=exact"},
+    )
+    response.raise_for_status()
+    # Content-Range looks like "0-0/42", or "*/0" when nothing matched.
+    return int(response.headers.get("content-range", "*/0").rsplit("/", 1)[-1])
+
+
+def count_ai_jobs_since(start: datetime) -> int:
+    """Resumes and cover letters read, plus analyses run, by every account since start."""
+    since = f"gte.{start.isoformat()}"
+    documents = _count("documents", {"created_at": since, "type": "in.(resume,cover_letter)"})
+    return documents + _count("analyses", {"created_at": since})
+
+
+def accounts_created_before(cutoff: datetime) -> list[dict[str, Any]]:
+    """Account ids and sign-up times older than cutoff, from Supabase's admin API."""
+    found: list[dict[str, Any]] = []
+    for page in range(1, _MAX_LIST_PAGES + 1):
+        response = _client().get(
+            "/auth/v1/admin/users", params={"page": str(page), "per_page": str(_LIST_PAGE_SIZE)}
+        )
+        response.raise_for_status()
+        users = response.json().get("users", [])
+        for user in users:
+            created = datetime.fromisoformat(str(user["created_at"]).replace("Z", "+00:00"))
+            if created < cutoff:
+                found.append({"id": user["id"], "created_at": user["created_at"]})
+        if len(users) < _LIST_PAGE_SIZE:
+            break
+    return found

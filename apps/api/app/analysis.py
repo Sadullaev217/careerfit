@@ -96,7 +96,9 @@ def prepare_score_input(
     stats = store.market_stats(occupation_code, region)
     required, preferred = top_skills(store.occupation_skills(occupation_code))
 
-    judged = _judgements(profile, document_id, occupation_name, required, preferred, store, llm, embed)
+    judged = _judgements(
+        profile, document_id, occupation_name, required, preferred, store, llm, embed
+    )
     links = sum(
         row["type"] == "portfolio_link" and row["status"] == "ready"
         for row in store.list_documents(user_id)
