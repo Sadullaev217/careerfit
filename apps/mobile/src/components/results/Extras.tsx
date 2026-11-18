@@ -41,7 +41,10 @@ export function Extras({ analysisId, userId }: { analysisId: string; userId: str
   const [reportError, setReportError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.account.plan().then(setPlan).catch(() => undefined);
+    api.account
+      .plan()
+      .then(setPlan)
+      .catch(() => undefined);
     api.analyses
       .tailored(analysisId)
       .then((saved) => setLines(saved.rewrites))
@@ -49,7 +52,8 @@ export function Extras({ analysisId, userId }: { analysisId: string; userId: str
   }, [analysisId]);
 
   const isPro = plan?.plan === 'pro';
-  const bought = plan?.purchasedReports.includes(analysisId) ?? false;
+  // The demo unlocks every report.
+  const bought = plan?.demo || (plan?.purchasedReports.includes(analysisId) ?? false);
 
   async function tailor() {
     setTailoring(true);
@@ -58,7 +62,9 @@ export function Extras({ analysisId, userId }: { analysisId: string; userId: str
       setLines((await api.analyses.tailor(analysisId)).rewrites ?? []);
     } catch (error) {
       setTailorError(
-        apiErrorCode(error) === 'nothing_to_tailor' ? t('extras.tailorNone') : i18n.errorText(error, 'extras.tailorFailed'),
+        apiErrorCode(error) === 'nothing_to_tailor'
+          ? t('extras.tailorNone')
+          : i18n.errorText(error, 'extras.tailorFailed'),
       );
     }
     setTailoring(false);
@@ -87,7 +93,9 @@ export function Extras({ analysisId, userId }: { analysisId: string; userId: str
       return;
     }
     if (outcome !== 'cancelled') {
-      setReportError(t(outcome === 'unavailable' ? 'billing.storeUnavailable' : 'billing.purchaseFailed'));
+      setReportError(
+        t(outcome === 'unavailable' ? 'billing.storeUnavailable' : 'billing.purchaseFailed'),
+      );
     }
     setReportBusy(false);
   }
@@ -111,7 +119,13 @@ export function Extras({ analysisId, userId }: { analysisId: string; userId: str
         ) : isPro ? (
           <Button title={t('extras.tailorAction')} onPress={() => void tailor()} />
         ) : (
-          plan && <Button variant="secondary" title={t('billing.seePro')} onPress={() => router.push('/settings')} />
+          plan && (
+            <Button
+              variant="secondary"
+              title={t('billing.seePro')}
+              onPress={() => router.push('/settings')}
+            />
+          )
         )}
         {tailorError && <Notice tone="error">{tailorError}</Notice>}
       </Card>

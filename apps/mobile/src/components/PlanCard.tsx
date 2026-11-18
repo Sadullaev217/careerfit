@@ -3,7 +3,13 @@ import type { PlanInfo } from '@careerfit/shared';
 import { PRICES } from '@careerfit/shared';
 import { Badge, Body, Button, Card, Heading, Muted, Notice } from '@/components/ui';
 import { useI18n } from '@/i18n';
-import { buyPro, manageSubscription, purchasesAvailable, restorePurchases, type StoreOutcome } from '@/lib/purchases';
+import {
+  buyPro,
+  manageSubscription,
+  purchasesAvailable,
+  restorePurchases,
+  type StoreOutcome,
+} from '@/lib/purchases';
 
 type Props = {
   plan: PlanInfo | null;
@@ -48,12 +54,24 @@ export function PlanCard({ plan, userId, onChanged }: Props) {
     );
   }
 
+  if (plan.demo) {
+    return (
+      <Card>
+        <Heading>{t('settings.plan')}</Heading>
+        <Body>{t('demo.planNote')}</Body>
+      </Card>
+    );
+  }
+
   const isPro = plan.plan === 'pro';
   const limit = plan.analysesLimit;
   return (
     <Card>
       <Heading>{t('settings.plan')}</Heading>
-      <Badge label={isPro ? t('settings.planPro') : t('settings.planFree')} tone={isPro ? 'shown' : 'neutral'} />
+      <Badge
+        label={isPro ? t('settings.planPro') : t('settings.planFree')}
+        tone={isPro ? 'shown' : 'neutral'}
+      />
       {isPro ? (
         <Body>
           {t('billing.unlimited')}{' '}
@@ -72,7 +90,9 @@ export function PlanCard({ plan, userId, onChanged }: Props) {
       )}
       {plan.status === 'past_due' && <Notice tone="error">{t('billing.pastDue')}</Notice>}
       {outcome && outcome !== 'cancelled' && (
-        <Notice tone={outcome === 'failed' || outcome === 'unavailable' ? 'error' : 'info'}>{t(OUTCOME_TEXT[outcome])}</Notice>
+        <Notice tone={outcome === 'failed' || outcome === 'unavailable' ? 'error' : 'info'}>
+          {t(OUTCOME_TEXT[outcome])}
+        </Notice>
       )}
 
       {plan.provider === 'stripe' && <Muted>{t('billing.managedOnWeb')}</Muted>}

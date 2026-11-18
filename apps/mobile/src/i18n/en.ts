@@ -267,6 +267,15 @@ export const en = {
     outdated: 'The policy changed while this page was open. Please read it again.',
     changeLater: 'You can withdraw this later in Settings.',
   },
+  demo: {
+    banner:
+      'Portfolio demo: everything is free, accounts are deleted after 30 days, and results take a few minutes. Try the sample resume rather than your own.',
+    sampleAction: 'Use the sample resume',
+    sampleAdded: 'Sample resume added. Reading it…',
+    sampleFailed: "We couldn't add the sample resume. Please try again.",
+    planNote:
+      'This is a demo: every feature and detailed report is free, and nothing can be bought.',
+  },
   legal: {
     privacy: 'Privacy Policy',
     terms: 'Terms of Service',
@@ -383,6 +392,8 @@ export const en = {
   },
   errors: {
     api: {
+      demo_daily_limit: "The demo has reached today's limit. Please come back tomorrow.",
+      payments_off: 'Payments are off in this demo.',
       limit_reached:
         "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",
       pro_required: 'This is part of CareerFit Pro.',

@@ -5,6 +5,7 @@ import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmailSchema, MIN_PASSWORD_LENGTH, NewPasswordSchema } from '@careerfit/shared';
+import { DemoNotice } from '@/components/Demo';
 import { Button, Divider, Field, Muted, Notice, Screen, Title } from '@/components/ui';
 import { LOCALE_NAMES, LOCALES, useI18n, type TextKey } from '@/i18n';
 import { supabase, SUPABASE_KEY, SUPABASE_URL } from '@/lib/supabase';
@@ -15,8 +16,16 @@ type SocialProvider = 'google' | 'apple';
 const SOCIAL_PROVIDERS: SocialProvider[] = ['google', 'apple'];
 
 const MODE_TEXT: Record<Mode, { title: TextKey; submit: TextKey; switchTo: TextKey }> = {
-  signin: { title: 'login.titleSignIn', submit: 'login.submitSignIn', switchTo: 'login.switchToSignUp' },
-  signup: { title: 'login.titleSignUp', submit: 'login.submitSignUp', switchTo: 'login.switchToSignIn' },
+  signin: {
+    title: 'login.titleSignIn',
+    submit: 'login.submitSignIn',
+    switchTo: 'login.switchToSignUp',
+  },
+  signup: {
+    title: 'login.titleSignUp',
+    submit: 'login.submitSignUp',
+    switchTo: 'login.switchToSignIn',
+  },
   reset: { title: 'login.titleReset', submit: 'login.submitReset', switchTo: 'login.backToSignIn' },
 };
 
@@ -55,7 +64,9 @@ export default function LoginScreen() {
   const params = useLocalSearchParams<{ mode?: string; error?: string }>();
   const providers = useSocialProviders();
   const emailInput = useRef<TextInputInstance>(null);
-  const [mode, setMode] = useState<Mode>(params.mode === 'signup' || params.mode === 'reset' ? params.mode : 'signin');
+  const [mode, setMode] = useState<Mode>(
+    params.mode === 'signup' || params.mode === 'reset' ? params.mode : 'signin',
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -94,7 +105,9 @@ export default function LoginScreen() {
     let passwordOk = true;
     if (mode === 'signup') {
       passwordOk = NewPasswordSchema.safeParse(password).success;
-      setPasswordError(passwordOk ? null : t('login.passwordShort', { count: MIN_PASSWORD_LENGTH }));
+      setPasswordError(
+        passwordOk ? null : t('login.passwordShort', { count: MIN_PASSWORD_LENGTH }),
+      );
     } else if (mode === 'signin') {
       // Only new passwords follow the length rule. An older account may have a shorter one.
       passwordOk = password.length > 0;
@@ -130,7 +143,9 @@ export default function LoginScreen() {
         setAwaitingConfirmation(address);
       }
     } else {
-      const { error } = await supabase.auth.resetPasswordForEmail(address, { redirectTo: callbackUrl() });
+      const { error } = await supabase.auth.resetPasswordForEmail(address, {
+        redirectTo: callbackUrl(),
+      });
       if (error) setMessage(errorText(error.code, 'login.resetFailed'));
       else setNotice(t('login.resetSent', { email: address }));
     }
@@ -188,6 +203,7 @@ export default function LoginScreen() {
             />
           ))}
         </View>
+        <DemoNotice />
         <Title>{t(text.title)}</Title>
         {mode === 'reset' && <Muted>{t('login.resetIntro')}</Muted>}
         <Field
@@ -212,7 +228,11 @@ export default function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               error={passwordError}
-              hint={mode === 'signup' ? t('login.passwordHint', { count: MIN_PASSWORD_LENGTH }) : undefined}
+              hint={
+                mode === 'signup'
+                  ? t('login.passwordHint', { count: MIN_PASSWORD_LENGTH })
+                  : undefined
+              }
               secureTextEntry
               autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               textContentType={mode === 'signin' ? 'password' : 'newPassword'}
@@ -241,7 +261,12 @@ export default function LoginScreen() {
             onPress={() => void resendConfirmation(awaitingConfirmation)}
           />
         )}
-        <Button title={t(text.submit)} busy={busy} disabled={!supabase} onPress={() => void submit()} />
+        <Button
+          title={t(text.submit)}
+          busy={busy}
+          disabled={!supabase}
+          onPress={() => void submit()}
+        />
         {mode !== 'reset' && providers.length > 0 && (
           <>
             <View style={styles.or}>
@@ -263,7 +288,11 @@ export default function LoginScreen() {
             ))}
           </>
         )}
-        <Button variant="link" title={t(text.switchTo)} onPress={() => changeMode(mode === 'signin' ? 'signup' : 'signin')} />
+        <Button
+          variant="link"
+          title={t(text.switchTo)}
+          onPress={() => changeMode(mode === 'signin' ? 'signup' : 'signin')}
+        />
       </Screen>
     </SafeAreaView>
   );

@@ -5,6 +5,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { CameraView } from 'expo-camera';
 import { MAX_UPLOAD_BYTES, PortfolioLinkSchema, type Document } from '@careerfit/shared';
 import { ConsentGate } from '@/components/Consent';
+import { DemoNotice } from '@/components/Demo';
 import { Badge, Body, Button, Card, Field, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { useI18n, type TextKey } from '@/i18n';
 import { api } from '@/lib/api';
@@ -35,7 +36,14 @@ export default function DocumentsScreen() {
   const [linkError, setLinkError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [demo, setDemo] = useState(false);
+
   const load = useCallback(async () => {
+    // The public demo offers a made-up resume; elsewhere this stays false.
+    api.account
+      .plan()
+      .then((plan) => setDemo(plan.demo))
+      .catch(() => undefined);
     try {
       setDocuments(await api.documents.list());
       setLoadFailed(false);
@@ -81,6 +89,20 @@ export default function DocumentsScreen() {
       await load();
     } catch (error) {
       setUploadError(i18n.errorText(error, 'documents.uploadFailed'));
+    }
+    setProgress(null);
+  }
+
+  async function addSample() {
+    setUploadError(null);
+    setUploadMessage(null);
+    setProgress(0);
+    try {
+      await api.documents.addSample();
+      setUploadMessage(t('demo.sampleAdded'));
+      await load();
+    } catch (error) {
+      setUploadError(i18n.errorText(error, 'demo.sampleFailed'));
     }
     setProgress(null);
   }
@@ -171,6 +193,7 @@ export default function DocumentsScreen() {
 
   return (
     <Screen onRefresh={() => void refresh()} refreshing={refreshing}>
+      <DemoNotice />
       <ConsentGate>
         <Card>
           <Heading>{t('documents.title')}</Heading>
@@ -186,6 +209,14 @@ export default function DocumentsScreen() {
             disabled={uploading}
             onPress={() => void scan()}
           />
+          {demo && (
+            <Button
+              variant="secondary"
+              title={t('demo.sampleAction')}
+              disabled={uploading}
+              onPress={() => void addSample()}
+            />
+          )}
           <Muted>{t('documents.fileHint')}</Muted>
           {uploading && (
             <View
