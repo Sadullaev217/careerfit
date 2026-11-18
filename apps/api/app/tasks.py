@@ -132,8 +132,8 @@ def delete_expired_files_task() -> None:
     name="extract_resume",
     bind=True,
     max_retries=MAX_RETRIES,
-    soft_time_limit=600,
-    time_limit=630,
+    soft_time_limit=settings.ai_task_time_limit_seconds,
+    time_limit=settings.ai_task_time_limit_seconds + 30,
 )
 def extract_resume(self: Any, document_id: str) -> None:
     document = store.get_document(document_id)
@@ -223,8 +223,8 @@ def _end_analysis_early(
     name="run_analysis",
     bind=True,
     max_retries=MAX_RETRIES,
-    soft_time_limit=600,
-    time_limit=630,
+    soft_time_limit=settings.ai_task_time_limit_seconds,
+    time_limit=settings.ai_task_time_limit_seconds + 30,
 )
 def run_analysis(
     self: Any,

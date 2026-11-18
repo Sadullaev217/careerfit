@@ -1,0 +1,96 @@
+# The public demo's server side on one machine (an Oracle Cloud Always Free Arm VM, 2 cores, 12 GB):
+# HTTPS proxy, API, Celery worker and scheduler, Redis, ClamAV and Ollama. The web app is on Vercel and
+# the database and files on Supabase (docs/deployment.md).
+#
+# Deploys run scripts/server-deploy.sh, which builds and starts this file from the release folder.
+# Secrets live in .env next to this file on the server (from server.env.example), never in git.
+name: careerfit
+
+x-api: &api
+  build:
+    context: ../apps/api
+  env_file: .env
+  environment:
+    ENVIRONMENT: staging
+    REDIS_URL: redis://redis:6379/0
+    CELERY_BROKER_URL: redis://redis:6379/0
+    CELERY_RESULT_BACKEND: redis://redis:6379/1
+    RATE_LIMIT_STORAGE: redis://redis:6379/2
+    MALWARE_SCANNER: clamav
+    CLAMAV_HOST: clamav
+    CLAMAV_PORT: '3310'
+    LLM_PROVIDER: ollama
+    OLLAMA_URL: http://ollama:11434
+  restart: unless-stopped
+  depends_on:
+    redis:
+      condition: service_healthy
+
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+  api:
+    <<: *api
+    image: careerfit-api
+    mem_limit: 1g
+
+  worker:
+    <<: *api
+    image: careerfit-api
+    # One job at a time: two analyses at once would only share the same two cores.
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=1
+    mem_limit: 2g
+
+  scheduler:
+    <<: *api
+    image: careerfit-api
+    command: celery -A app.celery_app beat --loglevel=info --schedule /tmp/celerybeat-schedule
+    mem_limit: 512m
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save '' --appendonly no
+    mem_limit: 256m
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      retries: 10
+
+  clamav:
+    # The Debian build, because the Alpine-based clamav/clamav has no Arm image.
+    image: clamav/clamav-debian:1.4
+    restart: unless-stopped
+    mem_limit: 2g
+    volumes:
+      - clamav_db:/var/lib/clamav
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    environment:
+      # Keep the model in memory: no reload delay, and Oracle doesn't count the VM as idle.
+      OLLAMA_KEEP_ALIVE: '-1'
+      OLLAMA_NUM_PARALLEL: '1'
+    mem_limit: 7g
+    volumes:
+      - ollama_models:/root/.ollama
+
+volumes:
+  caddy_data:
+  caddy_config:
+  clamav_db:
+  ollama_models:

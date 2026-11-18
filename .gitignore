@@ -51,3 +51,6 @@ supabase/.temp
 
 # Local Claude Code settings, such as dev server paths for this machine
 .claude/
+
+# Server secrets for deploy/compose.yml
+/deploy/.env

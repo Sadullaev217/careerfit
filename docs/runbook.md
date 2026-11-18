@@ -8,7 +8,7 @@ What to do when something breaks. Start with "Where to look", then find the symp
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Is it up?                | GitHub, Actions, **Uptime** (every 10 minutes); `curl https://<api>/health/ready` names the part that's down: `database`, `queue` or `virus_scanner` |
 | What error?              | Sentry, Issues, project `careerfit-api` or `careerfit-web`                                                                                           |
-| What did the server log? | Render, the service, Logs. Logs carry no emails, tokens or resume text, only ids                                                                     |
+| What did the server log? | On the VM: `cd ~/careerfit/current/deploy && docker compose logs --tail 100 api worker`. Logs carry no emails, tokens or resume text, only ids       |
 | What changed?            | GitHub, Actions, **Deploy** runs; `git log`                                                                                                          |
 | What is AI costing?      | PostHog, dashboard **AI cost**; or the SQL below in Supabase's SQL editor                                                                            |
 
@@ -36,17 +36,19 @@ from llm_usage group by 1 order by 1 desc limit 30;
 
 **Budget alerts**: the scheduler checks every hour. Past `LLM_DAILY_BUDGET_USD` for the day, or
 `LLM_USER_DAILY_BUDGET_USD` for one account, it logs "Budget alert" and sends a Sentry warning, once a
-day per budget. Change the budgets in the Render environment group, then redeploy.
+day per budget. The demo runs its own model, which costs nothing per call, so its budgets are 0 and the counts are for interest.
 
 ## The site is down
 
-1. `curl -i https://<api>/health` answers 200? If not, Render, the API service: is the latest deploy
-   live? Logs show a crash on start? A start failing with "Unsafe settings for staging" names the
-   setting to fix in the environment group.
+1. `curl -i https://<api>/health` answers 200? If not, SSH to the VM and
+   `cd ~/careerfit/current/deploy && docker compose ps`. A container that keeps restarting shows why in
+   `docker compose logs <name>`. "Unsafe settings for staging" names the setting to fix in
+   `~/careerfit/.env`; then `docker compose up -d`. If SSH doesn't answer either, reboot the instance
+   in Oracle's console (Compute, Instances, Reboot).
 2. `/health/ready` says `database: unavailable`: check https://status.supabase.com and the project's
    page; a free project pauses after a week without traffic (Restore project).
-3. `queue: unavailable`: Render, the Redis service. Uploads wait in the queue only while Redis is up.
-4. `virus_scanner: unavailable`: Render, the ClamAV service. It needs about 1.5 GB of memory and a few
+3. `queue: unavailable`: the `redis` container. `docker compose restart redis`.
+4. `virus_scanner: unavailable`: the `clamav` container. It needs about 1.5 GB of memory and a few
    minutes to load signatures after a restart. Uploads are refused (503) until it answers; nothing
    unscanned gets in.
 5. The web app alone is down: Vercel, Deployments. Promote the previous deployment (Instant Rollback).
@@ -57,27 +59,32 @@ The Deploy run shows which job failed.
 
 - **Database migrations**: nothing else was deployed, so the site still runs the old code. Fix the
   migration in a new commit. Never edit a migration that already ran anywhere.
-- **API and workers**: the failed service keeps running its previous version. Render's deploy log says
-  why (often a failing build or the settings check).
+- **API, workers and AI on the server**: if the build failed, the old containers keep running. If the
+  new ones started but never became ready, the run prints the last API and ClamAV logs.
 - **Web app**: the API is already new. Usually fine, because the API keeps old routes working.
 - **Both answer after the deploy**: the new version isn't healthy. Roll back (below).
 
-To roll back: Render, the service, Events, pick the last good deploy, **Rollback**; Vercel, Deployments,
-**Instant Rollback**. Then fix forward.
+To roll back: run Deploy from the last good commit, or on the VM
+`cd ~/careerfit/releases/<good sha>/deploy && cp ~/careerfit/.env . && docker compose up -d --build`;
+Vercel, Deployments, **Instant Rollback**. Then fix forward.
 
 ## A migration broke something
 
 Migrations only move forward. Write a new migration that undoes the change, push it, and let it deploy.
 If data was lost, restore it from a backup into a new project (below) and copy back only what's needed.
 
-## AI is slow, failing or expensive
+## AI is slow or failing
 
-- Reports fail with `ai_unavailable`: OpenRouter is down or the free model hit its daily limit. Check
-  https://status.openrouter.ai and https://openrouter.ai/activity. Switch `OPENROUTER_MODEL` in the
-  environment group to another model (docs/ai-providers.md lists the checked ones) and redeploy.
-- A budget alert: open "Cost per account". One account far above the rest may be abuse: per-account
-  limits already cap it at 20 analyses an hour. Delete the account in Supabase, Authentication, Users,
-  if it breaks the terms.
+- Reports fail with `ai_unavailable`: the `ollama` container is down or the model isn't loaded.
+  `docker compose ps ollama`, then `docker compose exec ollama ollama list`; if the model is missing,
+  `docker compose exec ollama ollama pull qwen3.5:4b`.
+- Reports fail with `timeout`: the two cores were too slow for the limit. Raise
+  `AI_TASK_TIME_LIMIT_SECONDS` and `LLM_TIMEOUT_SECONDS` in `~/careerfit/.env`, then
+  `docker compose up -d`.
+- Everything waits: the worker runs one job at a time, so a queue builds when many people try at once.
+  That is expected on the free server. One account far above the rest in "AI jobs" may be abuse:
+  per-account limits already cap it at 20 analyses an hour. Delete the account in Supabase,
+  Authentication, Users, if it breaks the terms.
 
 ## Someone asks for their data or its deletion
 
@@ -89,8 +96,9 @@ age out within 14 days.
 ## A secret leaked
 
 1. Rotate it where it was issued: Supabase (API Keys, create a new secret key, delete the old one),
-   OpenRouter, Stripe, Render, Vercel, Sentry or PostHog.
-2. Update it in Render's environment group or Vercel's environment variables, and in GitHub's secrets.
+   Stripe, Vercel, Sentry, PostHog, or the deploy SSH key (remove its line from the VM's
+   `~/.ssh/authorized_keys` and make a new one).
+2. Update it in the VM's `~/careerfit/.env`, Vercel's environment variables, and GitHub's secrets.
 3. Redeploy. Check the service's logs for use you don't recognise.
 
 ## Backups and restoring
@@ -112,6 +120,6 @@ To restore:
    export BACKUP_PASSPHRASE='<from your password manager>'
    bash scripts/restore.sh careerfit-<time>.tar.gz.gpg
    ```
-4. Point Render's environment group (`SUPABASE_URL`, `SUPABASE_SECRET_KEY`), Vercel's variables and
+4. Point the VM's `~/careerfit/.env` (`SUPABASE_URL`, `SUPABASE_SECRET_KEY`), Vercel's variables and
    the `STAGING_*` GitHub secrets and variables at the new project. Redeploy both.
 5. Sign in with a test account and open an old result to check.

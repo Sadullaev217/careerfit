@@ -203,7 +203,7 @@ End-to-end tests: `pnpm --filter web e2e` (web, Playwright) and the Maestro flow
 
 ## Hosting
 
-CareerFit runs in one hosted environment, staging, which gets every commit on `main` that passes CI. The API and workers run on Render from [render.yaml](render.yaml) and `apps/api/Dockerfile`,
+CareerFit runs as a free public demo, which gets every commit on `main` that passes CI. The API, workers and AI model run on one Oracle Cloud Always Free Arm server from [deploy/compose.yml](deploy/compose.yml) and `apps/api/Dockerfile`,
 the web app on Vercel, the database and files on Supabase, errors go to Sentry and product analytics to
 PostHog.
 

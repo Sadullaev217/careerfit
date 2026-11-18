@@ -1,8 +1,8 @@
-# One deploy of one commit to staging or production: migrations, then the API and workers on Render, then
-# the web app on Vercel, then a check that both answer. Called by deploy.yml, never on its own.
+# One deploy of one commit to the public demo: migrations, then the server (API, workers, AI model)
+# over SSH, then the web app on Vercel, then a check that both answer. Called by deploy.yml.
 #
-# Secrets and variables carry the environment's name as a prefix (STAGING_ or PRODUCTION_), so this works
-# without GitHub's paid environment secrets. docs/deployment.md lists them all.
+# Secrets and variables carry the environment's name as a prefix (STAGING_), so a second environment
+# could reuse this file without GitHub's paid environment secrets. docs/deployment.md lists them all.
 name: Deploy one environment
 
 on:
@@ -36,32 +36,40 @@ jobs:
           [ -n "$SUPABASE_DB_URL" ] || { echo "Set ${PREFIX}_SUPABASE_DB_URL first (docs/deployment.md)"; exit 1; }
           supabase db push --remote="$SUPABASE_DB_URL" --yes
 
-  api:
-    name: API and workers on Render
+  server:
+    name: API, workers and AI on the server
     needs: migrate
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SSH_HOST: ${{ vars[format('{0}_SSH_HOST', env.PREFIX)] }}
+      SSH_USER: ${{ vars[format('{0}_SSH_USER', env.PREFIX)] || 'ubuntu' }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
-      - name: Deploy each service and wait until it is live
+      - name: Set up SSH with the server's known host key
         env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          SERVICES: ${{ vars[format('{0}_RENDER_SERVICE_IDS', env.PREFIX)] }}
+          SSH_KEY: ${{ secrets[format('{0}_SSH_KEY', env.PREFIX)] }}
+          KNOWN_HOSTS: ${{ secrets[format('{0}_SSH_KNOWN_HOSTS', env.PREFIX)] }}
         run: |
-          [ -n "$SERVICES" ] || { echo "Set the ${PREFIX}_RENDER_SERVICE_IDS variable first"; exit 1; }
-          pids=()
-          for service in $SERVICES; do
-            bash scripts/render-deploy.sh "$service" "${{ inputs.sha }}" &
-            pids+=("$!")
-          done
-          failed=0
-          for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
-          exit "$failed"
+          [ -n "$SSH_HOST" ] && [ -n "$SSH_KEY" ] && [ -n "$KNOWN_HOSTS" ] ||
+            { echo "Set ${PREFIX}_SSH_HOST, ${PREFIX}_SSH_KEY and ${PREFIX}_SSH_KNOWN_HOSTS first"; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+      - name: Send this commit to the server and start it
+        run: |
+          release="careerfit/releases/${{ inputs.sha }}"
+          git archive --format=tar.gz "${{ inputs.sha }}" |
+            ssh "$SSH_USER@$SSH_HOST" "mkdir -p ~/$release && tar -xz -C ~/$release"
+          # Building on two Arm cores takes several minutes, more the first time.
+          ssh "$SSH_USER@$SSH_HOST" "bash ~/$release/scripts/server-deploy.sh"
 
   web:
     name: Web app on Vercel
-    needs: api
+    needs: server
     runs-on: ubuntu-latest
     outputs:
       url: ${{ steps.deploy.outputs.url }}
@@ -79,25 +87,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: npm install --global vercel@latest
-      # Vercel's Preview settings hold staging's addresses and keys, Production's hold production's.
+      # The demo is the Vercel project's production deployment, so it lives at the project's own address.
       - name: Build and deploy
         id: deploy
         run: |
-          if [ "${{ inputs.environment }}" = production ]; then
-            vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-            vercel build --prod --token="$VERCEL_TOKEN"
-            url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
-          else
-            vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
-            vercel build --token="$VERCEL_TOKEN"
-            url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
-            domain="${{ vars.STAGING_WEB_DOMAIN }}"
-            if [ -n "$domain" ]; then
-              vercel alias set "$url" "$domain" --token="$VERCEL_TOKEN"
-              url="https://$domain"
-            fi
-          fi
-          echo "url=$url" >> "$GITHUB_OUTPUT"
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+          echo "url=${{ vars[format('{0}_WEB_URL', env.PREFIX)] }}" >> "$GITHUB_OUTPUT"
 
   smoke:
     name: Both answer after the deploy

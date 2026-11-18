@@ -1,0 +1,6 @@
+# HTTPS for the API, with a free Let's Encrypt certificate that Caddy gets and renews itself.
+# API_DOMAIN comes from .env, e.g. careerfit-api.duckdns.org.
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy api:8000
+}

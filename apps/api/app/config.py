@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     llm_provider: str = "ollama"
     llm_model: str = "qwen3.5:4b"
     llm_timeout_seconds: float = 300
+    # How long reading a resume or scoring it may take in all. A slow CPU-only server needs more.
+    ai_task_time_limit_seconds: int = 600
     ollama_url: str = "http://localhost:11434"
     # LLM_PROVIDER=openrouter sends resume text to a hosted model instead (see docs/ai-providers.md).
     openrouter_api_key: str = ""
