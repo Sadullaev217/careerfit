@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { isLocale, LOCALES } from '@/i18n/config';
 import { getDictionary } from '@/i18n/get-dictionary';
+import { DemoBanner } from '@/components/demo';
 import { I18nProvider } from '@/i18n/provider';
 import '../globals.css';
 
@@ -29,7 +30,10 @@ export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Prom
   const { lang } = await params;
   if (!isLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: { default: dict.meta.title, template: '%s · CareerFit' }, description: dict.meta.description };
+  return {
+    title: { default: dict.meta.title, template: '%s · CareerFit' },
+    description: dict.meta.description,
+  };
 }
 
 export default async function RootLayout({ children, params }: LayoutProps<'/[lang]'>) {
@@ -40,6 +44,7 @@ export default async function RootLayout({ children, params }: LayoutProps<'/[la
     <html lang={lang} className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <I18nProvider locale={lang} dict={dict}>
+          <DemoBanner />
           {children}
         </I18nProvider>
       </body>

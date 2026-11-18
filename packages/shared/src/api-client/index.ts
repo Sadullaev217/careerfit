@@ -137,6 +137,8 @@ export function createApiClient(baseUrl: string, getToken?: GetToken) {
       upload: (form: FormData, onProgress?: (fraction: number) => void) =>
         upload<Document>('/documents', form, onProgress),
       addPortfolioLink: (data: PortfolioLinkInput) => post<Document>('/documents/portfolio', data),
+      /** The demo's made-up resume, so a visitor can see a result without uploading their own. */
+      addSample: () => post<Document>('/documents/sample', {}),
       delete: (id: string) => request<void>(`/documents/${id}`, { method: 'DELETE' }),
       /** Keeps the stored file past 90 days, or lets it be deleted then. */
       setKeep: (id: string, keep: boolean) =>

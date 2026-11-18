@@ -484,7 +484,9 @@
       "consent_outdated": "The policy changed while this page was open. Please read it again.",
       "nothing_to_keep": "This document has no stored file to keep.",
       "resume_file_deleted": "This resume's file was deleted 90 days after upload. Upload it again to tailor it.",
-      "purchase_records_unavailable": "We couldn't reach our app store partner, so your account wasn't deleted. Please try again."
+      "purchase_records_unavailable": "We couldn't reach our app store partner, so your account wasn't deleted. Please try again.",
+      "demo_daily_limit": "The demo has reached today's limit. Please come back tomorrow.",
+      "payments_off": "Payments are off in this demo."
     },
     "document": {
       "no_text": "We couldn't find any text in this file.",
@@ -582,5 +584,13 @@
     "reportDownload": "Download PDF",
     "reportWaiting": "Payment received. Getting your report ready…",
     "reportFailed": "We couldn't download your report. Please try again."
+  },
+  "demo": {
+    "banner": "Portfolio demo: everything is free, accounts are deleted after 30 days, and results take a few minutes. Try the sample resume rather than your own.",
+    "sampleHint": "No resume to hand? Try a made-up one.",
+    "sampleAction": "Use the sample resume",
+    "sampleAdding": "Adding…",
+    "sampleFailed": "We couldn't add the sample resume. Please try again.",
+    "planNote": "This is a demo: every feature and detailed report is free, and nothing can be bought."
   }
 }

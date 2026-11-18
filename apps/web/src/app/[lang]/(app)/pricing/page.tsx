@@ -48,6 +48,15 @@ export default function PricingPage() {
 
   const card = 'flex flex-col gap-4 rounded-lg border bg-card p-6';
 
+  if (plan?.demo) {
+    return (
+      <div className="mx-auto flex max-w-4xl flex-col gap-4">
+        <h1 className="text-3xl font-semibold tracking-tight">{t('pricing.title')}</h1>
+        <p>{t('demo.planNote')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -70,10 +79,21 @@ export default function PricingPage() {
             {plan && !isPro && <Badge variant="secondary">{t('pricing.current')}</Badge>}
           </div>
           <p className="text-2xl font-semibold">{t('pricing.freePrice')}</p>
-          <Features items={['pricing.freeItem1', 'pricing.freeItem2', 'pricing.freeItem3', 'pricing.freeItem4']} />
+          <Features
+            items={[
+              'pricing.freeItem1',
+              'pricing.freeItem2',
+              'pricing.freeItem3',
+              'pricing.freeItem4',
+            ]}
+          />
         </section>
 
-        <section aria-labelledby="plan-pro" className={`${card} border-primary`} data-testid="plan-pro">
+        <section
+          aria-labelledby="plan-pro"
+          className={`${card} border-primary`}
+          data-testid="plan-pro"
+        >
           <div className="flex items-center justify-between gap-2">
             <h2 id="plan-pro" className="text-xl font-semibold">
               {t('pricing.pro')}
@@ -89,12 +109,19 @@ export default function PricingPage() {
               <Skeleton className="h-9 w-40" />
             ) : isPro ? (
               plan.provider === 'stripe' && (
-                <Button variant="outline" disabled={busy} onClick={() => void open(() => goToBillingPortal(locale))}>
+                <Button
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => void open(() => goToBillingPortal(locale))}
+                >
                   {t('billing.manage')}
                 </Button>
               )
             ) : (
-              <Button disabled={busy} onClick={() => void open(() => goToCheckout({ kind: 'pro' }, locale))}>
+              <Button
+                disabled={busy}
+                onClick={() => void open(() => goToCheckout({ kind: 'pro' }, locale))}
+              >
                 {busy ? t('billing.opening') : t('billing.upgrade')}
               </Button>
             )}

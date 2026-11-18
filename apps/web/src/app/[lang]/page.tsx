@@ -54,7 +54,10 @@ export default async function LandingPage({ params }: PageProps<'/[lang]'>) {
               <Button asChild size="lg">
                 <Link href={path('/login?mode=signup')}>{t('landing.cta')}</Link>
               </Button>
-              <span className="text-sm text-muted-foreground">{t('landing.ctaNote')}</span>
+              {/* The demo's small server takes longer than two minutes. */}
+              {process.env.NEXT_PUBLIC_DEMO_MODE !== 'true' && (
+                <span className="text-sm text-muted-foreground">{t('landing.ctaNote')}</span>
+              )}
             </div>
           </div>
           <figure className="rounded-lg border bg-card p-5 shadow-sm">

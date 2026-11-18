@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ConsentGate } from '@/components/consent-gate';
+import { SampleResumeButton } from '@/components/demo';
 import { DocumentList } from '@/components/document-list';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { ResumeUploader } from '@/components/resume-uploader';
@@ -44,6 +45,7 @@ export default function DocumentsPage() {
               </Select>
             </div>
             <ResumeUploader type={type} onUploaded={refresh} />
+            <SampleResumeButton onAdded={refresh} />
           </section>
 
           <section aria-labelledby="portfolio" className="flex flex-col gap-3">

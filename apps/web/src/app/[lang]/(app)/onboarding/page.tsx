@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { ConsentGate } from '@/components/consent-gate';
+import { SampleResumeButton } from '@/components/demo';
 import { DocumentList } from '@/components/document-list';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { ResumeUploader } from '@/components/resume-uploader';
@@ -67,6 +68,12 @@ export default function OnboardingPage() {
               <p className="text-sm text-muted-foreground">{t('onboarding.resumePrivacy')}</p>
               <ResumeUploader
                 onUploaded={async () => {
+                  await refresh();
+                  setChosenStep(2);
+                }}
+              />
+              <SampleResumeButton
+                onAdded={async () => {
                   await refresh();
                   setChosenStep(2);
                 }}

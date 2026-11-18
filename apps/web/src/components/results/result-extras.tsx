@@ -36,7 +36,8 @@ function CopyButton({ text }: { text: string }) {
 
 function TailoredLines({ rewrites }: { rewrites: TailoredRewrite[] }) {
   const { t } = useI18n();
-  if (rewrites.length === 0) return <p className="text-muted-foreground">{t('extras.tailorEmpty')}</p>;
+  if (rewrites.length === 0)
+    return <p className="text-muted-foreground">{t('extras.tailorEmpty')}</p>;
   return (
     <ol className="flex flex-col gap-3" data-testid="tailored-lines">
       {rewrites.map((rewrite) => (
@@ -88,7 +89,8 @@ export function ResultExtras({ analysisId }: { analysisId: string }) {
   }, [awaitingReport, reload, analysisId]);
 
   const isPro = plan?.plan === 'pro';
-  const bought = plan?.purchasedReports.includes(analysisId) ?? false;
+  // The demo unlocks every report.
+  const bought = plan?.demo || (plan?.purchasedReports.includes(analysisId) ?? false);
 
   async function tailor() {
     setTailoring(true);
@@ -138,7 +140,11 @@ export function ResultExtras({ analysisId }: { analysisId: string }) {
   const card = 'flex flex-col gap-3 rounded-lg border bg-card p-5';
 
   return (
-    <section aria-labelledby="extras-title" className="flex flex-col gap-3" data-testid="result-extras">
+    <section
+      aria-labelledby="extras-title"
+      className="flex flex-col gap-3"
+      data-testid="result-extras"
+    >
       <h2 id="extras-title" className="text-xl font-semibold">
         {t('extras.title')}
       </h2>
@@ -184,13 +190,22 @@ export function ResultExtras({ analysisId }: { analysisId: string }) {
               {t('extras.reportWaiting')}
             </p>
           ) : bought ? (
-            <Button className="self-start" disabled={reportBusy} onClick={() => void downloadReport()}>
+            <Button
+              className="self-start"
+              disabled={reportBusy}
+              onClick={() => void downloadReport()}
+            >
               <Download aria-hidden="true" />
               {t('extras.reportDownload')}
             </Button>
           ) : (
             plan && (
-              <Button variant="outline" className="self-start" disabled={reportBusy} onClick={() => void buyReport()}>
+              <Button
+                variant="outline"
+                className="self-start"
+                disabled={reportBusy}
+                onClick={() => void buyReport()}
+              >
                 {reportBusy
                   ? t('billing.opening')
                   : t('extras.reportBuy', { price: price(PRICES.report, PRICES.currency) })}

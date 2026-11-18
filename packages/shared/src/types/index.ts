@@ -37,6 +37,8 @@ export interface PlanInfo {
   limitResetsAt: string;
   /** Analyses whose detailed PDF report has been bought. */
   purchasedReports: string[];
+  /** The public demo: everything is unlocked and nothing can be bought, so payments are hidden. */
+  demo: boolean;
 }
 
 export interface CheckoutLink {

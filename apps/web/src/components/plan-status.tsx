@@ -25,7 +25,9 @@ export function PlanStatus({ plan, reload }: Props) {
   const { t, plural, date, path, locale } = i18n;
   const search = useSearchParams();
   const returning = search.get('checkout') === 'pro';
-  const [waiting, setWaiting] = useState<'checking' | 'slow' | 'done' | null>(returning ? 'checking' : null);
+  const [waiting, setWaiting] = useState<'checking' | 'slow' | 'done' | null>(
+    returning ? 'checking' : null,
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const started = useRef(false);
@@ -34,7 +36,9 @@ export function PlanStatus({ plan, reload }: Props) {
   useEffect(() => {
     if (!returning || started.current) return;
     started.current = true;
-    void waitForPlan(reload, (next) => next.plan === 'pro').then((ok) => setWaiting(ok ? 'done' : 'slow'));
+    void waitForPlan(reload, (next) => next.plan === 'pro').then((ok) =>
+      setWaiting(ok ? 'done' : 'slow'),
+    );
   }, [returning, reload]);
 
   async function open(action: () => Promise<void>) {
@@ -50,6 +54,14 @@ export function PlanStatus({ plan, reload }: Props) {
 
   if (!plan) {
     return <Skeleton role="status" aria-label={t('common.loading')} className="h-20 w-full" />;
+  }
+
+  if (plan.demo) {
+    return (
+      <p className="text-sm" data-testid="plan-status">
+        {t('demo.planNote')}
+      </p>
+    );
   }
 
   const isPro = plan.plan === 'pro';
@@ -117,12 +129,19 @@ export function PlanStatus({ plan, reload }: Props) {
 
       <div className="flex flex-wrap gap-2">
         {!isPro && (
-          <Button disabled={busy} onClick={() => void open(() => goToCheckout({ kind: 'pro' }, locale))}>
+          <Button
+            disabled={busy}
+            onClick={() => void open(() => goToCheckout({ kind: 'pro' }, locale))}
+          >
             {busy ? t('billing.opening') : t('billing.upgrade')}
           </Button>
         )}
         {plan.provider === 'stripe' && (
-          <Button variant="outline" disabled={busy} onClick={() => void open(() => goToBillingPortal(locale))}>
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={() => void open(() => goToBillingPortal(locale))}
+          >
             {t('billing.manage')}
           </Button>
         )}

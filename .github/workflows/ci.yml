@@ -66,6 +66,8 @@ jobs:
     timeout-minutes: 30
     env:
       E2E_SUPABASE_URL: http://127.0.0.1:54321
+      # The public demo's settings, so its tests run too.
+      E2E_DEMO: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -110,6 +112,7 @@ jobs:
         env:
           SUPABASE_URL: http://127.0.0.1:54321
           LLM_PROVIDER: demo
+          DEMO_MODE: 'true'
           CELERY_TASK_ALWAYS_EAGER: 'true'
           WEB_URL: http://localhost:3000
           ALLOWED_ORIGINS: '["http://localhost:3000"]'
@@ -121,6 +124,7 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8000
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_DEMO_MODE: 'true'
         run: |
           export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$E2E_SUPABASE_PUBLISHABLE_KEY"
           pnpm --filter web build
