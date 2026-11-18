@@ -102,6 +102,7 @@ const privacyEn: LegalDoc = {
       heading: 'How long we keep it',
       items: [
         'Uploaded files and the text read from them: deleted 90 days after upload, unless you choose to keep the file. You can change this on the Documents page.',
+        'In the public demo, each account and everything in it is deleted 30 days after sign-up.',
         'Skills and history found in a resume, results and reports: until you delete them or your account.',
         'Agreement and purchase records: as long as your account exists, and purchase records as long as tax law requires.',
         'Request logs and error reports: [period set by the hosting and error reporting providers].',
@@ -219,6 +220,7 @@ const privacyRu: LegalDoc = {
       heading: 'Как долго мы храним данные',
       items: [
         'Загруженные файлы и прочитанный из них текст удаляются через 90 дней после загрузки, если вы не решили сохранить файл. Это можно изменить на странице «Документы».',
+        'В публичном демо каждый аккаунт со всеми данными удаляется через 30 дней после регистрации.',
         'Найденные в резюме навыки и опыт, результаты и отчёты хранятся, пока вы не удалите их или аккаунт.',
         'Записи о согласии и покупках хранятся, пока существует аккаунт, а записи о покупках — столько, сколько требует налоговое законодательство.',
         'Журналы запросов и отчёты об ошибках: [срок хранения у хостинга и сервиса отчётов об ошибках].',

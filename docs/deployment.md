@@ -24,6 +24,18 @@ Rolling back: run Deploy from an older commit, or on the VM `cd ~/careerfit/curr
 release and `docker compose up -d`. Vercel has Instant Rollback. Migrations don't roll back by
 themselves; see [runbook.md](runbook.md#a-migration-broke-something).
 
+## Demo mode
+
+The server's `.env` turns on the public demo's settings (`app/demo.py`), and the web and phone apps show
+it when `NEXT_PUBLIC_DEMO_MODE` and `EXPO_PUBLIC_DEMO_MODE` are `true`:
+
+- Every account gets Pro and every detailed report; payments are off and the apps hide them.
+- Documents and onboarding offer a made-up **sample resume**, so visitors needn't upload their own.
+- At most `DEMO_DAILY_AI_JOBS` (60) resumes read plus analyses a day, for everyone together; then
+  "come back tomorrow". The one server can't run more.
+- Accounts and everything in them are deleted `DEMO_ACCOUNT_DAYS` (30) days after sign-up, by a daily
+  job. The banner and the privacy policy say so.
+
 ## Limits of the free setup
 
 - **The VM**: Oracle's Always Free Arm allowance is 2 cores and 12 GB of memory
@@ -90,7 +102,8 @@ The existing project serves the demo; it already has the tables and the job and 
    `apps/web`, framework Next.js. The address is then `https://careerfit-demo.vercel.app`.
 2. Settings, Environment Variables, environment **Production**:
    `NEXT_PUBLIC_API_URL` = `https://careerfit-api.duckdns.org`, `NEXT_PUBLIC_SUPABASE_URL`,
-   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_ENVIRONMENT` = `staging`, and optionally
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_ENVIRONMENT` = `staging`,
+   `NEXT_PUBLIC_DEMO_MODE` = `true`, and optionally
    `NEXT_PUBLIC_SENTRY_DSN` and `NEXT_PUBLIC_POSTHOG_TOKEN`.
 3. Settings, General: note the **Project ID**. Account settings: note your **Team ID**.
 4. https://vercel.com/account/settings/tokens: create a token. Note it for GitHub.
@@ -141,4 +154,5 @@ only**, so uptime and backup failures email you.
    and downloads the model (about 3 GB) and ClamAV's signatures.
 3. Open the web address, sign up, upload a resume, run an analysis.
 4. For the phone app, set `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_SUPABASE_URL`,
-   `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `EXPO_PUBLIC_WEB_URL` in the EAS `preview` environment.
+   `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `EXPO_PUBLIC_WEB_URL` and `EXPO_PUBLIC_DEMO_MODE` = `true` in
+   the EAS `preview` environment.
