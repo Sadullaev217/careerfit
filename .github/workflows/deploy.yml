@@ -1,5 +1,6 @@
-# Staging gets every commit on main that passes CI. Production gets a commit only when someone runs this
-# workflow by hand (Actions, Deploy, Run workflow, production), normally after checking it on staging.
+# Staging gets every commit on main that passes CI. It can also be redeployed by hand (Actions, Deploy,
+# Run workflow). Staging is the only hosted environment; deploy-environment.yml would also take
+# `production` if one were added (docs/deployment.md).
 name: Deploy
 
 on:
@@ -7,17 +8,11 @@ on:
     workflows: [CI]
     types: [completed]
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: Where to deploy the chosen branch's latest commit
-        type: choice
-        options: [staging, production]
-        default: staging
+  workflow_dispatch: {}
 
-# One deploy per environment at a time; a newer one waits instead of cancelling a half-finished deploy.
+# One deploy at a time; a newer one waits instead of cancelling a half-finished deploy.
 concurrency:
-  group: deploy-${{ inputs.environment || 'staging' }}
+  group: deploy-staging
   cancel-in-progress: false
 
 jobs:
@@ -25,17 +20,9 @@ jobs:
     if: >-
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
       && github.event.workflow_run.event == 'push')
-      || (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging')
+      || github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/deploy-environment.yml
     with:
       environment: staging
       sha: ${{ github.event.workflow_run.head_sha || github.sha }}
-    secrets: inherit
-
-  production:
-    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'production' && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy-environment.yml
-    with:
-      environment: production
-      sha: ${{ github.sha }}
     secrets: inherit

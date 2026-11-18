@@ -41,7 +41,7 @@ day per budget. Change the budgets in the Render environment group, then redeplo
 ## The site is down
 
 1. `curl -i https://<api>/health` answers 200? If not, Render, the API service: is the latest deploy
-   live? Logs show a crash on start? A start failing with "Unsafe settings for production" names the
+   live? Logs show a crash on start? A start failing with "Unsafe settings for staging" names the
    setting to fix in the environment group.
 2. `/health/ready` says `database: unavailable`: check https://status.supabase.com and the project's
    page; a free project pauses after a week without traffic (Restore project).
@@ -95,14 +95,14 @@ age out within 14 days.
 
 ## Backups and restoring
 
-Every night `backup.yml` dumps production's database (roles, schema, data) and every uploaded file into
+Every night `backup.yml` dumps staging's database (roles, schema, data) and every uploaded file into
 one archive, encrypted with `BACKUP_PASSPHRASE`, kept 14 days as an artifact of the Backup run. CI's
 backup drill restores one on every push, so the procedure is known to work.
 
 To restore:
 
 1. Create a new Supabase project (never restore over the live one). Do step 1 of
-   [deployment.md](deployment.md#1-supabase-two-projects) for it.
+   [deployment.md](deployment.md#1-supabase) for it, with the new project's own keys.
 2. Actions, Backup, the run you want, download the artifact and unzip it to get the `.gpg` file.
 3. With the Supabase CLI, `psql`, `uv` and `gpg` installed, from the repository root:
    ```
@@ -113,5 +113,5 @@ To restore:
    bash scripts/restore.sh careerfit-<time>.tar.gz.gpg
    ```
 4. Point Render's environment group (`SUPABASE_URL`, `SUPABASE_SECRET_KEY`), Vercel's variables and
-   the `PRODUCTION_*` GitHub secrets at the new project. Redeploy both.
+   the `STAGING_*` GitHub secrets and variables at the new project. Redeploy both.
 5. Sign in with a test account and open an old result to check.

@@ -1,4 +1,4 @@
-# A nightly encrypted backup of production (database and uploaded files), kept as a workflow artifact for
+# A nightly encrypted backup of staging (database and uploaded files), kept as a workflow artifact for
 # 14 days. Restore with scripts/restore.sh (docs/runbook.md). Skipped until the secrets are set.
 name: Backup
 
@@ -8,22 +8,22 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  production:
+  staging:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SUPABASE_DB_URL: ${{ secrets.PRODUCTION_SUPABASE_DB_URL }}
-      SUPABASE_URL: ${{ vars.PRODUCTION_SUPABASE_URL }}
-      SUPABASE_SECRET_KEY: ${{ secrets.PRODUCTION_SUPABASE_SECRET_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+      SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
       BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
     steps:
-      - name: Production is set up
+      - name: Staging is set up
         id: ready
         run: |
           if [ -n "$SUPABASE_DB_URL" ] && [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SECRET_KEY" ] && [ -n "$BACKUP_PASSPHRASE" ]; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Production backup secrets aren't set yet (docs/deployment.md)"
+            echo "Staging backup secrets aren't set yet (docs/deployment.md)"
           fi
       - uses: actions/checkout@v4
         if: steps.ready.outputs.ok
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.ready.outputs.ok
         with:
-          name: production-backup-${{ github.run_id }}
+          name: staging-backup-${{ github.run_id }}
           path: ${{ runner.temp }}/backup/*.gpg
           retention-days: 14
           if-no-files-found: error

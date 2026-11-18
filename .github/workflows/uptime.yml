@@ -1,4 +1,4 @@
-# Checks every 10 minutes that staging and production answer. A failed run is the alert: GitHub emails
+# Checks every 10 minutes that staging answers. A failed run is the alert: GitHub emails
 # whoever enabled Actions notifications for failed scheduled runs (docs/runbook.md). Addresses come from
 # repository variables; an environment without them is skipped.
 name: Uptime
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [STAGING, PRODUCTION]
+        environment: [STAGING]
     steps:
       - name: API ready, web app loads
         env:

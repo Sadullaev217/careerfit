@@ -1,5 +1,6 @@
-# Render Blueprint: the API, Celery worker, scheduler, Redis and virus scanner, once for staging and once
-# for production. The web app is on Vercel and the database and files on Supabase (docs/deployment.md).
+# Render Blueprint: the API, Celery worker, scheduler, Redis and virus scanner for staging, the only hosted
+# environment. The web app is on Vercel and the database and files on Supabase (docs/deployment.md).
+# A production environment would be a copy of this block named production, with its own values.
 #
 # Every service builds apps/api/Dockerfile. Nothing deploys on its own: GitHub Actions runs database
 # migrations first, then asks Render to deploy that exact commit (.github/workflows/deploy-*.yml).
@@ -109,109 +110,6 @@ projects:
             region: frankfurt
           - type: keyvalue
             name: careerfit-redis-staging
-            plan: starter
-            region: frankfurt
-            ipAllowList: []
-
-      - name: production
-        networking:
-          isolation: enabled
-        permissions:
-          protection: enabled
-        envVarGroups:
-          - name: careerfit-production
-            envVars:
-              - key: ENVIRONMENT
-                value: production
-              - key: SUPABASE_URL
-                sync: false
-              - key: SUPABASE_SECRET_KEY
-                sync: false
-              - key: WEB_URL
-                sync: false
-              - key: ALLOWED_ORIGINS
-                sync: false
-              - key: LLM_PROVIDER
-                value: openrouter
-              - key: OPENROUTER_API_KEY
-                sync: false
-              - key: OLLAMA_FALLBACK
-                value: 'false'
-              - key: MALWARE_SCANNER
-                value: clamav
-              - key: CLAMAV_PORT
-                value: '3310'
-              - key: SENTRY_DSN
-                sync: false
-              - key: POSTHOG_PROJECT_TOKEN
-                sync: false
-              - key: STRIPE_SECRET_KEY
-                sync: false
-              - key: STRIPE_WEBHOOK_SECRET
-                sync: false
-              - key: REVENUECAT_SECRET_KEY
-                sync: false
-              - key: EXPO_ACCESS_TOKEN
-                sync: false
-              - key: LLM_DAILY_BUDGET_USD
-                value: '5'
-              - key: LLM_USER_DAILY_BUDGET_USD
-                value: '0.5'
-        services:
-          - type: web
-            name: careerfit-api-production
-            runtime: docker
-            plan: starter
-            region: frankfurt
-            dockerfilePath: ./apps/api/Dockerfile
-            dockerContext: ./apps/api
-            healthCheckPath: /health
-            autoDeployTrigger: 'off'
-            envVars: &production-env
-              - fromGroup: careerfit-production
-              - key: REDIS_URL
-                fromService:
-                  { type: keyvalue, name: careerfit-redis-production, property: connectionString }
-              - key: CELERY_BROKER_URL
-                fromService:
-                  { type: keyvalue, name: careerfit-redis-production, property: connectionString }
-              - key: CELERY_RESULT_BACKEND
-                fromService:
-                  { type: keyvalue, name: careerfit-redis-production, property: connectionString }
-              - key: RATE_LIMIT_STORAGE
-                fromService:
-                  { type: keyvalue, name: careerfit-redis-production, property: connectionString }
-              - key: CLAMAV_HOST
-                fromService: { type: pserv, name: careerfit-clamav-production, property: host }
-          - type: worker
-            name: careerfit-worker-production
-            runtime: docker
-            plan: starter
-            region: frankfurt
-            dockerfilePath: ./apps/api/Dockerfile
-            dockerContext: ./apps/api
-            dockerCommand: celery -A app.celery_app worker --loglevel=info --concurrency=2
-            autoDeployTrigger: 'off'
-            envVars: *production-env
-          - type: worker
-            name: careerfit-scheduler-production
-            runtime: docker
-            plan: starter
-            region: frankfurt
-            dockerfilePath: ./apps/api/Dockerfile
-            dockerContext: ./apps/api
-            dockerCommand: celery -A app.celery_app beat --loglevel=info --schedule /tmp/celerybeat-schedule
-            autoDeployTrigger: 'off'
-            envVars: *production-env
-          - type: pserv
-            name: careerfit-clamav-production
-            runtime: image
-            image:
-              url: docker.io/clamav/clamav:1.4
-            plan: standard
-            region: frankfurt
-          - type: keyvalue
-            name: careerfit-redis-production
             plan: starter
             region: frankfurt
             ipAllowList: []
