@@ -275,6 +275,9 @@ export const en = {
     sampleFailed: "We couldn't add the sample resume. Please try again.",
     planNote:
       'This is a demo: every feature and detailed report is free, and nothing can be bought.',
+    retention: 'Deleted with your account, 30 days after sign-up.',
+    reportTime:
+      "On the demo's small server this takes a few minutes, longer if others are waiting. You can leave the app and come back.",
   },
   legal: {
     privacy: 'Privacy Policy',

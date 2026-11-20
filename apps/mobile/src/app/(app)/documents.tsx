@@ -5,7 +5,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { CameraView } from 'expo-camera';
 import { MAX_UPLOAD_BYTES, PortfolioLinkSchema, type Document } from '@careerfit/shared';
 import { ConsentGate } from '@/components/Consent';
-import { DemoNotice } from '@/components/Demo';
+import { DEMO_APP, DemoNotice } from '@/components/Demo';
 import { Badge, Body, Button, Card, Field, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { useI18n, type TextKey } from '@/i18n';
 import { api } from '@/lib/api';
@@ -162,6 +162,8 @@ export default function DocumentsScreen() {
   }
 
   function retentionText(document: Document): string {
+    // In the public demo the whole account goes after 30 days, before any file's 90 days are up.
+    if (DEMO_APP) return t('demo.retention');
     if (document.fileDeletedAt)
       return t('documents.fileDeleted', { date: date(document.fileDeletedAt) });
     if (document.keep || !document.deleteAfter) return t('documents.kept');
@@ -252,7 +254,7 @@ export default function DocumentsScreen() {
                 <Muted>{t(TYPE_LABEL[document.type])}</Muted>
                 <Badge label={state.label} tone={state.tone} />
                 {document.type !== 'portfolio_link' && <Muted>{retentionText(document)}</Muted>}
-                {document.type !== 'portfolio_link' && !document.fileDeletedAt && (
+                {document.type !== 'portfolio_link' && !document.fileDeletedAt && !DEMO_APP && (
                   <View style={styles.keepRow}>
                     <Switch
                       accessibilityLabel={`${t('documents.keepLabel')}: ${name}`}

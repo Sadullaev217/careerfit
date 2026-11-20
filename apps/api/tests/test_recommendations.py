@@ -339,6 +339,19 @@ def test_faithful_rewording_is_accepted(before: str, after: str) -> None:
     assert rewrite_is_honest(before, after)
 
 
+def test_a_percentage_the_line_already_had_may_stay() -> None:
+    # A real answer from the model, which every percentage used to block.
+    before = "- Added automated tests to the main application, raising coverage from 40% to 75%."
+    after = "Added pytest automated tests to the main application, raising test coverage from 40% to 75%."
+    assert rewrite_is_honest(before, after, allowed="pytest")
+
+
+def test_a_percentage_the_line_did_not_have_is_still_refused() -> None:
+    before = "- Added automated tests to the main application."
+    after = "Added automated tests to the main application, raising coverage by 35%."
+    assert not rewrite_is_honest(before, after)
+
+
 @pytest.mark.parametrize(
     ("before", "after"),
     [

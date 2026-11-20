@@ -30,11 +30,17 @@ function LiveProgress({ analysis }: { analysis: Analysis }) {
   const position = STAGES.findIndex((stage) => stage.key === analysis.stage);
   const currentLabel = position >= 0 ? t(STAGES[position].label) : t('progress.waiting');
   return (
-    <section aria-labelledby="progress" className="flex flex-col gap-3 rounded-lg border bg-card p-5" data-testid="live-progress">
+    <section
+      aria-labelledby="progress"
+      className="flex flex-col gap-3 rounded-lg border bg-card p-5"
+      data-testid="live-progress"
+    >
       <h2 id="progress" className="text-xl font-semibold">
         {t('progress.title')}
       </h2>
-      <p className="text-sm text-muted-foreground">{t('progress.time')}</p>
+      <p className="text-sm text-muted-foreground">
+        {t(process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ? 'demo.reportTime' : 'progress.time')}
+      </p>
       <p role="status" className="sr-only">
         {currentLabel}
       </p>
@@ -46,7 +52,11 @@ function LiveProgress({ analysis }: { analysis: Analysis }) {
             <li
               key={stage.key}
               aria-current={current ? 'step' : undefined}
-              className={done || current ? 'flex items-center gap-2' : 'flex items-center gap-2 text-muted-foreground'}
+              className={
+                done || current
+                  ? 'flex items-center gap-2'
+                  : 'flex items-center gap-2 text-muted-foreground'
+              }
             >
               {done ? (
                 <Check aria-hidden="true" className="size-4 text-shown" />
@@ -193,7 +203,10 @@ function AnalysisView() {
       {analysis.status === 'completed' && result && <ResultExtras analysisId={analysis.id} />}
 
       {result && (
-        <footer className="flex flex-col gap-1 border-t pt-3 text-sm text-muted-foreground" data-testid="disclaimer">
+        <footer
+          className="flex flex-col gap-1 border-t pt-3 text-sm text-muted-foreground"
+          data-testid="disclaimer"
+        >
           <p>{result.disclaimer}</p>
           <p>
             {result.marketLatestPosting

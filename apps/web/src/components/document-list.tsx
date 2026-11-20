@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { DEMO_SITE } from '@/components/demo';
 import { AlertCircle, CheckCircle2, Loader2, Trash2 } from 'lucide-react';
 import type { Document } from '@careerfit/shared';
 import { FoundInResume } from '@/components/found-in-resume';
@@ -74,6 +75,10 @@ function StatusLine({ status }: { status: Status }) {
 function Retention({ document, onKeep }: { document: Document; onKeep: (keep: boolean) => void }) {
   const { t, date } = useI18n();
   if (document.type === 'portfolio_link') return null;
+  // In the public demo the whole account goes after 30 days, before any file's 90 days are up.
+  if (DEMO_SITE) {
+    return <span className="text-sm text-muted-foreground">{t('demo.retention')}</span>;
+  }
   if (document.fileDeletedAt) {
     return (
       <span className="text-sm text-muted-foreground">

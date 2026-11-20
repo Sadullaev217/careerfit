@@ -316,6 +316,12 @@ def _invents_detail(*texts: str) -> bool:
     return any(_INVENTED_DETAIL.search(text) for text in texts)
 
 
+def _adds_detail(before: str, after: str) -> bool:
+    """Detail in a rewrite that its original line didn't have. "40%" may stay when the line said 40%."""
+    found = {match.group(0).lower() for match in _INVENTED_DETAIL.finditer(before)}
+    return any(match.group(0).lower() not in found for match in _INVENTED_DETAIL.finditer(after))
+
+
 def _template_action(gap: Gap, language: str, name: str) -> Action:
     """Used when the AI's suggestion fails a check, so every top gap still gets a safe next step."""
     priority = _priority(gap.points_available)
@@ -468,7 +474,7 @@ def rewrite_is_honest(before: str, after: str, allowed: str = "") -> bool:
     `allowed` holds words that may appear on top of the usual few new verbs: the name of a skill the
     analysis already found evidence of, when a line is tailored to a job.
     """
-    if not after or not after[0].isalpha() or _invents_detail(after) or len(after) > MAX_TEXT_CHARS:
+    if not after or not after[0].isalpha() or _adds_detail(before, after) or len(after) > MAX_TEXT_CHARS:
         return False
     # Changing only the punctuation isn't worth the person's time to read.
     if _plain_words(before) == _plain_words(after):

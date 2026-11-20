@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { DEMO_APP } from '@/components/Demo';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import type { Analysis } from '@careerfit/shared';
@@ -68,7 +69,9 @@ export default function AnalysisScreen() {
   );
 
   useEffect(() => {
-    reportAlertsOn().then(setAlertsOn).catch(() => undefined);
+    reportAlertsOn()
+      .then(setAlertsOn)
+      .catch(() => undefined);
   }, []);
 
   const working = analysis?.status === 'pending' || analysis?.status === 'processing';
@@ -117,7 +120,7 @@ export default function AnalysisScreen() {
             <ActivityIndicator color={colors.primary} />
             <Body style={styles.flex}>{t(STAGE[analysis.stage ?? ''] ?? 'progress.waiting')}</Body>
           </View>
-          <Muted>{t('progress.time')}</Muted>
+          <Muted>{t(DEMO_APP ? 'demo.reportTime' : 'progress.time')}</Muted>
           {alertsOn && <Muted>{t('progress.alertOn')}</Muted>}
         </Card>
       </Screen>
@@ -145,14 +148,26 @@ export default function AnalysisScreen() {
           {`${offline ? t('common.offline') : t('results.savedCopy')} ${t('results.savedOn', { date: i18n.date(savedOn) })}`}
         </Notice>
       )}
-      <Muted>{[regionName(i18n, analysis.region), i18n.date(analysis.createdAt)].filter(Boolean).join(' · ')}</Muted>
+      <Muted>
+        {[regionName(i18n, analysis.region), i18n.date(analysis.createdAt)]
+          .filter(Boolean)
+          .join(' · ')}
+      </Muted>
       <Segmented<Tab>
         value={tab}
         onChange={setTab}
         options={[
           { value: 'overview', label: t('results.tabOverview') },
-          { value: 'plan', label: t('results.tabPlan'), disabled: !hasReport && !result.reportError },
-          { value: 'roles', label: t('results.tabRoles'), disabled: !hasReport && !result.reportError },
+          {
+            value: 'plan',
+            label: t('results.tabPlan'),
+            disabled: !hasReport && !result.reportError,
+          },
+          {
+            value: 'roles',
+            label: t('results.tabRoles'),
+            disabled: !hasReport && !result.reportError,
+          },
           { value: 'skills', label: t('results.tabSkills') },
         ]}
       />
@@ -167,7 +182,12 @@ export default function AnalysisScreen() {
 }
 
 const styles = StyleSheet.create({
-  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   flex: { flex: 1 },
 });
