@@ -41,15 +41,14 @@ jobs:
     needs: migrate
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    env:
-      SSH_HOST: ${{ vars[format('{0}_SSH_HOST', env.PREFIX)] }}
-      SSH_USER: ${{ vars[format('{0}_SSH_USER', env.PREFIX)] || 'ubuntu' }}
+    # The `env` context (PREFIX) only exists at step level, so the address is set on each step.
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
       - name: Set up SSH with the server's known host key
         env:
+          SSH_HOST: ${{ vars[format('{0}_SSH_HOST', env.PREFIX)] }}
           SSH_KEY: ${{ secrets[format('{0}_SSH_KEY', env.PREFIX)] }}
           KNOWN_HOSTS: ${{ secrets[format('{0}_SSH_KNOWN_HOSTS', env.PREFIX)] }}
         run: |
@@ -60,6 +59,9 @@ jobs:
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
       - name: Send this commit to the server and start it
+        env:
+          SSH_HOST: ${{ vars[format('{0}_SSH_HOST', env.PREFIX)] }}
+          SSH_USER: ${{ vars[format('{0}_SSH_USER', env.PREFIX)] || 'ubuntu' }}
         run: |
           release="careerfit/releases/${{ inputs.sha }}"
           git archive --format=tar.gz "${{ inputs.sha }}" |
