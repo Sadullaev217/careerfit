@@ -76,11 +76,12 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: npm install --global vercel@latest
       # The demo is the Vercel project's production deployment, so it lives at the project's own address.
+      # The CLI runs through npx: a global npm install isn't on PATH after pnpm's setup.
       - name: Build and deploy
         id: deploy
         run: |
+          vercel() { npx --yes vercel@66.6.0 "$@"; }
           vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
           vercel build --prod --token="$VERCEL_TOKEN"
           vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
