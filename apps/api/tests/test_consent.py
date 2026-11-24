@@ -9,7 +9,7 @@ from app.routers import analyses, documents
 from tests import sample_files
 from tests.helpers import USER_ID, FakeStore, auth_headers
 
-SELF_HOSTED = "2026-11-13.self_hosted"
+SELF_HOSTED = "2026-11-24.self_hosted"
 
 
 class _Queue:
@@ -120,7 +120,7 @@ def test_switching_to_a_hosted_model_asks_again(
     client.post("/account/consent", headers=auth_headers(), json={"version": SELF_HOSTED})
     monkeypatch.setattr(settings, "llm_provider", "openrouter")
     status = status_of(client)
-    assert status["version"] == "2026-11-13.openrouter"
+    assert status["version"] == "2026-11-24.openrouter"
     assert status["aiProcessing"] == "openrouter"
     assert status["accepted"] is False
     assert upload(client) == 403

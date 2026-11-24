@@ -1,5 +1,5 @@
-# One deploy of one commit to the public demo: migrations, then the server (API, workers, AI model)
-# over SSH, then the web app on Vercel, then a check that both answer. Called by deploy.yml.
+# One deploy of one commit to the public demo: migrations, then the API on Modal, then the web app on
+# Vercel, then a check that both answer. Called by deploy.yml.
 #
 # Secrets and variables carry the environment's name as a prefix (STAGING_), so a second environment
 # could reuse this file without GitHub's paid environment secrets. docs/deployment.md lists them all.
@@ -36,42 +36,30 @@ jobs:
           [ -n "$SUPABASE_DB_URL" ] || { echo "Set ${PREFIX}_SUPABASE_DB_URL first (docs/deployment.md)"; exit 1; }
           supabase db push --remote="$SUPABASE_DB_URL" --yes
 
-  server:
-    name: API, workers and AI on the server
+  api:
+    name: API on Modal
     needs: migrate
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    # The `env` context (PREFIX) only exists at step level, so the address is set on each step.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha }}
-      - name: Set up SSH with the server's known host key
+      - uses: astral-sh/setup-uv@v5
+      # Builds the image from apps/api/Dockerfile on Modal and replaces the running app. Settings live in
+      # the Modal secret careerfit-demo (docs/deployment.md).
+      - name: Deploy
         env:
-          SSH_HOST: ${{ vars[format('{0}_SSH_HOST', env.PREFIX)] }}
-          SSH_KEY: ${{ secrets[format('{0}_SSH_KEY', env.PREFIX)] }}
-          KNOWN_HOSTS: ${{ secrets[format('{0}_SSH_KNOWN_HOSTS', env.PREFIX)] }}
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
         run: |
-          [ -n "$SSH_HOST" ] && [ -n "$SSH_KEY" ] && [ -n "$KNOWN_HOSTS" ] ||
-            { echo "Set ${PREFIX}_SSH_HOST, ${PREFIX}_SSH_KEY and ${PREFIX}_SSH_KNOWN_HOSTS first"; exit 1; }
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
-          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
-      - name: Send this commit to the server and start it
-        env:
-          SSH_HOST: ${{ vars[format('{0}_SSH_HOST', env.PREFIX)] }}
-          SSH_USER: ${{ vars[format('{0}_SSH_USER', env.PREFIX)] || 'ubuntu' }}
-        run: |
-          release="careerfit/releases/${{ inputs.sha }}"
-          git archive --format=tar.gz "${{ inputs.sha }}" |
-            ssh "$SSH_USER@$SSH_HOST" "mkdir -p ~/$release && tar -xz -C ~/$release"
-          # Building on two Arm cores takes several minutes, more the first time.
-          ssh "$SSH_USER@$SSH_HOST" "bash ~/$release/scripts/server-deploy.sh"
+          [ -n "$MODAL_TOKEN_ID" ] && [ -n "$MODAL_TOKEN_SECRET" ] ||
+            { echo "Set MODAL_TOKEN_ID and MODAL_TOKEN_SECRET first (docs/deployment.md)"; exit 1; }
+          uvx --from modal==1.6.4 modal deploy deploy/modal_app.py
 
   web:
     name: Web app on Vercel
-    needs: server
+    needs: api
     runs-on: ubuntu-latest
     outputs:
       url: ${{ steps.deploy.outputs.url }}

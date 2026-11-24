@@ -195,6 +195,16 @@ def test_deployed_servers_refuse_unsafe_settings(changes: dict[str, object], nam
         settings_with(**changes)
 
 
+def test_a_single_instance_may_keep_rate_limits_in_memory() -> None:
+    assert settings_with(rate_limit_storage="memory://", single_instance=True).deployed
+
+
+def test_only_the_demo_may_skip_virus_scanning() -> None:
+    assert settings_with(malware_scanner="off", demo_mode=True).deployed
+    with pytest.raises(ValueError, match="MALWARE_SCANNER"):
+        settings_with(malware_scanner="off", single_instance=True)
+
+
 def test_unsafe_settings_are_fine_on_a_laptop() -> None:
     local = Settings(
         _env_file=None, environment="development", debug=True, rate_limit_storage="memory://"

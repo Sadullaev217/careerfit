@@ -36,21 +36,23 @@ from llm_usage group by 1 order by 1 desc limit 30;
 
 **Budget alerts**: the scheduler checks every hour. Past `LLM_DAILY_BUDGET_USD` for the day, or
 `LLM_USER_DAILY_BUDGET_USD` for one account, it logs "Budget alert" and sends a Sentry warning, once a
-day per budget. The demo runs its own model, which costs nothing per call, so its budgets are 0 and the counts are for interest.
+day per budget. The demo uses a free model, so its budgets are 0, it doesn't run the check, and the counts are for interest.
 
 ## The site is down
 
-1. `curl -i https://<api>/health` answers 200? If not, SSH to the VM and
-   `cd ~/careerfit/current/deploy && docker compose ps`. A container that keeps restarting shows why in
-   `docker compose logs <name>`. "Unsafe settings for staging" names the setting to fix in
-   `~/careerfit/.env`; then `docker compose up -d`. If SSH doesn't answer either, reboot the instance
-   in Oracle's console (Compute, Instances, Reboot).
+1. `curl -i https://<api>/health` answers 200? The first request after a quiet spell wakes the API on
+   Modal and takes about 10 seconds. If it fails, open modal.com, Apps, **careerfit-demo**: the
+   container's logs show why. "Unsafe settings for staging" names the key to fix in the Modal secret
+   `careerfit-demo` (docs/deployment.md); then run Deploy again. If Usage shows the month's free credits
+   are spent, the API stays off until the next month.
 2. `/health/ready` says `database: unavailable`: check https://status.supabase.com and the project's
    page; a free project pauses after a week without traffic (Restore project).
-3. `queue: unavailable`: the `redis` container. `docker compose restart redis`.
-4. `virus_scanner: unavailable`: the `clamav` container. It needs about 1.5 GB of memory and a few
-   minutes to load signatures after a restart. Uploads are refused (503) until it answers; nothing
-   unscanned gets in.
+3. Analyses fail with an AI error: the free OpenRouter model may be at its daily limit or gone. Check
+   https://openrouter.ai/activity; to switch, set `OPENROUTER_MODEL` in the secret to another `:free`
+   model and redeploy.
+4. `virus_scanner` is `off` on the demo by design (docs/deployment.md). On a server with ClamAV,
+   `unavailable` means the `clamav` container: it needs about 1.5 GB of memory and a few minutes to load
+   signatures, and uploads are refused (503) until it answers.
 5. The web app alone is down: Vercel, Deployments. Promote the previous deployment (Instant Rollback).
 
 ## A deploy failed

@@ -124,7 +124,7 @@ def read_zip(content: bytes) -> tuple[dict[str, Any], dict[str, bytes]]:
 
 def test_export_has_every_table_and_the_files(client: TestClient, fake_store: FakeStore) -> None:
     document_id = add_document(fake_store, 5, file_name="../../My CV (final).pdf")
-    fake_store.accept_consent(USER_ID, "2026-11-13.self_hosted")
+    fake_store.accept_consent(USER_ID, "2026-11-24.self_hosted")
     add_document(fake_store, 5, user_id=OTHER_USER_ID)
 
     response = client.get("/account/export", headers=auth_headers())
@@ -136,7 +136,7 @@ def test_export_has_every_table_and_the_files(client: TestClient, fake_store: Fa
     assert data["account"]["id"] == USER_ID
     assert [row["id"] for row in data["tables"]["documents"]] == [document_id]
     assert data["tables"]["documents"][0]["parsed_text"] == "Senior nurse, Mercy Hospital"
-    assert data["tables"]["consents"][0]["version"] == "2026-11-13.self_hosted"
+    assert data["tables"]["consents"][0]["version"] == "2026-11-24.self_hosted"
     stored = [name for name in files if name.startswith("files/")]
     # The name is made safe to unpack: no folders or odd characters from the original name.
     assert stored == [f"files/{document_id}-My CV _final_.pdf"]

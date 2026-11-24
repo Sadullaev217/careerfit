@@ -203,8 +203,8 @@ End-to-end tests: `pnpm --filter web e2e` (web, Playwright) and the Maestro flow
 
 ## Hosting
 
-CareerFit runs as a free public demo, which gets every commit on `main` that passes CI. The API, workers and AI model run on one Oracle Cloud Always Free Arm server from [deploy/compose.yml](deploy/compose.yml) and `apps/api/Dockerfile`,
-the web app on Vercel, the database and files on Supabase, errors go to Sentry and product analytics to
+CareerFit runs as a free public demo, which gets every commit on `main` that passes CI. The API runs on Modal's free credits from [deploy/modal_app.py](deploy/modal_app.py) and `apps/api/Dockerfile`,
+the AI model is a free one on OpenRouter, the web app on Vercel, the database and files on Supabase, errors go to Sentry and product analytics to
 PostHog.
 
 - [docs/deployment.md](docs/deployment.md): the pipeline, monthly cost and one-time setup

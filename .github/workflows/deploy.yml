@@ -17,9 +17,9 @@ concurrency:
 
 jobs:
   staging:
-    # Skipped until the server is set up (docs/deployment.md), so merging to main doesn't fail red.
+    # Skipped until the demo is set up (docs/deployment.md), so merging to main doesn't fail red.
     if: >-
-      vars.STAGING_SSH_HOST != '' && (
+      vars.STAGING_API_URL != '' && (
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
       && github.event.workflow_run.event == 'push')
       || github.event_name == 'workflow_dispatch')

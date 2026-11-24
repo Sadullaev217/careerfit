@@ -84,6 +84,9 @@ class Settings(BaseSettings):
     # Request limits (app/rate_limit.py). Deployed servers keep counts in Redis, shared by every process.
     rate_limit_storage: str = "memory://"
     rate_limits_enabled: bool = True
+    # True when the API runs as exactly one process, as on the free demo host (deploy/modal_app.py).
+    # Then counts kept in memory are complete, and Redis isn't needed for them.
+    single_instance: bool = False
 
     @property
     def deployed(self) -> bool:
@@ -106,11 +109,15 @@ class Settings(BaseSettings):
             not o.startswith("https://") for o in self.allowed_origins
         ):
             problems.append("ALLOWED_ORIGINS must be https addresses")
-        if not self.rate_limit_storage.startswith(("redis://", "rediss://")):
+        if not self.single_instance and not self.rate_limit_storage.startswith(
+            ("redis://", "rediss://")
+        ):
             problems.append(
                 "RATE_LIMIT_STORAGE must point at Redis, so every process shares the counts"
             )
-        if self.malware_scanner != "clamav":
+        # The free demo host has too little memory for ClamAV. Uploads are still checked for type, size
+        # and structure, stay private to their owner, and are only ever parsed, never served to others.
+        if self.malware_scanner != "clamav" and not self.demo_mode:
             problems.append("MALWARE_SCANNER must be clamav")
         if not self.rate_limits_enabled:
             problems.append("RATE_LIMITS_ENABLED must be on")

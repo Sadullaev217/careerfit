@@ -31,7 +31,7 @@ const DRAFT_RU =
 
 const privacyEn: LegalDoc = {
   title: 'Privacy Policy',
-  updated: 'Last updated 13 November 2026',
+  updated: 'Last updated 24 November 2026',
   draftNote: DRAFT_EN,
   intro:
     'CareerFit estimates how well your resume fits a job and region. This policy explains what we collect, why, who helps us, how long we keep it and what you can do about it.',
@@ -61,14 +61,14 @@ const privacyEn: LegalDoc = {
         'To read your resume, compare it with the job market and show your score, report and plan.',
         'To run your account, take payments and unlock what you bought.',
         'To send report-ready notifications you turned on.',
-        'To keep the service safe: virus scanning of uploads, limits on how often requests can be made, and fixing errors.',
+        'To keep the service safe: checks on uploaded files, limits on how often requests can be made, and fixing errors.',
       ],
     },
     {
       heading: 'How AI reads your resume',
       paragraphs: [
         'Before any AI model sees a resume, we remove the name, contact details, links and lines such as date of birth, gender, nationality, religion, marital status, pronouns, disability, ethnicity and health. Unusual layouts can slip through, so leave out anything you don’t want read.',
-        'By default the model runs on CareerFit’s own server, and your resume is not sent to an outside AI company. If we switch to a hosted model, we will ask for your agreement again first. The hosted option we have tested uses OpenRouter to reach a model from Baidu: every request tells OpenRouter to use only providers that don’t collect or train on prompts, OpenRouter doesn’t store prompts, and Baidu may keep them for a period it doesn’t state, on servers in China.',
+        'This demo reaches the model through OpenRouter, which passes each request to a model from Baidu. Every request tells OpenRouter to use only providers that don’t collect or train on prompts; OpenRouter doesn’t store prompts, and Baidu may keep them for a period it doesn’t state, on servers in China. If you’d rather not send your own resume, use the made-up sample resume. If we change the AI provider, we will ask for your agreement again first.',
         'Your resume is never used to train AI models, by us or by any provider we use.',
         'The score itself is plain arithmetic, not AI. See How the score works.',
       ],
@@ -93,8 +93,8 @@ const privacyEn: LegalDoc = {
         'Expo, Apple and Google: delivering notifications, which carry fixed text and a report id, never resume content.',
         'Sentry: error reports, with names, emails, request bodies and resume text removed before they are sent.',
         'PostHog: counts of pages visited and actions taken, such as "a resume was uploaded", without cookies and never with resume content.',
-        'Oracle Cloud: running our server, including the AI model. Vercel: serving the website.',
-        'OpenRouter and Baidu: only if we switch to the hosted AI model, after asking you again.',
+        'Modal: running our API server, in the United States. Vercel: serving the website.',
+        'OpenRouter and Baidu: running the AI model that reads resumes, as described above.',
         '[Hosting provider for the website and API], and, if enabled, [error reporting provider].',
       ],
     },
@@ -113,7 +113,7 @@ const privacyEn: LegalDoc = {
     {
       heading: 'How we protect it',
       paragraphs: [
-        'Connections use HTTPS. Supabase encrypts the database, backups and files at rest with AES-256. Each person can reach only their own data, uploads are checked for viruses, and requests are rate-limited. No system is perfectly secure; if a breach affects you, we will tell you and the authorities as the law requires.',
+        'Connections use HTTPS. Supabase encrypts the database, backups and files at rest with AES-256. Each person can reach only their own data, uploads are checked for type, size and structure, and requests are rate-limited. This demo doesn’t scan uploads for viruses, and an uploaded file is only read by our server, never shown to anyone else. No system is perfectly secure; if a breach affects you, we will tell you and the authorities as the law requires.',
       ],
     },
     {
@@ -149,7 +149,7 @@ const privacyEn: LegalDoc = {
 
 const privacyRu: LegalDoc = {
   title: 'Политика конфиденциальности',
-  updated: 'Обновлено 13 ноября 2026 г.',
+  updated: 'Обновлено 24 ноября 2026 г.',
   draftNote: DRAFT_RU,
   intro:
     'CareerFit оценивает, насколько ваше резюме подходит для вакансии и региона. Здесь объясняется, что мы собираем, зачем, кто нам помогает, как долго мы храним данные и что вы можете с ними сделать.',
@@ -179,14 +179,14 @@ const privacyRu: LegalDoc = {
         'Чтобы прочитать резюме, сравнить его с рынком труда и показать оценку, отчёт и план.',
         'Чтобы вести ваш аккаунт, принимать оплату и открывать купленное.',
         'Чтобы присылать включённые вами уведомления о готовых отчётах.',
-        'Чтобы сервис оставался безопасным: проверка загрузок на вирусы, ограничение частоты запросов и исправление ошибок.',
+        'Чтобы сервис оставался безопасным: проверка загружаемых файлов, ограничение частоты запросов и исправление ошибок.',
       ],
     },
     {
       heading: 'Как ИИ читает ваше резюме',
       paragraphs: [
         'Прежде чем резюме увидит модель ИИ, мы убираем имя, контакты, ссылки и строки вроде даты рождения, пола, гражданства, религии, семейного положения, местоимений, инвалидности, национальности и здоровья. При необычной вёрстке что-то может остаться, поэтому не указывайте то, что не хотите показывать.',
-        'По умолчанию модель работает на собственном сервере CareerFit, и резюме не передаётся сторонним компаниям, работающим с ИИ. Если мы перейдём на облачную модель, мы сначала снова спросим ваше согласие. Проверенный нами облачный вариант использует OpenRouter для доступа к модели Baidu: каждый запрос требует от OpenRouter использовать только поставщиков, которые не собирают запросы и не обучают на них модели; OpenRouter запросы не хранит, а Baidu может хранить их неопределённый срок на серверах в Китае.',
+        'Это демо обращается к модели через OpenRouter, который передаёт каждый запрос модели Baidu. Каждый запрос требует от OpenRouter использовать только поставщиков, которые не собирают запросы и не обучают на них модели; OpenRouter запросы не хранит, а Baidu может хранить их неопределённый срок на серверах в Китае. Если не хотите отправлять своё резюме, используйте вымышленное резюме-пример. Если мы сменим поставщика ИИ, мы сначала снова спросим ваше согласие.',
         'Ваше резюме никогда не используется для обучения моделей ИИ ни нами, ни нашими поставщиками.',
         'Сама оценка считается по формуле, без ИИ. См. «Как считается оценка».',
       ],
@@ -211,8 +211,8 @@ const privacyRu: LegalDoc = {
         'Expo, Apple и Google: доставка уведомлений, в которых только стандартный текст и номер отчёта, без содержимого резюме.',
         'Sentry: отчёты об ошибках, из которых до отправки удаляются имена, адреса почты, тела запросов и текст резюме.',
         'PostHog: подсчёт посещённых страниц и действий, например «загружено резюме», без cookie и без содержимого резюме.',
-        'Oracle Cloud: работа нашего сервера, включая модель ИИ. Vercel: работа сайта.',
-        'OpenRouter и Baidu: только если мы перейдём на облачную модель ИИ, после повторного согласия.',
+        'Modal: работа нашего API-сервера, в США. Vercel: работа сайта.',
+        'OpenRouter и Baidu: работа модели ИИ, которая читает резюме, как описано выше.',
         '[Хостинг сайта и API], а также, если включён, [сервис отчётов об ошибках].',
       ],
     },
@@ -231,7 +231,7 @@ const privacyRu: LegalDoc = {
     {
       heading: 'Как мы защищаем данные',
       paragraphs: [
-        'Соединения идут по HTTPS. Supabase шифрует базу данных, резервные копии и файлы на дисках по AES-256. Каждый видит только свои данные, загрузки проверяются на вирусы, частота запросов ограничена. Абсолютно защищённых систем не бывает; если утечка затронет вас, мы сообщим вам и органам власти, как требует закон.',
+        'Соединения идут по HTTPS. Supabase шифрует базу данных, резервные копии и файлы на дисках по AES-256. Каждый видит только свои данные, у загрузок проверяются тип, размер и структура, частота запросов ограничена. Это демо не проверяет загрузки на вирусы, а загруженный файл читает только наш сервер и никому не показывает. Абсолютно защищённых систем не бывает; если утечка затронет вас, мы сообщим вам и органам власти, как требует закон.',
       ],
     },
     {

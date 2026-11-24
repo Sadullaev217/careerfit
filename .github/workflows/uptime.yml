@@ -1,11 +1,13 @@
-# Checks every 10 minutes that staging answers. A failed run is the alert: GitHub emails
+# Checks every hour that staging answers. A failed run is the alert: GitHub emails
 # whoever enabled Actions notifications for failed scheduled runs (docs/runbook.md). Addresses come from
 # repository variables; an environment without them is skipped.
 name: Uptime
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # Hourly, not more often: each check wakes the API on Modal, and an awake API spends free credits.
+    # Supabase pauses a project only after a week without requests, so hourly keeps it awake too.
+    - cron: '7 * * * *'
   workflow_dispatch: {}
 
 jobs:

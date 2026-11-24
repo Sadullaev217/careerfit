@@ -13,7 +13,7 @@ from fastapi import HTTPException, status
 from app.config import settings
 
 # Change when the privacy policy or terms change in a way people must agree to again.
-POLICY_DATE = "2026-11-13"
+POLICY_DATE = "2026-11-24"
 
 AiProcessing = Literal["self_hosted", "openrouter"]
 

@@ -1,158 +1,134 @@
 # Deployment
 
 CareerFit runs as a free public demo for a portfolio, in one environment named **staging**. Every part
-is on a free plan, and the AI model runs on the demo's own server, so resumes don't go to an AI company.
+is on a free plan; no payment card is attached to any of them.
 
-| Part                                                 | Where                                                                     | How it deploys                                                                                  |
-| ---------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Web app                                              | Vercel Hobby (free, non-commercial)                                       | GitHub Actions builds and deploys it; Vercel's own Git deploys are off (`apps/web/vercel.json`) |
-| API, Celery worker, scheduler, Redis, ClamAV, Ollama | One Oracle Cloud Always Free Arm VM, from `deploy/compose.yml`            | GitHub Actions copies the commit over SSH and runs `scripts/server-deploy.sh`                   |
-| HTTPS for the API                                    | Caddy on the VM, with a free Let's Encrypt certificate for a DuckDNS name | Automatic                                                                                       |
-| Database, sign-in, files                             | Supabase free, the existing project (`lycbtrlbgouloozdcwuy`)              | Migrations run in GitHub Actions before each deploy                                             |
-| Errors, analytics                                    | Sentry and PostHog free plans                                             | Reports carry no personal data                                                                  |
+| Part                     | Where                                                                    | How it deploys                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Web app                  | Vercel Hobby, project `careerfit-demo`                                   | GitHub Actions builds and deploys it; Vercel's own Git deploys are off (`apps/web/vercel.json`) |
+| API and its AI jobs      | Modal Starter ($30 of free credits a month), app `careerfit-demo`        | GitHub Actions runs `modal deploy deploy/modal_app.py`                                          |
+| AI model                 | OpenRouter, a free model (`OPENROUTER_MODEL`)                            | Nothing to deploy                                                                               |
+| Database, sign-in, files | Supabase free, the existing project (`lycbtrlbgouloozdcwuy`)             | Migrations run in GitHub Actions before each deploy                                             |
+| Errors, analytics        | Sentry and PostHog free plans (optional)                                 | Reports carry no personal data                                                                  |
+
+Addresses: web `https://careerfit-demo.vercel.app`, API
+`https://sadulloevshokhjakhon--careerfit-demo-api.us-east.modal.run`.
 
 ## How a change reaches the demo
 
 1. A push to `main` runs CI (`ci.yml`): lint, types, unit and database tests, Playwright e2e, the Docker
-   image for both Intel and Arm, the server's compose file, and the backup drill.
-2. When CI passes, `deploy.yml` deploys that commit: migrations on the database; then the commit is
-   copied to the VM, where the images are built and started, the AI model is pulled if missing, and the
-   script waits until `/health/ready` passes; then the web app on Vercel; then a check that both answer.
+   image, and the backup drill.
+2. When CI passes, `deploy.yml` deploys that commit: migrations on the database; then the API on Modal,
+   which builds the image from `apps/api/Dockerfile`; then the web app on Vercel; then a check that both
+   answer.
 3. To redeploy without a new commit: GitHub, Actions, **Deploy**, Run workflow, branch `main`.
 
-Rolling back: run Deploy from an older commit, or on the VM `cd ~/careerfit/current/deploy` of an older
-release and `docker compose up -d`. Vercel has Instant Rollback. Migrations don't roll back by
+Rolling back: run Deploy from an older commit. Vercel has Instant Rollback. Migrations don't roll back by
 themselves; see [runbook.md](runbook.md#a-migration-broke-something).
+
+## How the API runs on Modal
+
+`deploy/modal_app.py` runs the API image as **one** container (`max_containers=1`):
+
+- It starts on the first request (about 10 seconds) and stops after 5 minutes without any, so an idle
+  demo spends no credits. The uptime check wakes it once an hour.
+- There is no Redis or Celery worker. With `CELERY_TASK_ALWAYS_EAGER=true` each AI job runs in the same
+  container right after the request that started it, and rate limits are counted in memory
+  (`SINGLE_INSTANCE=true`), which is complete because there is one process.
+- The jobs Celery beat runs on a full server are Modal cron functions: file and demo-account clean-up
+  nightly at 03:30 UTC, the Job Bank refresh on Mondays at 06:00 UTC.
+- ClamAV needs more memory than the demo has, so `MALWARE_SCANNER=off`, which the API allows only with
+  `DEMO_MODE=true`. Uploads are still checked for type, size and structure, stay private, and are only
+  parsed. The privacy policy says so.
+
+Its settings are the Modal secret **careerfit-demo** (modal.com, Secrets):
+
+| Key                                                    | Value                                                     |
+| ------------------------------------------------------ | --------------------------------------------------------- |
+| `ENVIRONMENT`                                          | `staging`                                                 |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY`                  | the project's address and secret key                      |
+| `WEB_URL`                                              | `https://careerfit-demo.vercel.app`                       |
+| `ALLOWED_ORIGINS`                                      | `["https://careerfit-demo.vercel.app"]`                   |
+| `LLM_PROVIDER`, `OPENROUTER_API_KEY`                   | `openrouter` and the key                                  |
+| `OLLAMA_FALLBACK`                                      | `false` (there is no local model)                         |
+| `CELERY_TASK_ALWAYS_EAGER`, `SINGLE_INSTANCE`          | `true`, `true`                                            |
+| `RATE_LIMIT_STORAGE`, `MALWARE_SCANNER`                | `memory://`, `off`                                        |
+| `DEMO_MODE`, `DEMO_DAILY_AI_JOBS`, `DEMO_ACCOUNT_DAYS` | `true`, `15`, `30`                                        |
+| `LLM_DAILY_BUDGET_USD`, `LLM_USER_DAILY_BUDGET_USD`    | `0`, `0` (the model is free; the budget check isn't run)  |
+| `SENTRY_DSN`, `POSTHOG_PROJECT_TOKEN`                  | optional                                                  |
+
+To change one: `modal secret create careerfit-demo --force KEY=value ...` with **all** keys, or edit it
+in the dashboard, then redeploy.
 
 ## Demo mode
 
-The server's `.env` turns on the public demo's settings (`app/demo.py`), and the web and phone apps show
+The API's `DEMO_MODE` turns on the public demo's settings (`app/demo.py`), and the web and phone apps show
 it when `NEXT_PUBLIC_DEMO_MODE` and `EXPO_PUBLIC_DEMO_MODE` are `true`:
 
 - Every account gets Pro and every detailed report; payments are off and the apps hide them.
 - Documents and onboarding offer a made-up **sample resume**, so visitors needn't upload their own.
-- At most `DEMO_DAILY_AI_JOBS` (60) resumes read plus analyses a day, for everyone together; then
-  "come back tomorrow". The one server can't run more.
-- Accounts and everything in them are deleted `DEMO_ACCOUNT_DAYS` (30) days after sign-up, by a daily
-  job. The banner and the privacy policy say so.
+- At most `DEMO_DAILY_AI_JOBS` (15) resumes read plus analyses a day, for everyone together; then
+  "come back tomorrow". OpenRouter's free models allow about 50 requests a day per account.
+- Accounts and everything in them are deleted `DEMO_ACCOUNT_DAYS` (30) days after sign-up, by the
+  nightly job. The banner and the privacy policy say so.
 
 ## Limits of the free setup
 
-- **The VM**: Oracle's Always Free Arm allowance is 2 cores and 12 GB of memory
-  ([Oracle's page](https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm)). The model,
-  ClamAV and the app fit, with 4 GB of swap for spikes.
-- **Speed**: the model runs on those 2 cores without a GPU, so a full analysis takes several minutes,
-  and the worker runs one job at a time; others wait in the queue. The limits in `.env` allow for this
-  (`LLM_TIMEOUT_SECONDS=900`, `AI_TASK_TIME_LIMIT_SECONDS=2400`).
-- **Idle reclaim**: Oracle may reclaim an Always Free VM that is idle for 7 days (CPU, network and
-  memory all under 20%). Ollama keeps the model loaded (`OLLAMA_KEEP_ALIVE=-1`), which holds memory use
-  above that line. Upgrading the account to Pay As You Go removes the risk and still costs nothing
-  within the free allowance.
-- **Supabase free** pauses a project after a week without requests; the uptime check every 10 minutes
-  keeps it awake.
+- **Modal**: $30 of credits a month. One awake container costs about $0.05 an hour, so the demo can be
+  awake about 20 days a month in all; usage shows at modal.com, Usage. Without a card, running out stops
+  the API until the next month instead of charging.
+- **OpenRouter**: free models have a daily request limit and can be slow or removed. If the model goes,
+  set `OPENROUTER_MODEL` in the secret to another `:free` model.
+- **Vercel Hobby**: non-commercial use only, which a portfolio demo is.
+- **Supabase free** pauses a project after a week without requests; the hourly uptime check keeps it
+  awake.
 
 ## Setting it up, once
 
-Do these in order. Each secret goes into the service's own dashboard or the server's `.env`, never into
-the repository or a chat.
+Already done for the current demo; these are the steps to rebuild it.
 
-### 1. Oracle Cloud: the VM
-
-1. Sign up at https://signup.cloud.oracle.com (a card is asked for to verify identity; Always Free
-   resources aren't charged). Pick a home region with Arm capacity; it can't be changed later.
-2. Menu, Compute, Instances, **Create instance**:
-   - Image: **Canonical Ubuntu 24.04** (the aarch64 one).
-   - Shape: **Ampere**, `VM.Standard.A1.Flex`, **2 OCPUs**, **12 GB** memory.
-   - Networking: create a new VCN and public subnet, **Assign a public IPv4 address**.
-   - SSH keys: **Generate a key pair for me**, and download the private key. This is your own login.
-   - Boot volume: 100 GB.
-     If it says "Out of capacity", try another availability domain or try again later.
-3. The instance's page, Subnet, Default Security List, **Add Ingress Rules**: source `0.0.0.0/0`,
-   TCP, destination port `80`; and another for port `443`.
-4. Note the instance's **public IP**.
-5. Log in: `ssh -i <your key> ubuntu@<public IP>`, then copy `deploy/setup-server.sh` over and run
-   `bash setup-server.sh`. Log out and back in.
-6. For GitHub's deploys, make a separate key on your own computer:
-   `ssh-keygen -t ed25519 -f careerfit-deploy -N ""`, then append `careerfit-deploy.pub` to the
-   server's `~/.ssh/authorized_keys`.
-7. On your computer: `ssh-keyscan <public IP>` prints the server's host key lines. Keep them for GitHub.
-
-### 2. DuckDNS: the API's address
-
-1. https://www.duckdns.org, sign in, add a subdomain, e.g. `careerfit-api`, and set its IP to the
-   VM's public IP. The API will be at `https://careerfit-api.duckdns.org`.
-
-### 3. Supabase
-
-The existing project serves the demo; it already has the tables and the job and skill data.
-
-1. https://supabase.com/dashboard/project/lycbtrlbgouloozdcwuy/settings/api-keys: note the
-   **publishable key** and a **secret key**. If the secret key was ever pasted anywhere, create a new
-   one and delete the old one first.
-2. **Connect** (top of the project page), **Session pooler**: copy the URI and put the database password
-   into it. That is `STAGING_SUPABASE_DB_URL` for GitHub.
-3. Authentication, Sign In / Providers, **JWT Keys**: the current key must be **ECC (P-256)**.
-4. Authentication, **URL Configuration**: Site URL = the web address (step 4), and add
-   `<web address>/auth/callback` and `careerfit://auth/callback` to Redirect URLs.
-5. Database, Settings: turn on **Enforce SSL on incoming connections**.
-
-### 4. Vercel: the web app
-
-1. https://vercel.com/new, import this repository. Project name e.g. `careerfit-demo`, Root Directory
-   `apps/web`, framework Next.js. The address is then `https://careerfit-demo.vercel.app`.
-2. Settings, Environment Variables, environment **Production**:
-   `NEXT_PUBLIC_API_URL` = `https://careerfit-api.duckdns.org`, `NEXT_PUBLIC_SUPABASE_URL`,
+1. **Supabase.** Settings, API keys: the publishable key and a secret key. Database, Settings: reset the
+   database password and turn on **Enforce SSL**. Authentication, URL Configuration: Site URL
+   `https://careerfit-demo.vercel.app`; Redirect URLs `https://careerfit-demo.vercel.app/auth/callback`,
+   `careerfit://auth/callback`.
+2. **OpenRouter.** https://openrouter.ai/settings/keys: create a key.
+3. **Modal.** Sign up at https://modal.com, then on your computer `uv tool install modal` and
+   `modal token new`. Create the secret above, then `modal deploy deploy/modal_app.py`, which prints the
+   API's address.
+4. **Vercel.** New project `careerfit-demo`, Root Directory `apps/web`, Next.js. Environment Variables
+   for Production and Preview: `NEXT_PUBLIC_API_URL` (the Modal address), `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_ENVIRONMENT` = `staging`,
-   `NEXT_PUBLIC_DEMO_MODE` = `true`, and optionally
-   `NEXT_PUBLIC_SENTRY_DSN` and `NEXT_PUBLIC_POSTHOG_TOKEN`.
-3. Settings, General: note the **Project ID**. Account settings: note your **Team ID**.
-4. https://vercel.com/account/settings/tokens: create a token. Note it for GitHub.
+   `NEXT_PUBLIC_DEMO_MODE` = `true`, optionally `NEXT_PUBLIC_SENTRY_DSN` and
+   `NEXT_PUBLIC_POSTHOG_TOKEN`. Account settings, Tokens: create a token for GitHub.
+5. **GitHub.** Repository, Settings, Secrets and variables, Actions.
 
-### 5. The server's settings
+| Secret                        | Value                                                               |
+| ----------------------------- | ------------------------------------------------------------------- |
+| `MODAL_TOKEN_ID`              | from `~/.modal.toml`, or a new token at modal.com, Settings, Tokens |
+| `MODAL_TOKEN_SECRET`          | the same token's secret                                             |
+| `STAGING_SUPABASE_DB_URL`     | session pooler URI with the database password                       |
+| `STAGING_SUPABASE_SECRET_KEY` | the Supabase secret key, for backups                                |
+| `VERCEL_TOKEN`                | from step 4                                                         |
+| `BACKUP_PASSPHRASE`           | a long random passphrase; keep it in your password manager too      |
 
-1. On the VM: `nano ~/careerfit/.env`, paste the contents of `deploy/server.env.example`, and fill in
-   `API_DOMAIN` (step 2, without `https://`), `SUPABASE_SECRET_KEY` (step 3.1), and `WEB_URL` and
-   `ALLOWED_ORIGINS` (step 4.1). Save with Ctrl+O, Enter, Ctrl+X.
-2. `chmod 600 ~/careerfit/.env`, so only your user can read it.
+| Variable                             | Value                                          |
+| ------------------------------------ | ---------------------------------------------- |
+| `STAGING_API_URL`                    | the Modal address                              |
+| `STAGING_WEB_URL`                    | `https://careerfit-demo.vercel.app`            |
+| `STAGING_SUPABASE_URL`               | `https://lycbtrlbgouloozdcwuy.supabase.co`     |
+| `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | the Vercel team ID and the project's ID        |
 
-### 6. Sentry and PostHog (optional)
+Deploys stay skipped until `STAGING_API_URL` is set. Then your GitHub profile, Settings, Notifications,
+Actions: **Send notifications for failed workflows only**, so uptime and backup failures email you.
 
-1. https://sentry.io/signup/: projects `careerfit-api` (FastAPI) and `careerfit-web` (Next.js). In
-   each, Settings, Security & Privacy: **Data Scrubber**, **Use Default Scrubbers**, **Prevent Storing
-   of IP Addresses**. Alerts: email on new issues. Put the DSNs in `.env` and Vercel.
-2. https://eu.posthog.com/signup: turn off Autocapture and Session replay, turn on Discard client IP
-   data. Put the project token in `.env` and Vercel. Dashboard: [runbook.md](runbook.md#dashboards).
-
-### 7. GitHub
-
-Repository, Settings, Secrets and variables, Actions.
-
-| Secret                        | Value                                                             |
-| ----------------------------- | ----------------------------------------------------------------- |
-| `STAGING_SSH_KEY`             | the private key `careerfit-deploy` from step 1.6 (the whole file) |
-| `STAGING_SSH_KNOWN_HOSTS`     | the lines from step 1.7                                           |
-| `STAGING_SUPABASE_DB_URL`     | from step 3.2                                                     |
-| `STAGING_SUPABASE_SECRET_KEY` | from step 3.1, for backups                                        |
-| `VERCEL_TOKEN`                | from step 4.4                                                     |
-| `BACKUP_PASSPHRASE`           | a long random passphrase; keep it in your password manager too    |
-
-| Variable                             | Value                                      |
-| ------------------------------------ | ------------------------------------------ |
-| `STAGING_SSH_HOST`                   | the VM's public IP                         |
-| `STAGING_API_URL`                    | `https://careerfit-api.duckdns.org`        |
-| `STAGING_WEB_URL`                    | `https://careerfit-demo.vercel.app`        |
-| `STAGING_SUPABASE_URL`               | `https://lycbtrlbgouloozdcwuy.supabase.co` |
-| `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | from step 4.3                              |
-
-Then your GitHub profile, Settings, Notifications, Actions: **Send notifications for failed workflows
-only**, so uptime and backup failures email you.
-
-### 8. First deploy
-
-1. The pipeline runs from `main`, so the Part 10, 11 and 12 branches must be merged first.
-2. Actions, Deploy, Run workflow, `main`. The first run takes longest: it builds the image on the VM
-   and downloads the model (about 3 GB) and ClamAV's signatures.
-3. Open the web address, sign up, upload a resume, run an analysis.
-4. For the phone app, set `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_SUPABASE_URL`,
+6. **Phone app.** Set `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_SUPABASE_URL`,
    `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `EXPO_PUBLIC_WEB_URL` and `EXPO_PUBLIC_DEMO_MODE` = `true` in
    the EAS `preview` environment.
+
+## Alternative: a server with its own AI model
+
+`deploy/compose.yml`, `deploy/setup-server.sh` and `scripts/server-deploy.sh` run the whole stack (API,
+Celery, Redis, ClamAV and an Ollama model, so resumes never reach an AI company) on one VM with at least
+12 GB of memory, such as an Oracle Cloud Always Free Arm VM when one is available. That path needs the
+server's `.env` from `deploy/server.env.example` and a deploy job over SSH in place of the Modal one;
+see this file's history before 24 November 2026 for the full steps.
