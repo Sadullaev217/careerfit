@@ -10,7 +10,7 @@ checked by the evidence named. "Part 12" means it depends on the deployment, whi
   the scheduler, https), and a staging or production server refuses to start without those.
 - **Waiting on deployment:** TLS, Redis, ClamAV and the scheduler are defined in `deploy/compose.yml` (Part 12) and become live with the first deploy (docs/deployment.md).
 - **Owner actions:** 4 items, such as rotating a leaked key and filling in the legal drafts.
-- **Not done:** running the dependency audit in CI on every push (it was run once by hand).
+- **Not done:** nothing in code; the dependency audit runs in CI (`.github/workflows/audit.yml`).
 
 ## Data in transit and at rest
 
@@ -34,7 +34,7 @@ checked by the evidence named. "Part 12" means it depends on the deployment, whi
 | Upload malware scanning | Done; ClamAV in `deploy/compose.yml` | Every upload goes to ClamAV before it is stored; if the scanner is down, the upload is refused, not stored unscanned (`app/malware_scan.py`, `tests/test_malware_scan.py` with a fake clamd). Deployed servers won't start without `MALWARE_SCANNER=clamav`. Not yet tried against a real ClamAV: `docker compose --profile scan up -d clamav` A ClamAV container runs on the server, reachable only inside it; `/health/ready` reports it. |
 | Authentication          | Done (earlier parts)                 | Supabase sign-in; the API checks each token's ES256/RS256 signature, audience, issuer and expiry                                                                                                                                                                                                                                                                                                                                            |
 | Row-level security      | Done (earlier parts)                 | Every table has RLS; people read only their own rows and write nothing the API owns (`tests/test_rls.py`, run in CI on Postgres)                                                                                                                                                                                                                                                                                                            |
-| Dependency audit        | Done once, 24 November 2026          | See "Review of the live demo" below. Not yet in CI                                                                                                                                                                                                                                                                                                                                                                                          |
+| Dependency audit        | Done; in CI                          | `.github/workflows/audit.yml` on every push and every Monday: `pnpm audit --prod` fails on high and critical, `pip-audit` on any advisory in `apps/api/uv.lock`. First run 25 November 2026: JavaScript 2 moderate (Expo build tool, see below), Python none |
 
 ## Personal data in logs and error reports
 
