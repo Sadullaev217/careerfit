@@ -209,12 +209,14 @@ function AnalysisView() {
         >
           <p>{result.disclaimer}</p>
           <p>
+            {/* When it was scored, in the reader's own time zone. result.asOf is the server's UTC date, which
+                is already tomorrow on a North American evening. */}
             {result.marketLatestPosting
               ? t('results.scoredOnWithAds', {
-                  date: date(result.asOf),
+                  date: date(analysis.completedAt ?? analysis.createdAt),
                   ads: date(result.marketLatestPosting),
                 })
-              : t('results.scoredOn', { date: date(result.asOf) })}
+              : t('results.scoredOn', { date: date(analysis.completedAt ?? analysis.createdAt) })}
           </p>
         </footer>
       )}

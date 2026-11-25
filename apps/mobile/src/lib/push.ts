@@ -29,16 +29,16 @@ export async function turnOnReportAlerts(language: 'en' | 'ru'): Promise<AlertsS
   const id = projectId();
   const Notifications = await loadNotifications();
   if (!alertsSupported() || !id || !Notifications) return 'unavailable';
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(REPORTS_CHANNEL, {
-      name: 'Reports',
-      importance: Notifications.AndroidImportance.DEFAULT,
-    });
-  }
-  const current = await Notifications.getPermissionsAsync();
-  const permission = current.granted ? current : await Notifications.requestPermissionsAsync();
-  if (!permission.granted) return 'denied';
   try {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync(REPORTS_CHANNEL, {
+        name: 'Reports',
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
+    const current = await Notifications.getPermissionsAsync();
+    const permission = current.granted ? current : await Notifications.requestPermissionsAsync();
+    if (!permission.granted) return 'denied';
     const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId: id });
     await api.notifications.register({ token, platform: Platform.OS as 'ios' | 'android', language });
     await SecureStore.setItemAsync(TOKEN_KEY, token);

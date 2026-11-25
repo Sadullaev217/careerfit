@@ -17,7 +17,9 @@ const CONFIDENCE: Record<ScoreResult['confidence']['level'], TextKey> = {
   low: 'results.confidenceLow',
 };
 
-export function Overview({ result }: { result: ScoreResult }) {
+/** scoredAt: when the analysis finished, shown in the reader's time zone. result.asOf is the server's UTC
+ * date, which is already tomorrow on a North American evening. */
+export function Overview({ result, scoredAt }: { result: ScoreResult; scoredAt: string }) {
   const { t, plural, money, date } = useI18n();
   const verdict =
     result.score >= STRONG_SCORE
@@ -110,7 +112,7 @@ export function Overview({ result }: { result: ScoreResult }) {
             ))}
           </>
         )}
-        <Muted>{t('results.scoredOn', { date: date(result.asOf) })}</Muted>
+        <Muted>{t('results.scoredOn', { date: date(scoredAt) })}</Muted>
         <Muted>{result.disclaimer}</Muted>
       </Card>
     </View>

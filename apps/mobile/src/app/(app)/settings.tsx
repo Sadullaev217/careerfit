@@ -63,15 +63,21 @@ export default function SettingsScreen() {
   async function setAlerts(on: boolean) {
     setSwitching(true);
     setAlertsProblem(null);
-    if (on) {
-      const state = await turnOnReportAlerts(locale);
-      setAlertsOn(state === 'on');
-      setAlertsProblem(ALERT_PROBLEM[state] ?? null);
-    } else {
-      await turnOffReportAlerts();
-      setAlertsOn(false);
+    // Whatever happens, the switch must work again afterwards.
+    try {
+      if (on) {
+        const state = await turnOnReportAlerts(locale);
+        setAlertsOn(state === 'on');
+        setAlertsProblem(ALERT_PROBLEM[state] ?? null);
+      } else {
+        await turnOffReportAlerts();
+        setAlertsOn(false);
+      }
+    } catch {
+      setAlertsProblem(ALERT_PROBLEM.failed ?? null);
+    } finally {
+      setSwitching(false);
     }
-    setSwitching(false);
   }
 
   function changeLanguage(next: Locale) {

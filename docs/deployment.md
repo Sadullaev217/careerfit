@@ -129,9 +129,10 @@ Already done for the current demo; these are the steps to rebuild it.
 Deploys stay skipped until `STAGING_API_URL` is set. Then your GitHub profile, Settings, Notifications,
 Actions: **Send notifications for failed workflows only**, so uptime and backup failures email you.
 
-6. **Phone app.** Set `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_SUPABASE_URL`,
-   `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `EXPO_PUBLIC_WEB_URL` and `EXPO_PUBLIC_DEMO_MODE` = `true` in
-   the EAS `preview` environment.
+6. **Phone app.** The `preview` build profile in `apps/mobile/eas.json` already carries the demo's public
+   addresses (`EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_WEB_URL`, `EXPO_PUBLIC_SUPABASE_URL`,
+   `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) and `EXPO_PUBLIC_DEMO_MODE` = `true`. They are public by
+   design; update them there if an address changes.
 
 ## Alternative: a server with its own AI model
 

@@ -14,6 +14,13 @@
     "preview": {
       "distribution": "internal",
       "environment": "preview",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sadulloevshokhjakhon--careerfit-demo-api.us-east.modal.run",
+        "EXPO_PUBLIC_WEB_URL": "https://careerfit-demo.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lycbtrlbgouloozdcwuy.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_ALaLEr0nCJZApiihoh9W2w_GZlLA3C-",
+        "EXPO_PUBLIC_DEMO_MODE": "true"
+      },
       "android": { "buildType": "apk" },
       "ios": { "simulator": true }
     },

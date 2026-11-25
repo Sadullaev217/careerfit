@@ -171,7 +171,7 @@ export default function AnalysisScreen() {
           { value: 'skills', label: t('results.tabSkills') },
         ]}
       />
-      {tab === 'overview' && <Overview result={result} />}
+      {tab === 'overview' && <Overview result={result} scoredAt={analysis.completedAt ?? analysis.createdAt} />}
       {tab === 'plan' && <PlanView result={result} />}
       {tab === 'roles' && <OtherRoles result={result} documentId={analysis.documentId} />}
       {tab === 'skills' && <SkillsView result={result} />}
