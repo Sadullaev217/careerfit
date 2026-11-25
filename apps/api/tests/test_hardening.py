@@ -195,6 +195,15 @@ def test_deployed_servers_refuse_unsafe_settings(changes: dict[str, object], nam
         settings_with(**changes)
 
 
+def test_docs_and_schema_are_published_only_with_debug(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app import main
+
+    monkeypatch.setattr(main.settings, "debug", False)
+    assert main.docs_path("/openapi.json") is None
+    monkeypatch.setattr(main.settings, "debug", True)
+    assert main.docs_path("/openapi.json") == "/openapi.json"
+
+
 def test_a_single_instance_may_keep_rate_limits_in_memory() -> None:
     assert settings_with(rate_limit_storage="memory://", single_instance=True).deployed
 

@@ -73,6 +73,7 @@ class FakeStore:
         self.saved_extractions: dict[str, dict[str, Any]] = {}
         self.llm_usage: list[dict[str, Any]] = []
         self.ai_jobs_today = 0
+        self.ai_jobs_today_by_user: dict[str, int] = {}
         self.profile_skills: list[dict[str, Any]] = []
         self.skill_matches: dict[str, dict[str, Any] | None] = {}
         # Keyed by token, like the real table.
@@ -104,8 +105,10 @@ class FakeStore:
         if row and not row["withdrawn_at"]:
             self.consents[user_id, version] = {**row, "withdrawn_at": "2026-11-15T00:00:00+00:00"}
 
-    def count_ai_jobs_since(self, start: Any) -> int:
-        return self.ai_jobs_today
+    def count_ai_jobs_since(self, start: Any, user_id: str | None = None) -> int:
+        if user_id is None:
+            return self.ai_jobs_today
+        return self.ai_jobs_today_by_user.get(user_id, 0)
 
     def record_llm_usage(self, rows: list[dict[str, Any]]) -> None:
         self.llm_usage.extend(rows)

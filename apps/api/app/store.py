@@ -786,11 +786,19 @@ def _count(table: str, params: dict[str, str]) -> int:
     return int(response.headers.get("content-range", "*/0").rsplit("/", 1)[-1])
 
 
-def count_ai_jobs_since(start: datetime) -> int:
-    """Resumes and cover letters read, plus analyses run, by every account since start."""
+def count_ai_jobs_since(start: datetime, user_id: str | None = None) -> int:
+    """Resumes and cover letters read, plus analyses run, since start: by one account, or by everyone.
+
+    Counted two ways and the larger wins. The rows count a job the moment it starts, but a document that
+    was uploaded and deleted leaves no row; llm_usage keeps a row for every finished AI job even then.
+    """
     since = f"gte.{start.isoformat()}"
-    documents = _count("documents", {"created_at": since, "type": "in.(resume,cover_letter)"})
-    return documents + _count("analyses", {"created_at": since})
+    owner = {"user_id": f"eq.{user_id}"} if user_id else {}
+    documents = _count(
+        "documents", {"created_at": since, "type": "in.(resume,cover_letter)", **owner}
+    )
+    analyses = _count("analyses", {"created_at": since, **owner})
+    return max(documents + analyses, _count("llm_usage", {"created_at": since, **owner}))
 
 
 def accounts_created_before(cutoff: datetime) -> list[dict[str, Any]]:

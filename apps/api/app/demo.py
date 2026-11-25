@@ -3,7 +3,8 @@
 - DEMO_MODE: every account gets Pro and every detailed report, and payments are switched off, so
   visitors can try everything without paying.
 - DEMO_DAILY_AI_JOBS: how many resumes read plus analyses run, all accounts together, per UTC day. The
-  demo's one server can't run more, and the cap stops one visitor from using it all.
+  demo's one server and its free AI model can't run more.
+- DEMO_USER_DAILY_AI_JOBS: the same for one account, so one visitor can't use up everyone's day.
 - DEMO_ACCOUNT_DAYS: accounts and everything in them are deleted this many days after sign-up.
 
 The sample resume (data/sample-resume.pdf) is a made-up person, so visitors can see a result without
@@ -27,28 +28,38 @@ SAMPLE_RESUME_NAME = "Sample resume (Alex Example).pdf"
 
 
 class JobCounter(Protocol):
-    def count_ai_jobs_since(self, start: datetime) -> int: ...
+    def count_ai_jobs_since(self, start: datetime, user_id: str | None = None) -> int: ...
 
 
 def day_start(now: datetime) -> datetime:
     return now.astimezone(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def check_daily_limit(store: JobCounter, now: datetime | None = None) -> None:
-    """Raises 429 when today's AI jobs reached DEMO_DAILY_AI_JOBS. No limit when it's 0."""
-    limit = settings.demo_daily_ai_jobs
-    if limit <= 0:
-        return
+def check_daily_limit(store: JobCounter, user_id: str, now: datetime | None = None) -> None:
+    """Raises 429 when today's AI jobs reached DEMO_DAILY_AI_JOBS for everyone together, or
+    DEMO_USER_DAILY_AI_JOBS for this account. A limit of 0 means none."""
     now = now or datetime.now(UTC)
-    if store.count_ai_jobs_since(day_start(now)) >= limit:
-        tomorrow = day_start(now) + timedelta(days=1)
+    start = day_start(now)
+    retry_after = {"Retry-After": str(int((start + timedelta(days=1) - now).total_seconds()))}
+    limit = settings.demo_daily_ai_jobs
+    if limit > 0 and store.count_ai_jobs_since(start) >= limit:
         raise HTTPException(
             status.HTTP_429_TOO_MANY_REQUESTS,
             detail={
                 "code": "demo_daily_limit",
                 "message": "The demo has reached today's limit. Please come back tomorrow.",
             },
-            headers={"Retry-After": str(int((tomorrow - now).total_seconds()))},
+            headers=retry_after,
+        )
+    user_limit = settings.demo_user_daily_ai_jobs
+    if user_limit > 0 and store.count_ai_jobs_since(start, user_id) >= user_limit:
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={
+                "code": "demo_user_daily_limit",
+                "message": "You've used today's demo allowance. Please come back tomorrow.",
+            },
+            headers=retry_after,
         )
 
 

@@ -396,6 +396,7 @@ export const en = {
   errors: {
     api: {
       demo_daily_limit: "The demo has reached today's limit. Please come back tomorrow.",
+      demo_user_daily_limit: "You've used today's demo allowance. Please come back tomorrow.",
       payments_off: 'Payments are off in this demo.',
       limit_reached:
         "You've used this month's free analysis. Upgrade to Pro for unlimited analyses.",

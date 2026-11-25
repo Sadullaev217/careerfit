@@ -132,11 +132,18 @@ class SecurityHeadersMiddleware:
         await self.app(scope, receive, send_with_headers)
 
 
+def docs_path(path: str) -> str | None:
+    """The API's docs and schema, only on a laptop with DEBUG on. Deployed servers refuse DEBUG, so they
+    never publish a map of every route and field."""
+    return path if settings.debug else None
+
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    docs_url="/docs" if settings.debug else None,
-    redoc_url="/redoc" if settings.debug else None,
+    docs_url=docs_path("/docs"),
+    redoc_url=docs_path("/redoc"),
+    openapi_url=docs_path("/openapi.json"),
 )
 
 # Outermost last: every response, refusals included, gets the security headers, and CORS headers so the

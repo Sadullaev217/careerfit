@@ -1,6 +1,6 @@
 import json
 import socket
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 
 import httpx
 import pytest
@@ -180,6 +180,21 @@ def test_rejects_oversized_page(monkeypatch: pytest.MonkeyPatch) -> None:
     use_dns(monkeypatch, {})
     use_transport(monkeypatch, site({"/robots.txt": httpx.Response(404), "/big": big}))
     assert failure("https://example.com/big") == "link_too_large"
+
+
+def test_gives_up_on_a_page_that_trickles_in(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Each chunk arrives within the read timeout, but together they take far longer than a fetch may.
+    clock = iter(range(0, 10_000, 20))
+    monkeypatch.setattr(portfolio.time, "monotonic", lambda: next(clock))
+
+    def trickle() -> Iterator[bytes]:
+        for _ in range(100):
+            yield b"x"
+
+    slow = httpx.Response(200, headers={"content-type": "text/html"}, content=trickle())
+    use_dns(monkeypatch, {})
+    use_transport(monkeypatch, site({"/robots.txt": httpx.Response(404), "/slow": slow}))
+    assert failure("https://example.com/slow") == "link_unreachable"
 
 
 def test_rejects_non_text_content(monkeypatch: pytest.MonkeyPatch) -> None:

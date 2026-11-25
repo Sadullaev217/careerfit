@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import demo, plans
+from app import store as store_module
 from app.config import settings
 from app.routers import documents
 from tests.helpers import USER_ID, FakeStore, auth_headers
@@ -95,17 +96,62 @@ def test_uploads_stop_at_the_daily_limit_for_everyone(
     assert fake_store.files == {}
 
 
+def test_one_account_stops_at_its_own_daily_limit(
+    client: TestClient,
+    fake_store: FakeStore,
+    queue: FakeQueue,
+    monkeypatch: pytest.MonkeyPatch,
+    demo_on: None,
+) -> None:
+    # One visitor can't use up the whole demo's day, even with plenty left for everyone.
+    monkeypatch.setattr(settings, "demo_daily_ai_jobs", 100)
+    monkeypatch.setattr(settings, "demo_user_daily_ai_jobs", 2)
+    fake_store.ai_jobs_today = 2
+    fake_store.ai_jobs_today_by_user[USER_ID] = 2
+    response = client.post("/documents/sample", headers=auth_headers())
+    assert response.status_code == 429
+    assert response.json()["detail"]["code"] == "demo_user_daily_limit"
+    assert fake_store.files == {}
+
+
+def test_another_account_is_not_stopped_by_someone_elses_use(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(settings, "demo_daily_ai_jobs", 100)
+    monkeypatch.setattr(settings, "demo_user_daily_ai_jobs", 2)
+    store = FakeStore()
+    store.ai_jobs_today = 5
+    store.ai_jobs_today_by_user["someone-else"] = 5
+    demo.check_daily_limit(store, USER_ID)
+
+
+def test_deleting_documents_does_not_lower_the_count(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Rows that were uploaded and deleted are gone, but the AI work they caused was recorded.
+    counts = {"documents": 0, "analyses": 1, "llm_usage": 6}
+    seen: list[dict[str, str]] = []
+
+    def fake_count(table: str, params: dict[str, str]) -> int:
+        seen.append({"table": table, **params})
+        return counts[table]
+
+    monkeypatch.setattr(store_module, "_count", fake_count)
+    start = datetime(2026, 11, 24, tzinfo=UTC)
+    assert store_module.count_ai_jobs_since(start) == 6
+    assert store_module.count_ai_jobs_since(start, "user-1") == 6
+    assert all(row["user_id"] == "eq.user-1" for row in seen[3:])
+
+
 def test_below_the_daily_limit_nothing_is_stopped(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(settings, "demo_daily_ai_jobs", 3)
     store = FakeStore()
     store.ai_jobs_today = 2
-    demo.check_daily_limit(store)
+    demo.check_daily_limit(store, USER_ID)
 
 
 def test_no_daily_limit_when_it_is_zero() -> None:
     store = FakeStore()
     store.ai_jobs_today = 10_000
-    demo.check_daily_limit(store)
+    demo.check_daily_limit(store, USER_ID)
 
 
 class Accounts:

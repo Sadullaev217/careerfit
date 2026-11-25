@@ -67,6 +67,7 @@ class Settings(BaseSettings):
     # Public demo (app/demo.py). All off by default.
     demo_mode: bool = False
     demo_daily_ai_jobs: int = 0
+    demo_user_daily_ai_jobs: int = 0
     demo_account_days: int = 0
 
     # AI spending alerts (app/llm_costs.py), in US dollars per day.

@@ -10,7 +10,7 @@ checked by the evidence named. "Part 12" means it depends on the deployment, whi
   the scheduler, https), and a staging or production server refuses to start without those.
 - **Waiting on deployment:** TLS, Redis, ClamAV and the scheduler are defined in `deploy/compose.yml` (Part 12) and become live with the first deploy (docs/deployment.md).
 - **Owner actions:** 4 items, such as rotating a leaked key and filling in the legal drafts.
-- **Not done:** 1 item, the dependency vulnerability audit.
+- **Not done:** running the dependency audit in CI on every push (it was run once by hand).
 
 ## Data in transit and at rest
 
@@ -34,7 +34,7 @@ checked by the evidence named. "Part 12" means it depends on the deployment, whi
 | Upload malware scanning | Done; ClamAV in `deploy/compose.yml` | Every upload goes to ClamAV before it is stored; if the scanner is down, the upload is refused, not stored unscanned (`app/malware_scan.py`, `tests/test_malware_scan.py` with a fake clamd). Deployed servers won't start without `MALWARE_SCANNER=clamav`. Not yet tried against a real ClamAV: `docker compose --profile scan up -d clamav` A ClamAV container runs on the server, reachable only inside it; `/health/ready` reports it. |
 | Authentication          | Done (earlier parts)                 | Supabase sign-in; the API checks each token's ES256/RS256 signature, audience, issuer and expiry                                                                                                                                                                                                                                                                                                                                            |
 | Row-level security      | Done (earlier parts)                 | Every table has RLS; people read only their own rows and write nothing the API owns (`tests/test_rls.py`, run in CI on Postgres)                                                                                                                                                                                                                                                                                                            |
-| Dependency audit        | Not done                             | Run `pnpm audit --prod` and `uvx pip-audit` on `apps/api` and add both to CI. Running them here needed a permission that wasn't given                                                                                                                                                                                                                                                                                                       |
+| Dependency audit        | Done once, 24 November 2026          | See "Review of the live demo" below. Not yet in CI                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ## Personal data in logs and error reports
 
@@ -78,3 +78,21 @@ Run on 13–14 November 2026 with Ollama `qwen3.5:4b` on the made-up resumes in 
 The same resume can score 2 points apart between separate runs: the first injection run read the clean
 software resume as 68 and every other run as 70. The injection check now scores the clean resume twice
 and an attack must beat the higher score. Making repeat runs identical is not solved yet.
+
+## Review of the live demo, 24 November 2026
+
+The demo runs on Modal and Vercel (docs/deployment.md), so this review checked the deployed system from
+outside, the code paths that changed with it, and every feature with a throwaway account.
+
+| Area | Result |
+| --- | --- |
+| Account isolation | Two throwaway accounts on the live API: 8 attempts to read, change, delete or analyse the other's document or result all got 404; through Supabase directly, the other account's rows were invisible in all 22 tables, writes to server-owned tables were refused, and storage was neither listable nor writable |
+| Without signing in | API routes 401; forged and `alg: none` tokens refused; every Supabase table refused the publishable key alone; storage listed nothing; CORS refused other origins |
+| Portfolio links (SSRF) | Internal addresses refused before and after DNS and on every redirect. **Fixed:** a page that trickles in a byte at a time could hold the demo's only container for hours; a fetch now stops after 30 seconds in all (`app/portfolio.py`) |
+| Demo limits | **Fixed:** uploading and deleting a document gave its turn back, so the daily limit could be walked around; finished AI jobs in `llm_usage` now count too. **Added:** `DEMO_USER_DAILY_AI_JOBS`, so one account can't use up everyone's day (`app/demo.py`, `tests/test_demo.py`) |
+| Web app headers | **Fixed:** the site sent no CSP and could be framed. It now sends a CSP that allows only its own scripts and the API, Supabase, Sentry and PostHog, plus `frame-ancestors 'none'`, nosniff, a referrer policy and a permissions policy (`apps/web/next.config.ts`) |
+| API schema | **Fixed:** `/openapi.json` was public on the demo; it is now served only with `DEBUG` on, like `/docs` |
+| Passwords | **Fixed:** Supabase accepted 6-character passwords from anyone signing up directly, while the apps ask for 8. The project's minimum is now 8, here and in `supabase/config.toml` |
+| Dependencies | Python: 105 packages, 0 advisories (OSV database). JavaScript: **fixed** `zod` (high, memory exhaustion) by moving to 4.6.7 and `node-forge` (1 low, 3 moderate) with a pnpm override. **Open:** `glob` and `minimatch` (moderate) inside Expo's command-line tool, used only when building the phone app; their fixes are major versions Expo hasn't adopted yet |
+| Virus scanning | Off on the demo, which hasn't the memory for ClamAV; uploads are still checked for type, size and structure, and the privacy policy says so |
+| Open risk | Anyone can keep the API awake by requesting it every few minutes and so spend the month's free Modal credits; then the API stops until the next month. No charge can follow, because no card is attached |

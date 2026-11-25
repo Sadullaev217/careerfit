@@ -118,7 +118,7 @@ def start_analysis(
             "We haven't finished reading this resume yet. Please try again shortly.",
         )
 
-    demo.check_daily_limit(store)
+    demo.check_daily_limit(store, user.id)
     # A quick check before any matching work. The database checks again, atomically, when saving.
     limit = plans.entitlements(store.get_subscription(user.id)).analyses_limit
     period_start = plans.month_start(datetime.now(UTC))

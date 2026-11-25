@@ -54,6 +54,7 @@ Its settings are the Modal secret **careerfit-demo** (modal.com, Secrets):
 | `CELERY_TASK_ALWAYS_EAGER`, `SINGLE_INSTANCE`          | `true`, `true`                                            |
 | `RATE_LIMIT_STORAGE`, `MALWARE_SCANNER`                | `memory://`, `off`                                        |
 | `DEMO_MODE`, `DEMO_DAILY_AI_JOBS`, `DEMO_ACCOUNT_DAYS` | `true`, `15`, `30`                                        |
+| `DEMO_USER_DAILY_AI_JOBS`                              | `4`: one account's share of the day                       |
 | `LLM_DAILY_BUDGET_USD`, `LLM_USER_DAILY_BUDGET_USD`    | `0`, `0` (the model is free; the budget check isn't run)  |
 | `SENTRY_DSN`, `POSTHOG_PROJECT_TOKEN`                  | optional                                                  |
 
@@ -67,8 +68,10 @@ it when `NEXT_PUBLIC_DEMO_MODE` and `EXPO_PUBLIC_DEMO_MODE` are `true`:
 
 - Every account gets Pro and every detailed report; payments are off and the apps hide them.
 - Documents and onboarding offer a made-up **sample resume**, so visitors needn't upload their own.
-- At most `DEMO_DAILY_AI_JOBS` (15) resumes read plus analyses a day, for everyone together; then
-  "come back tomorrow". OpenRouter's free models allow about 50 requests a day per account.
+- At most `DEMO_DAILY_AI_JOBS` (15) resumes read plus analyses a day, for everyone together, and
+  `DEMO_USER_DAILY_AI_JOBS` (4) for one account; then "come back tomorrow". Deleting a document doesn't
+  give its turn back, because finished AI jobs are also counted in `llm_usage`. OpenRouter's free models
+  allow about 50 requests a day per account.
 - Accounts and everything in them are deleted `DEMO_ACCOUNT_DAYS` (30) days after sign-up, by the
   nightly job. The banner and the privacy policy say so.
 
@@ -82,13 +85,18 @@ it when `NEXT_PUBLIC_DEMO_MODE` and `EXPO_PUBLIC_DEMO_MODE` are `true`:
 - **Vercel Hobby**: non-commercial use only, which a portfolio demo is.
 - **Supabase free** pauses a project after a week without requests; the hourly uptime check keeps it
   awake.
+- **Anyone can wake the API.** Each request to it, even a refused one, starts the container for 5
+  minutes. Someone requesting it every few minutes, day and night, would spend the month's credits in
+  about three weeks and the API would stop until the next month. Nothing on the free plan prevents that;
+  watch modal.com, Usage.
 
 ## Setting it up, once
 
 Already done for the current demo; these are the steps to rebuild it.
 
 1. **Supabase.** Settings, API keys: the publishable key and a secret key. Database, Settings: reset the
-   database password and turn on **Enforce SSL**. Authentication, URL Configuration: Site URL
+   database password and turn on **Enforce SSL**. Authentication, Sign In / Providers, Email: **Minimum
+   password length** 8, as the apps require. Authentication, URL Configuration: Site URL
    `https://careerfit-demo.vercel.app`; Redirect URLs `https://careerfit-demo.vercel.app/auth/callback`,
    `careerfit://auth/callback`.
 2. **OpenRouter.** https://openrouter.ai/settings/keys: create a key.

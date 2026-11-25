@@ -27,3 +27,7 @@ minimumReleaseAgeExclude:
   - expo-modules-jsi@58.0.22
   - expo@58.0.23
   - expo-linking@58.0.16
+
+# Patched versions for advisories in transitive dependencies (pnpm audit), until their parents update.
+overrides:
+  node-forge: ^1.4.3

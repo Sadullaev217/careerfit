@@ -2,6 +2,7 @@ import ipaddress
 import json
 import re
 import socket
+import time
 from dataclasses import dataclass
 from urllib import robotparser
 from urllib.parse import urljoin, urlsplit, urlunsplit
@@ -19,6 +20,9 @@ MAX_ROBOTS_BYTES = 512 * 1024
 MAX_REDIRECTS = 3
 MAX_TEXT_CHARS = 100_000
 TIMEOUT_SECONDS = 10
+# The whole fetch, redirects included. TIMEOUT_SECONDS only bounds each wait, so a site sending a byte
+# every few seconds could otherwise hold a worker for hours.
+MAX_FETCH_SECONDS = 30
 
 _TEXT_CONTENT_TYPES = ("text/html", "application/xhtml+xml", "text/plain")
 _NOISE_TAGS = ("script", "style", "noscript", "nav", "footer", "aside", "form", "svg")
@@ -125,6 +129,7 @@ def _fetch(
     follow_redirects: bool = True,
 ) -> FetchedPage:
     current = url
+    deadline = time.monotonic() + MAX_FETCH_SECONDS
     for _ in range(MAX_REDIRECTS + 1):
         try:
             current = normalize_link(current)
@@ -155,6 +160,8 @@ def _fetch(
                     body.extend(chunk)
                     if len(body) > max_bytes:
                         raise LinkFetchFailed("link_too_large")
+                    if time.monotonic() > deadline:
+                        raise LinkFetchFailed("link_unreachable")
                 return FetchedPage(
                     response.status_code,
                     response.headers.get("content-type", "").split(";")[0].strip().lower(),

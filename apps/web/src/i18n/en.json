@@ -486,6 +486,7 @@
       "resume_file_deleted": "This resume's file was deleted 90 days after upload. Upload it again to tailor it.",
       "purchase_records_unavailable": "We couldn't reach our app store partner, so your account wasn't deleted. Please try again.",
       "demo_daily_limit": "The demo has reached today's limit. Please come back tomorrow.",
+      "demo_user_daily_limit": "You've used today's demo allowance. Please come back tomorrow.",
       "payments_off": "Payments are off in this demo."
     },
     "document": {

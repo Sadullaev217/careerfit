@@ -163,7 +163,7 @@ def upload_document(
     file: UploadFile,
 ) -> DocumentResponse:
     consent.require(store, user.id)
-    demo.check_daily_limit(store)
+    demo.check_daily_limit(store, user.id)
     data = file.file.read(MAX_FILE_BYTES + 1)
     try:
         kind = validate_file(data)
@@ -209,7 +209,7 @@ def add_sample_resume(user: User, background: BackgroundTasks) -> DocumentRespon
     if not settings.demo_mode:
         raise _error(status.HTTP_404_NOT_FOUND, "not_found", "Not found.")
     consent.require(store, user.id)
-    demo.check_daily_limit(store)
+    demo.check_daily_limit(store, user.id)
     data = demo.SAMPLE_RESUME_PATH.read_bytes()
     row = _store_document(
         user.id, "resume", demo.SAMPLE_RESUME_NAME, data, "pdf", "application/pdf", background
