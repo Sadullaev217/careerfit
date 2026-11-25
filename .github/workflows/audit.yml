@@ -1,0 +1,40 @@
+# Known vulnerabilities in the dependencies that ship: the web and phone apps' packages (pnpm audit) and
+# the API's (pip-audit against the PyPI advisory database). Runs on every push and every Monday, because
+# new advisories appear for code that hasn't changed. A failed scheduled run emails the owner
+# (docs/runbook.md).
+#
+# JavaScript fails on high and critical only: two moderate advisories sit in Expo's command-line tool,
+# used only to build the phone app, until Expo adopts their fixes (docs/security-checklist.md).
+name: Dependency audit
+
+on:
+  push:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  javascript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Reads pnpm-lock.yaml; nothing is installed.
+      - run: pnpm audit --prod --audit-level high
+
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      # The exact versions in uv.lock that the API image installs, without the test tools.
+      - run: uv export --frozen --no-dev --no-hashes --no-emit-project -o "$RUNNER_TEMP/requirements.txt"
+      - run: uvx pip-audit==2.10.1 -r "$RUNNER_TEMP/requirements.txt" --no-deps --disable-pip --progress-spinner off
