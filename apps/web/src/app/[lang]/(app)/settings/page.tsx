@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { apiErrorCode, type Me } from '@careerfit/shared';
+import { DEMO_SITE } from '@/components/demo';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { PlanStatus } from '@/components/plan-status';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -220,7 +221,9 @@ export default function SettingsPage() {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t('settings.deleteConfirmTitle')}</AlertDialogTitle>
-              <AlertDialogDescription>{t('settings.deleteConfirmBody')}</AlertDialogDescription>
+              <AlertDialogDescription>
+                {t(DEMO_SITE ? 'demo.deleteConfirmBody' : 'settings.deleteConfirmBody')}
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>

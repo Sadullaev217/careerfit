@@ -80,11 +80,13 @@ it when `NEXT_PUBLIC_DEMO_MODE` and `EXPO_PUBLIC_DEMO_MODE` are `true`:
 - **Modal**: $30 of credits a month. One awake container costs about $0.05 an hour, so the demo can be
   awake about 20 days a month in all; usage shows at modal.com, Usage. Without a card, running out stops
   the API until the next month instead of charging.
-- **OpenRouter**: free models have a daily request limit and can be slow or removed. If the model goes,
-  set `OPENROUTER_MODEL` in the secret to another `:free` model.
+- **OpenRouter**: free models have a daily request limit and can be slow or removed. Uptime checks every
+  hour that the model is still offered; how to switch is in docs/runbook.md, "The site is down".
 - **Vercel Hobby**: non-commercial use only, which a portfolio demo is.
 - **Supabase free** pauses a project after a week without requests; the hourly uptime check keeps it
   awake.
+- **GitHub** turns off scheduled workflows in a public repository after 60 days without activity, so
+  Uptime and the dependency audit stop until someone turns them back on (docs/runbook.md).
 - **Anyone can wake the API.** Each request to it, even a refused one, starts the container for 5
   minutes. Someone requesting it every few minutes, day and night, would spend the month's credits in
   about three weeks and the API would stop until the next month. Nothing on the free plan prevents that;

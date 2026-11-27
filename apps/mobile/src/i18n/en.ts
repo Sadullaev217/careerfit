@@ -278,6 +278,9 @@ export const en = {
     retention: 'Deleted with your account, 30 days after sign-up.',
     reportTime:
       "On the demo's small server this takes a few minutes, longer if others are waiting. You can leave the app and come back.",
+    // Nothing can be bought in the demo, so the deletion warning leaves out subscriptions.
+    deleteConfirmBody:
+      "Your account, documents and results will be permanently deleted. This can't be undone.",
   },
   legal: {
     privacy: 'Privacy Policy',

@@ -4,13 +4,13 @@ What to do when something breaks. Start with "Where to look", then find the symp
 
 ## Where to look
 
-| Question                 | Place                                                                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Is it up?                | GitHub, Actions, **Uptime** (every 10 minutes); `curl https://<api>/health/ready` names the part that's down: `database`, `queue` or `virus_scanner` |
-| What error?              | Sentry, Issues, project `careerfit-api` or `careerfit-web`                                                                                           |
-| What did the server log? | On the VM: `cd ~/careerfit/current/deploy && docker compose logs --tail 100 api worker`. Logs carry no emails, tokens or resume text, only ids       |
-| What changed?            | GitHub, Actions, **Deploy** runs; `git log`                                                                                                          |
-| What is AI costing?      | PostHog, dashboard **AI cost**; or the SQL below in Supabase's SQL editor                                                                            |
+| Question                 | Place                                                                                                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Is it up?                | GitHub, Actions, **Uptime** (hourly; it also checks the free AI model); `curl https://<api>/health/ready` names the part that's down: `database`, `queue` or `virus_scanner` |
+| What error?              | Sentry, Issues, project `careerfit-api` or `careerfit-web`                                                                                                                   |
+| What did the server log? | On the VM: `cd ~/careerfit/current/deploy && docker compose logs --tail 100 api worker`. Logs carry no emails, tokens or resume text, only ids                               |
+| What changed?            | GitHub, Actions, **Deploy** runs; `git log`                                                                                                                                  |
+| What is AI costing?      | PostHog, dashboard **AI cost**; or the SQL below in Supabase's SQL editor                                                                                                    |
 
 ## Dashboards
 
@@ -47,9 +47,18 @@ day per budget. The demo uses a free model, so its budgets are 0, it doesn't run
    are spent, the API stays off until the next month.
 2. `/health/ready` says `database: unavailable`: check https://status.supabase.com and the project's
    page; a free project pauses after a week without traffic (Restore project).
-3. Analyses fail with an AI error: the free OpenRouter model may be at its daily limit or gone. Check
-   https://openrouter.ai/activity; to switch, set `OPENROUTER_MODEL` in the secret to another `:free`
-   model and redeploy.
+3. Analyses fail with an AI error, or Uptime says OpenRouter no longer offers the model: the free model
+   is at its daily limit (https://openrouter.ai/activity) or gone. To switch, list the free models that
+   support structured outputs, which the API needs:
+
+   ```bash
+   curl -s https://openrouter.ai/api/v1/models | jq -r '.data[] | select((.id | endswith(":free")) and (.supported_parameters | index("structured_outputs"))) | .id'
+   ```
+
+   Put one in `openrouter_model` in `apps/api/app/config.py` and in `apps/api/.env.example`, then push:
+   Deploy ships it, and Uptime checks the new default. Keep `OPENROUTER_MODEL` out of the Modal secret,
+   or Uptime checks a different model from the one that runs.
+
 4. `virus_scanner` is `off` on the demo by design (docs/deployment.md). On a server with ClamAV,
    `unavailable` means the `clamav` container: it needs about 1.5 GB of memory and a few minutes to load
    signatures, and uploads are refused (503) until it answers.
@@ -87,6 +96,14 @@ If data was lost, restore it from a backup into a new project (below) and copy b
   That is expected on the free server. One account far above the rest in "AI jobs" may be abuse:
   per-account limits already cap it at 20 analyses an hour. Delete the account in Supabase,
   Authentication, Users, if it breaks the terms.
+
+## Uptime or the audit stopped running
+
+In a public repository GitHub turns off scheduled workflows after 60 days without activity in the
+repository. The demo keeps running, because its nightly and weekly jobs run on Modal and still reach
+the database, but nothing checks it any more. To turn them back on: GitHub, Actions, **Uptime**,
+**Enable workflow**, and the same for **Dependency audit**; or `gh workflow enable Uptime` and
+`gh workflow enable "Dependency audit"`.
 
 ## Someone asks for their data or its deletion
 

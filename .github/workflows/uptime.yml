@@ -1,6 +1,7 @@
-# Checks every hour that staging answers. A failed run is the alert: GitHub emails
-# whoever enabled Actions notifications for failed scheduled runs (docs/runbook.md). Addresses come from
-# repository variables; an environment without them is skipped.
+# Checks every hour that staging answers and that OpenRouter still offers the free model the API uses.
+# A failed run is the alert: GitHub emails whoever enabled Actions notifications for failed scheduled
+# runs (docs/runbook.md). Addresses come from repository variables; an environment without them is
+# skipped.
 name: Uptime
 
 on:
@@ -34,3 +35,28 @@ jobs:
           }
           check "$API_URL/health/ready"
           check "$WEB_URL/en"
+
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: apps/api/app/config.py
+          sparse-checkout-cone-mode: false
+      # /health/ready doesn't ask the AI, and OpenRouter retires free models often. Its public model list
+      # needs no key and uses none of the day's free requests.
+      - name: OpenRouter still offers the free model
+        run: |
+          model=$(sed -nE 's/^ *openrouter_model: str = "([^"]+)".*/\1/p' apps/api/app/config.py)
+          if [ -z "$model" ]; then echo "Couldn't read openrouter_model in apps/api/app/config.py"; exit 1; fi
+          list() { curl -sf --max-time 20 -o models.json https://openrouter.ai/api/v1/models; }
+          list || { sleep 30; list; }
+          entry=$(jq -c --arg m "$model" '.data[] | select(.id == $m)' models.json)
+          if [ -z "$entry" ]; then echo "OpenRouter no longer offers $model (docs/runbook.md)"; exit 1; fi
+          # The API asks for JSON that matches a schema, which needs structured outputs.
+          if ! jq -e '.supported_parameters | index("structured_outputs")' <<<"$entry" > /dev/null; then
+            echo "$model no longer supports structured outputs (docs/runbook.md)"; exit 1
+          fi
+          ends=$(jq -r '.expiration_date // empty' <<<"$entry")
+          if [ -n "$ends" ] && [ "$(date -d "$ends" +%s)" -lt "$(date -d '+14 days' +%s)" ]; then
+            echo "OpenRouter retires $model on $ends (docs/runbook.md)"; exit 1
+          fi
+          if [ -n "$ends" ]; then echo "::warning::OpenRouter retires $model on $ends"; fi
+          echo "$model is offered"

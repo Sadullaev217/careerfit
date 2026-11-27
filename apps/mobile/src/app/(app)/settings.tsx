@@ -3,6 +3,7 @@ import { Alert, StyleSheet, Switch, View } from 'react-native';
 import { apiErrorCode, type PlanInfo } from '@careerfit/shared';
 import { Choice } from '@/components/Choice';
 import { openLegalPage, useConsent } from '@/components/Consent';
+import { DEMO_APP } from '@/components/Demo';
 import { PlanCard } from '@/components/PlanCard';
 import { Body, Button, Card, Heading, Muted, Notice, Screen } from '@/components/ui';
 import { LOCALE_NAMES, LOCALES, useI18n, type Locale, type TextKey } from '@/i18n';
@@ -104,7 +105,8 @@ export default function SettingsScreen() {
   }
 
   function confirmDelete() {
-    Alert.alert(t('settings.deleteConfirmTitle'), t('settings.deleteConfirmBody'), [
+    const body = t(DEMO_APP ? 'demo.deleteConfirmBody' : 'settings.deleteConfirmBody');
+    Alert.alert(t('settings.deleteConfirmTitle'), body, [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('settings.deleteConfirmAction'),
