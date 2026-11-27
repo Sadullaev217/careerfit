@@ -2,9 +2,10 @@
 
 Upload a resume and see how competitive you are for a role and region.
 
-**Live demo: [careerfit-demo.vercel.app](https://careerfit-demo.vercel.app)**. Everything is free, accounts are
-deleted after 30 days, and a sample resume is built in, so you needn't upload your own. The first
-request after a quiet spell wakes the API, which takes about 10 seconds.
+**Live demo: [careerfit-demo.vercel.app](https://careerfit-demo.vercel.app)**. To see a finished report
+without signing in, open the [example report](https://careerfit-demo.vercel.app/en/example). Everything
+is free, accounts are deleted after 30 days, and a sample resume is built in, so you needn't upload your
+own. The first request after a quiet spell wakes the API, which takes about 10 seconds.
 
 | Path              | What it is                            |
 | ----------------- | ------------------------------------- |

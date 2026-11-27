@@ -19,7 +19,14 @@ const PAY: Record<NonNullable<AlternativeRole['payComparedToTarget']>, TextKey> 
   lower: 'roles.payLower',
 };
 
-export function OtherRoles({ roles }: { roles: AlternativeRole[] }) {
+/** showRunButton is off on the public example, where starting an analysis would need an account. */
+export function OtherRoles({
+  roles,
+  showRunButton = true,
+}: {
+  roles: AlternativeRole[];
+  showRunButton?: boolean;
+}) {
   const { t, money, path } = useI18n();
   if (roles.length === 0) {
     return <p className="text-muted-foreground">{t('roles.empty')}</p>;
@@ -55,16 +62,18 @@ export function OtherRoles({ roles }: { roles: AlternativeRole[] }) {
               {t('roles.licence')}
             </p>
           )}
-          <Button asChild variant="outline" className="self-start">
-            <Link
-              href={path(
-                `/analyses/new?${new URLSearchParams({ role: role.occupationName, code: role.occupationCode }).toString()}`,
-              )}
-              aria-label={t('roles.checkNamed', { name: role.occupationName })}
-            >
-              {t('roles.check')}
-            </Link>
-          </Button>
+          {showRunButton && (
+            <Button asChild variant="outline" className="self-start">
+              <Link
+                href={path(
+                  `/analyses/new?${new URLSearchParams({ role: role.occupationName, code: role.occupationCode }).toString()}`,
+                )}
+                aria-label={t('roles.checkNamed', { name: role.occupationName })}
+              >
+                {t('roles.check')}
+              </Link>
+            </Button>
+          )}
         </li>
       ))}
     </ul>
