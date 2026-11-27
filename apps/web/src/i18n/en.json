@@ -37,6 +37,7 @@
     "ctaNote": "It takes about two minutes.",
     "sampleTitle": "Every point has a reason",
     "sampleLabel": "Example",
+    "sampleLink": "See a full example report",
     "sample": {
       "required": "Required skills",
       "other": "Other useful skills",
@@ -596,5 +597,12 @@
     "retention": "Deleted with your account, 30 days after sign-up.",
     "reportTime": "On the demo's small server this takes a few minutes, longer if others are waiting. You can leave this page and come back.",
     "deleteConfirmBody": "Your account, documents and results will be permanently deleted. This can't be undone."
+  },
+  "example": {
+    "title": "Example report",
+    "description": "A full CareerFit report for a made-up resume: match score, likely pay, gaps, a 90-day plan and other roles that fit.",
+    "note": "This is a real report for the made-up sample resume that comes with the demo. Nothing on this page is about a real person.",
+    "signupTitle": "Check your own resume",
+    "signupBody": "Make a free account to get this report for your own resume and any job in Canada. With an account you can also have lines of your resume rewritten for the job and download the report as a PDF."
   }
 }

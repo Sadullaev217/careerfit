@@ -71,6 +71,12 @@ export default async function LandingPage({ params }: PageProps<'/[lang]'>) {
               totalLabel={t('landing.sample.total')}
               ofLabel={(points, maxPoints) => t('common.pointsOf', { points, maxPoints })}
             />
+            <Link
+              href={path('/example')}
+              className="mt-4 inline-block text-sm font-medium text-primary underline underline-offset-4"
+            >
+              {t('landing.sampleLink')}
+            </Link>
           </figure>
         </section>
 
