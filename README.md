@@ -6,6 +6,14 @@ Upload a resume and see how competitive you are for a role and region.
 deleted after 30 days, and a sample resume is built in, so you needn't upload your own. The first
 request after a quiet spell wakes the API, which takes about 10 seconds.
 
+|                                                                    Landing page                                                                    |                                                                                     Result for the sample resume                                                                                      |
+| :------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| ![Landing page with the headline "See where you stand for the job you want" and an example score broken down by category](docs/images/landing.png) | ![Result for the made-up sample resume: 69 out of 100 for software developers in Ontario, likely pay of $119,000 to $130,350, strengths, and the gaps worth the most points](docs/images/results.png) |
+
+|                                                                  Action plan                                                                  |                                                                       Job market                                                                       |
+| :-------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------: |
+| ![Action plan with steps for the first 30, 60 and 90 days, then each suggested step with its priority, kind and effort](docs/images/plan.png) | ![Job market page for software developers in Ontario: 209 job ads, their typical pay, and the skills the job usually requires](docs/images/market.png) |
+
 | Path              | What it is                            |
 | ----------------- | ------------------------------------- |
 | `apps/web`        | Next.js web app                       |
