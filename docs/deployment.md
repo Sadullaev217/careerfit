@@ -136,6 +136,10 @@ Actions: **Send notifications for failed workflows only**, so uptime and backup 
    `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) and `EXPO_PUBLIC_DEMO_MODE` = `true`. They are public by
    design; update them there if an address changes.
 
+   The APK built from this profile is on GitHub Releases as `careerfit-demo.apk`. To publish a new one, run
+   `npx eas-cli@latest build -p android --profile preview` in `apps/mobile` and attach the APK to a new release
+   with the same file name, so the README's link to the latest release keeps working.
+
 ## Alternative: a server with its own AI model
 
 `deploy/compose.yml`, `deploy/setup-server.sh` and `scripts/server-deploy.sh` run the whole stack (API,

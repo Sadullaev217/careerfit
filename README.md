@@ -7,6 +7,10 @@ without signing in, open the [example report](https://careerfit-demo.vercel.app/
 is free, accounts are deleted after 30 days, and a sample resume is built in, so you needn't upload your
 own. The first request after a quiet spell wakes the API, which takes about 10 seconds.
 
+**Android app:** install [careerfit-demo.apk](https://github.com/Sadullaev217/careerfit/releases/latest/download/careerfit-demo.apk)
+from the [latest release](https://github.com/Sadullaev217/careerfit/releases/latest) (Android 7.0 or newer). It talks to
+the same demo and doesn't need Expo Go.
+
 |                                                                    Landing page                                                                    |                                                                                     Result for the sample resume                                                                                      |
 | :------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | ![Landing page with the headline "See where you stand for the job you want" and an example score broken down by category](docs/images/landing.png) | ![Result for the made-up sample resume: 69 out of 100 for software developers in Ontario, likely pay of $119,000 to $130,350, strengths, and the gaps worth the most points](docs/images/results.png) |
